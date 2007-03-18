@@ -14,7 +14,7 @@
 use Data::Dumper;
 use Getopt::Long;
 use strict;
-our $SPLITCOUNT = 3;
+our $FOLEVEL = 8;
 &main();
 
 sub strip_vra ( $ )
@@ -37,7 +37,7 @@ sub stage1 ( $ )
 		my %h;
 
 		chomp $pkg;
-		printf STDERR "#\t(%d/%d) $pkg\n", $count+1, $#pkglist+1;
+		printf STDERR "#\t(%u/%u) $pkg\n", $count+1, $#pkglist+1;
 
 		foreach my $src (`rpm --test -e "$pkg" 2>&1`) {
 			if(substr($src, 0, 1) ne "\t") {
@@ -126,18 +126,15 @@ sub stage3 ( $$ )
 		my $iter  = 1;
 		my $reloc = 0;
 
-		for(my $elem; defined($elem = scalar keys %$href); ++$iter) {
+		for(my $elem; ($elem = scalar keys %$href) > $FOLEVEL; ++$iter) {
 			my $nphash = {};
 
-			printf STDERR "#\t(%d/%d) %s round %d, %d L0-essentials\n",
+			printf STDERR "#\t(%u/%u) %s round %u, height %u\n",
 			              $counter, $countmax, $pkg, $iter, $elem;
-			if($elem <= 4) {
-				last;
-			}
 
-			$reloc += $SPLITCOUNT - 1;
+			$reloc += $FOLEVEL - 1;
 			foreach my $ess (keys %$href) {
-				my $newpkg = "$pkg<".int($reloc++ / $SPLITCOUNT).">";
+				my $newpkg = "$pkg<".int($reloc++ / $FOLEVEL).">";
 				$nphash->{$newpkg}->{$ess} = 1;
 				delete $href->{$ess};
 #				print STDERR "#\t$ess => $newpkg\n";
@@ -205,6 +202,7 @@ sub help ()
 
 Syntax: $0 [options]
 
+	--fanout-height=N       have at most N packages per level
 	--start-file=FILE       source FILE for internal data
 	--start-level=N         start at stage N
 	--stage1-out=FILE	save post-stage1 data to FILE
@@ -214,6 +212,10 @@ Syntax: $0 [options]
 
 Common use (requires graphviz):
 	rpmdep.pl | dot -T svg >output.svg
+
+Example for fast regeneration of graph:
+	rpmdep.pl --stage3-out=foo --fanout-height=32 | dot ...
+	rpmdep.pl --start-file=foo --start-level=4 --fanout-height=2 | dot ...
 
 --EOF
 	exit 0;
@@ -228,6 +230,7 @@ sub main ()
 	my $w;
 
 	&GetOptions(
+		"fanout-height|fanout-width=i" => \$FOLEVEL,
 		"start-file=s"  => \$start_file,
 		"start-level=i" => \$start_level,
 		"stage1-out=s"  => \$stage1_out,
