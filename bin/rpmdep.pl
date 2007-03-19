@@ -111,6 +111,17 @@ sub stage2 ( $$ )
 	return $pkghash;
 }
 
+sub alphanumeric ( $$ )
+{
+	my($a_alpha, $a_num) = ($_[0] =~ /^(.*?)(?:<(\d+)>)?$/);
+	my($b_alpha, $b_num) = ($_[1] =~ /^(.*?)(?:<(\d+)>)?$/);
+	my $ret = $a_alpha cmp $b_alpha;
+	if($ret != 0) {
+		return $ret;
+	}
+	return $a_num <=> $b_num;
+}
+
 sub stage3 ( $$ )
 {
 	print STDERR "# Stage 3: Link simplexer\n";
@@ -133,7 +144,7 @@ sub stage3 ( $$ )
 			              $counter, $countmax, $pkg, $iter, $elem;
 
 			$reloc += $FOLEVEL - 1;
-			foreach my $ess (keys %$href) {
+			foreach my $ess (sort alphanumeric keys %$href) {
 				my $newpkg = "$pkg<".int($reloc++ / $FOLEVEL).">";
 				$nphash->{$newpkg}->{$ess} = 1;
 				delete $href->{$ess};
@@ -141,9 +152,8 @@ sub stage3 ( $$ )
 			}
 			foreach my $ess (keys %$nphash) {
 				$href->{$ess} = 1;
-#				print STDERR "#\tAdded $ess to $pkg\n";
-				&merge_hash($newhash, $nphash);
 			}
+			&merge_hash($newhash, $nphash);
 		}
 		++$counter;
 	}
@@ -182,13 +192,13 @@ sub printout ( $ )
 
 	print FH "digraph deps {\n";
 	print FH "\trankdir=LR;\n";
-	foreach my $pkg (keys %$pkghash) {
+	foreach my $pkg (sort alphanumeric keys %$pkghash) {
 		my $href = $pkghash->{$pkg};
 		if($pkg =~ /<\d+>$/) {
 			# routing node
 			print FH "\t\"$pkg\" [shape=\"point\"];\n";
 		}
-		foreach my $ess (keys %$href) {
+		foreach my $ess (sort alphanumeric keys %$href) {
 			print FH "\t\"$ess\" -> \"$pkg\" [arrowhead=\"none\"];\n";
 		}
 	}
