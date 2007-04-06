@@ -1,0 +1,80 @@
+#!/usr/bin/perl
+#
+#	findcont - Count number of continuation lines
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+use strict;
+my($ws, $state, $line, $ifs, $nocont, $spc_cont, $tab_cont);
+
+while(defined($_ = <>)) {
+	if((++$line & 0xFFFF) == 0) {
+		&status();
+	}
+
+	# Strip comments at the end
+	$_ =~ s{\s*/\*.*?\*/\s*$}{}g;
+
+	if($state == 1 && $_ =~ /^${ws}\tif\s*\(/s) {
+		# Special case: if(a)\n\tif(b)
+		++$nocont;
+	}
+
+	if($_ =~ /^(\s*)if\s*\(/s) {
+		# Record whitespace at if level
+		$ws = $1;
+		++$ifs;
+		if($_ =~ /\)\s*{\s*$/) {
+			# Definitely no continuation
+			++$nocont;
+			$state = 0;
+			next;
+		}
+		$state = 1;
+		next;
+	}
+
+	if($state >= 1) {
+		if($_ =~ /^$ws\x20{2,}/) {
+			# Continued with 2+ spaces = space continuation
+			++$spc_cont;
+			$state = 2;
+			next;
+		}
+		if($_ =~ /^$ws\t{2,}/) {
+			# Continued with 2+ tabs = tab continuation
+			++$tab_cont;
+			$state = 2;
+			next;
+		}
+
+		# $nocont can only increase at the first line after if()
+		if($state == 1) {
+			if($_ =~ /^$ws\t/) {
+				# Continued with one tab = must be code
+				$state = 0;
+				++$nocont;
+				next;
+			}
+			# What comes here? Comments mostly.
+			# /^$ws \* /
+		}
+	}
+
+	$state = 0;
+}
+
+close FH;
+&status();
+printf STDERR "\nNOCONT: %.1f%% SC:%.1f%% TC:%.1f%%\n",
+	$nocont * 100 / $ifs,
+	$spc_cont * 100 / $ifs,
+	$tab_cont * 100 / $ifs;
+
+sub status ()
+{
+	# status display
+	printf STDERR "\rL:%u IF:%u NOCONT:%u SC:%u TC:%u ##",
+		$line, $ifs, $nocont, $spc_cont, $tab_cont;
+}
