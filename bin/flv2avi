@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# mplayer cannot properly seek in FLV audio, so convert to PCM.
+#
+for i in "$@"; do
+	mencoder -oac pcm -ovc copy "$i" -o "${i%.flv}.avi";
+done;
