@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+#	fxterm - work around strange xterm font handling
+#
+#	Common usage:
+#		fxterm ^tosh [other xterm options]
+#
+font=${1:1};
+if [ "${1:0:1}" == "^" ]; then
+    opts="-fn $font -fb ${font}_b";
+    shift;
+fi;
+
+exec xterm -ls -fg gray -bg "#001020" -geometry 80x25 -vb +bdc +fbx \
+	+sb +vb $opts "$@";

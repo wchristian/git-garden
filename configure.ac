@@ -17,4 +17,4 @@ AC_CFLAGS="-D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 \
 	-Wmissing-prototypes -Wredundant-decls -Wshadow -Wstrict-prototypes \
 	-Winline -pipe"
 AC_SUBST(AC_CFLAGS)
-AC_OUTPUT(Makefile bin/Makefile)
+AC_OUTPUT(Makefile bin/Makefile kbd/GNUmakefile)

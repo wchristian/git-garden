@@ -1,0 +1,13 @@
+# -*- Makefile -*-
+
+targets            = ahnv.pcf.gz ahnv_b.pcf.gz tosh.pcf.gz tosh_b.pcf.gz
+nodist_bin_SCRIPTS = $(targets)
+CLEANFILES         = $(targets)
+
+%.pcf.gz: %.bdf
+	bdftopcf <"$<" | gzip -9c >"$@";
+
+%_b.pcf.gz: %.bdf
+	$(top_srcdir)/bin/pesubst -mm -s \
+	'^(FONT)\s+("?)(.*)\2' -d '$$1 $$2$$3_b$$2' - <"$<" | \
+	bdftopcf | gzip -9c >"$@";

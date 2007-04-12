@@ -1,4 +1,4 @@
 # -*- Makefile -*-
 
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS          = bin
+SUBDIRS          = bin kbd
