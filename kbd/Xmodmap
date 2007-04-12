@@ -1,0 +1,4 @@
+#
+# Enable Compose key
+#
+keycode 117 = Multi_key

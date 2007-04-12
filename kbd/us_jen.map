@@ -1,0 +1,20 @@
+include "us.map"
+
+keycode 14 = Delete Delete Delete Delete
+altgr keycode 12 = ssharp
+altgr keycode 16 = at
+altgr keycode 18 = currency
+altgr keycode 22 = +Udiaeresis
+altgr keycode 24 = +Odiaeresis
+altgr keycode 26 = +udiaeresis
+altgr keycode 27 = asciitilde
+altgr keycode 30 = +Adiaeresis
+altgr keycode 39 = +odiaeresis
+altgr keycode 40 = +adiaeresis
+altgr keycode 46 = cent
+altgr keycode 50 = mu
+plain keycode 83 = period
+shift keycode 83 = comma
+plain keycode 125 = Decr_Console
+plain keycode 126 = Incr_Console
+plain keycode 127 = Compose

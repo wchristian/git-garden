@@ -1,0 +1,40 @@
+include "us_jen.map"
+
+plain keycode 124 = equal
+shift keycode 124 = plus
+alt keycode 124 = Meta_equal
+shift alt keycode 124 = Meta_plus
+
+keycode 12 = VoidSymbol
+keycode 89 = VoidSymbol
+
+plain keycode 26 = backslash
+shift keycode 26 = bar
+control keycode 26 = Control_backslash
+alt keycode 26 = Meta_backslash
+shift alt keycode 26 = Meta_bar
+
+plain keycode 27 = bracketleft
+shift keycode 27 = braceleft
+alt keycode 27 = Meta_bracketleft
+shift alt keycode 27 = Meta_braceleft
+
+plain keycode 43 = bracketright
+shift keycode 43 = braceright
+alt keycode 43 = Meta_bracketright
+shift alt keycode 43 = Meta_braceright
+control alt keycode 43 = Meta_Control_bracketright
+
+plain keycode 13 = minus
+shift keycode 13 = underscore
+control keycode 13 = Control_underscore
+alt keycode 13 = Meta_minus
+shift alt keycode 13 = Meta_underscore
+control alt keycode 13 = Meta_Control_underscore
+
+plain keycode 92 = AltGr
+plain keycode 93 = Incr_Console
+
+keycode 92 = AltGr
+keycode 94 = Compose
+keycode 100 = VoidSymbol

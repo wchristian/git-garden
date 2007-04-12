@@ -1,0 +1,8 @@
+include "de-latin1-nodeadkeys.map"
+
+keycode 14 = Delete Delete Delete Delete
+plain keycode 83 = period
+shift keycode 83 = comma
+plain keycode 125 = Decr_Console
+plain keycode 126 = Incr_Console
+plain keycode 127 = Compose
