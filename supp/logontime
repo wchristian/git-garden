@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+#
+#	longontime - simple wtmp analyzer
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+use Getopt::Long;
+use strict;
+
+my %Total;
+my $ARG_time;
+
+&Getopt::Long::Configure(qw(bundling pass_through));
+&GetOptions("t" => \$ARG_time);
+
+open(IN, "last -ax |");
+while(defined(my $l = <IN>)) {
+	chomp $l;
+	my($user, $dur) = ($l =~ /^(\w+)\s+.+?\((.*?)\)/);
+	if($user eq "") {
+		next;
+        }
+
+	my($h, $m) = split(/:/o, $dur);
+	$Total{$user} += $h * 60 + $m;
+}
+close IN;
+
+if($ARG_time) {
+	# Time sort
+	foreach my $u (sort { $Total{$b} <=> $Total{$a} } keys %Total) {
+		printf "%-8s: %3ud %2uh %2um (%5um)\n",
+                      $u, int($Total{$u} / 1440), int($Total{$u} / 60 % 24),
+                      int($Total{$u} % 60), $Total{$u};
+	}
+} else {
+	# Alphabetical sort
+	foreach my $u (sort keys %Total) {
+		printf "%-8s: %3ud %2uh %2um (%5um)\n",
+		       $u, int($Total{$u} / 86400),
+		       int($Total{$u} / 60 % 86400), int($Total{$u} % 60),
+		       $Total{$u};
+	}
+}
+
+#==============================================================================
