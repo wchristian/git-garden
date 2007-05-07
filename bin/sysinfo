@@ -1,0 +1,128 @@
+#!/usr/bin/perl
+#
+#	sysinfo - System information banner
+#	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2005 - 2007
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; however ONLY version 2 of the License.
+#	For details, see the file named "LICENSE.GPL2".
+#
+use POSIX;
+use strict;
+
+if(open(IN, "hostname --fqdn 2>/dev/null |")) {
+	chomp(my $l = <IN>);
+	print "Host: $l | ";
+	close IN;
+}
+
+print "System Info: ";
+if(open(IN, "< /proc/version")) {
+	my ($os, $ver) = (<IN> =~ /^(\w+)\s+\w+\s+(\S+)/i);
+	print "$os $ver";
+	close IN;
+}
+
+if(open(IN, "</proc/cpuinfo")) {
+	my($cpu_mhz, $cpu_model);
+	while(defined(my $l = <IN>)) {
+		chomp $l;
+		if($l =~ /^model name\s+:\s+(.*)/i) {
+	                $cpu_model = $1;
+		} elsif($l =~ /^cpu mhz\s+:\s+(.*)/i) {
+			$cpu_mhz = $1;
+		}
+	}
+	$cpu_mhz =~ s/\..*/$1/;
+	print " | $cpu_model $cpu_mhz MHz";
+	close IN;
+}
+
+if(open(IN, "</proc/loadavg")) {
+	my($load1, $load5, $load15, $rproc, $sproc) =
+		(<IN> =~ /^(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\/(.+?)\s/);
+	my $total = $rproc + $sproc;
+	printf " | Load: $load1 Procs: $rproc/$total";
+	close IN;
+}
+
+if(open(IN, "</proc/meminfo")) {
+	my($mem_total, $mem_free, $mem_buf, $mem_cac, $mem_used);
+	while(defined(my $l = <IN>)) {
+		chomp $l;
+		if($l =~ /^memtotal\s*:\s*(\d+)/i) {
+			$mem_total = $1;
+		} elsif($l =~ /^memfree\s*:\s*(\d+)/i) {
+			$mem_free = $1;
+		} elsif($l =~ /^buffers\s*:\s*(\d+)/i) {
+			$mem_buf = $1;
+		} elsif($l =~ /^cached\s*:\s*(\d+)/i) {
+			$mem_cac = $1;
+		}
+	}
+	$mem_used = $mem_total - ($mem_free + $mem_buf + $mem_cac);
+	printf " | MemUse: %u/%uMB", $mem_used / 1024, $mem_total / 1024;
+	close IN;
+}
+
+if(open(IN, "df 2>/dev/null |")) {
+	my($disk_total, $disk_used);
+	while(defined(my $l = <IN>)) {
+		chomp $l;
+		if($l =~ m{^/dev/\S+\s+(\d+)\s+(\d+)}) {
+			$disk_total += $1;
+			$disk_used += $2;
+		}
+	}
+	close IN;
+	printf " | DiskUse: %u/%uGB", $disk_used / 1048576,
+	       $disk_total / 1048576;
+}
+
+if(open(IN, "</proc/uptime")) {
+	my($up) = (<IN> =~ /^(\d+\.\d+)/);
+	my $days = floor($up / 86400);
+	my $hours = floor($up / 3600 % 24);
+	my $minutes = floor($up / 60 % 60);
+	my $seconds = floor($up % 60);
+	printf " | Up:";
+	if($days) {
+		printf " %ud", $days;
+	}
+	if($hours) {
+		printf " %uh", $hours;
+	}
+	if($minutes) {
+		printf " %um", $minutes;
+	}
+	if($seconds) {
+		printf " %us", $seconds;
+	}
+	close IN;
+}
+
+if(open(IN, "lspci | grep 'VGA compatible controller:' |")) {
+	my $dev;
+	chomp($dev = <IN>);
+	$dev =~ s/^.*VGA compatible controller:\s+//;
+	print " | Gfx: $dev";
+
+	if(open(IN, "xdpyinfo 2>/dev/null |")) {
+		my($scr_dep, $scr_res);
+		while(defined(my $l = <IN>)) {
+			if($l =~ /\s+dimensions\s*:\s+(\S+)/i) {
+				$scr_res = $1;
+			} elsif($l =~ /\s+depth\s*:\s+(\S+)/i) {
+				$scr_dep = $1;
+			}
+			chomp $l;
+		}
+		if($scr_res ne "" && $scr_dep ne "") {
+			print " \@ ${scr_res}x${scr_dep}bpp";
+		}
+		close IN;
+	}
+}
+
+print "\n";
