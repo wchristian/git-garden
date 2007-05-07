@@ -1,0 +1,21 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword linestart REGEDIT4 white red
+	keyword = brightred
+	keyword hex: white
+	keyword , brightcyan
+	keyword : brightcyan
+	keyword \{0123456789\} cyan
+
+context linestart [- ] brightred
+
+context linestart [ ] brightcyan
+
+context linestart ; \n yellow
+	spellcheck
+
+context \s; \n yellow
+	spellcheck
+
+context " " green

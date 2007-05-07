@@ -1,0 +1,161 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword whole __asm__ white
+	keyword whole __attribute__ white
+	keyword whole __inline__ white
+	keyword whole __inline white
+	keyword whole __typeof__ white
+	keyword whole __volatile__ white
+
+	keyword whole NULL white
+	keyword whole asm white
+	keyword whole bool white
+	keyword whole break white
+	keyword whole case white
+	keyword whole catch white
+	keyword whole char white
+	keyword whole class white
+	keyword whole const white
+	keyword whole const_cast white
+	keyword whole continue white
+	keyword whole default white
+	keyword whole delete white
+	keyword whole do white
+	keyword whole double white
+	keyword whole dynamic_cast white
+	keyword whole else white
+	keyword whole enum white
+	keyword whole extern white
+	keyword whole flag_t white
+	keyword whole float white
+	keyword whole for white
+	keyword whole friend white
+	keyword whole goto white
+	keyword whole if white
+	keyword whole inline white
+	keyword whole int white
+	keyword whole int16_t white
+	keyword whole int32_t white
+	keyword whole int64_t white
+	keyword whole int8_t white
+	keyword whole loff_t white
+	keyword whole long white
+	keyword whole mutable white
+	keyword whole namespace white
+	keyword whole new white
+	keyword whole off64_t white
+	keyword whole off_t white
+	keyword whole operator white
+	keyword whole pid_t white
+	keyword whole private white
+	keyword whole protected white
+	keyword whole public white
+	keyword whole register white
+	keyword whole reinterpret_cast white
+	keyword whole restrict white
+	keyword whole return white
+	keyword whole short white
+	keyword whole signed_cast white
+	keyword whole signed white
+	keyword whole size_t white
+	keyword whole sizeof white
+	keyword whole ssize_t white
+	keyword whole static white
+	keyword whole static_cast white
+	keyword whole struct white
+	keyword whole switch white
+	keyword whole template white
+	keyword whole this white
+	keyword whole throw white
+	keyword whole time_t white
+	keyword whole try white
+	keyword whole typedef white
+	keyword whole typeid white
+	keyword whole typename white
+	keyword whole typeof white
+	keyword whole uint16_t white
+	keyword whole uint32_t white
+	keyword whole uint64_t white
+	keyword whole uint8_t white
+	keyword whole union white
+	keyword whole unsigned white
+	keyword whole using white
+	keyword whole virtual white
+	keyword whole void white
+	keyword whole volatile white
+	keyword whole wchar_t white
+	keyword whole while white
+
+	keyword /\* yellow
+	keyword \*/ yellow
+
+	keyword '\\\{"abtnvfr\}' brightgreen
+	keyword '\\x\{0123456789abcdefABCDEF\}\{0123456789abcdefABCDEF\}' brightgreen
+	keyword '\\\{0123\}\{01234567\}\{01234567\}' brightgreen
+	keyword '\\'' brightgreen
+	keyword '\\\\' brightgreen
+	keyword '\\0' brightgreen
+	keyword '\{\s!"#$%&()\*\+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~\}' brightgreen
+
+	keyword 0x cyan
+	keyword \{0123456789\} cyan
+	keyword .\{0123456789\} cyan
+
+	keyword ^ white
+	keyword ! white
+	keyword ( brightcyan
+	keyword ) brightcyan
+	keyword [ brightcyan
+	keyword ] brightcyan
+	keyword { brightcyan
+	keyword } brightcyan
+	keyword = white
+	keyword ? white
+	keyword & white
+	keyword \+ white
+	keyword ~ white
+	keyword , brightcyan
+	keyword ; brightcyan
+	keyword . brightcyan
+	keyword : white
+	keyword \* white
+	keyword % white
+	keyword - white
+	keyword < white
+	keyword > white
+	keyword // yellow
+	keyword / white
+	keyword | white
+	keyword \s#define\[\t\s\]\[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789\]\[\t\s\]0x\[0123456789abcdefABCDEF\] brightred
+
+context exclusive /\* \*/ yellow
+	spellcheck
+
+context linestart # \n brightred
+	keyword \\\n yellow
+	keyword /\**\*/ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+ yellow
+	keyword //\s+\s+ yellow
+	keyword //\s+ yellow
+	keyword '\\\{"abtnvfr\}' red
+	keyword '\\x\{0123456789abcdefABCDEF\}\{0123456789abcdefABCDEF\}' red
+	keyword '\\\{0123\}\{01234567\}\{01234567\}' red
+	keyword '\\'' red
+	keyword '\\\\' red
+	keyword '\\0' red
+	keyword '\{\s!"#$%&()\*\+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~\}' red
+	keyword "*" red
+	keyword <*> red
+
+context exclusive // \n yellow
+	spellcheck
+
+context " " green
+	keyword \\\\ brightgreen
+	keyword \\" brightgreen

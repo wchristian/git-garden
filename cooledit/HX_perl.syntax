@@ -1,0 +1,174 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword whole linestart #!\[\s\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/bin/perl white red
+	keyword whole linestart #!\[\s\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/bin/perl white red
+	keyword whole linestart #!\[\s\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/bin/perl white red
+	keyword whole linestart #!\[\s\]/\[abcdefghijklmnopqrstuvwxyz\]/bin/perl white red
+	keyword whole linestart #!\[\s\]/bin/perl white red
+
+	keyword wholeright $\{0123456789\}\{0123456789\} white
+	keyword wholeright $\{0123456789\} white
+	keyword $\{!\"§%&/()[]=?\\\`'@\+\*~#<|>,;.:-\} white
+
+	keyword $^A white
+	keyword $^D white
+	keyword $^E white
+	keyword $^I white
+	keyword $^L white
+	keyword $^O white
+	keyword $^P white
+	keyword $^T white
+	keyword $^V white
+	keyword $^W white
+	keyword $^X white
+	keyword $^ white
+
+	keyword wholeright $_ white
+	keyword wholeright @_ white
+	keyword wholeright %_ white
+	keyword wholeright $ARGV white
+	keyword wholeright @ARGV white
+	keyword wholeright $ENV white
+	keyword wholeright %ENV white
+
+	keyword whole <+> brightred
+	keyword <+> brightred
+
+	keyword 0x cyan
+	keyword \{0123456789\} cyan
+	keyword .\{0123456789\} cyan
+
+	keyword ^ white
+	keyword ! white
+	keyword / white
+	keyword ( brightcyan
+	keyword ) brightcyan
+	keyword [ brightcyan
+	keyword ] brightcyan
+	keyword { brightcyan
+	keyword } brightcyan
+	keyword = white
+	keyword ? white
+	keyword \\\{0123\}\{01234567\}\{01234567\} white
+	keyword \\x\{0123456789ABCDEFabcdef\}\{0123456789ABCDEFabcdef\} cyan
+	keyword \\\{\"\'\`\}
+	keyword \\ brightcyan
+	keyword \+ white
+	keyword ~ white
+	keyword , brightcyan
+	keyword ; brightcyan
+	keyword .. white
+	keyword . white
+	keyword : brightcyan
+	keyword whole -A white
+	keyword whole -B white
+	keyword whole -C white
+	keyword whole -M white
+	keyword whole -O white
+	keyword whole -R white
+	keyword whole -S white
+	keyword whole -T white
+	keyword whole -W white
+	keyword whole -X white
+	keyword whole -b white
+	keyword whole -c white
+	keyword whole -d white
+	keyword whole -e white
+	keyword whole -f white
+	keyword whole -g white
+	keyword whole -k white
+	keyword whole -l white
+	keyword whole -o white
+	keyword whole -p white
+	keyword whole -r white
+	keyword whole -s white
+	keyword whole -t white
+	keyword whole -u white
+	keyword whole -w white
+	keyword whole -x white
+	keyword whole -z white
+	keyword - white
+	keyword whole x white
+
+	keyword @ white
+	keyword $ white
+	keyword \* white
+	keyword % white
+	keyword & white
+	keyword < white
+	keyword > white
+	keyword | white
+
+	keyword whole BEGIN white
+	keyword whole END white
+	keyword whole and white
+	keyword whole bless white
+	keyword whole caller white
+	keyword whole continue white
+	keyword whole cmp white
+	keyword whole defined white
+	keyword whole delete white
+	keyword whole die white
+	keyword whole do white
+	keyword whole each white
+	keyword whole else white
+	keyword whole elsif white
+	keyword whole eq white
+	keyword whole exists white
+	keyword whole foreach white
+	keyword whole for white
+	keyword whole ge white
+	keyword whole goto white
+	keyword whole gt white
+	keyword whole if white
+	keyword whole import white
+	keyword whole keys white
+	keyword whole last white
+	keyword whole le white
+	keyword whole local white
+	keyword whole lt white
+	keyword whole my white
+	keyword whole next white
+	keyword whole ne white
+	keyword whole not white
+	keyword whole no white
+	keyword whole or white
+	keyword whole our white
+	keyword whole package white
+	keyword whole redo white
+	keyword whole ref white
+	keyword whole require white
+	keyword whole return white
+	keyword whole scalar white
+	keyword whole sort white
+	keyword whole sub white
+	keyword whole undef white
+	keyword whole unless white
+	keyword whole until white
+	keyword whole use white
+	keyword whole values white
+	keyword whole wantarray white
+	keyword whole while white
+
+context linestart # \n yellow
+	spellcheck
+
+context #\s \n yellow
+	spellcheck
+
+context ## \n yellow
+	spellcheck
+
+context #\n \n yellow
+	spellcheck
+
+context exclusive ` ` black white
+	keyword \\\` red
+
+context " " green
+	keyword wholeright $+ brightgreen
+	keyword wholeright @+ brightgreen
+	keyword \\\{0123\}\{01234567\}\{01234567\} brightgreen
+	keyword \\x\{0123456789ABCDEFabcdef\}\{0123456789ABCDEFabcdef\} brightgreen
+	keyword \\\{"$@%abcenrtv\\\} brightgreen

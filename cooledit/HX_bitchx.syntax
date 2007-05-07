@@ -1,0 +1,395 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword whole linestart #!\[\s\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/bin/bitchx white red
+	keyword whole linestart #!\[\s\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/bin/bitchx white red
+	keyword whole linestart #!\[\s\]/\[abcdefghijklmnopqrstuvwxyz\]/\[abcdefghijklmnopqrstuvwxyz\]/bin/bitchx white red
+	keyword whole linestart #!\[\s\]/\[abcdefghijklmnopqrstuvwxyz\]/bin/bitchx white/26 red
+	keyword whole linestart #!\[\s\]/bin/perl white red
+	keyword wholeright $\{0123456789\}\{0123456789\} red
+	keyword wholeright $\{0123456789\} red
+	keyword \{0123456789\} cyan
+	keyword .\{0123456789\} cyan
+
+	keyword $ green
+	keyword @ white
+	keyword ^ brightgreen
+	keyword ! red
+	keyword / yellow
+	keyword ( brightcyan
+	keyword ) brightcyan
+	keyword [ brightcyan
+	keyword ] brightcyan
+	keyword { brightcyan
+	keyword } brightcyan
+	keyword = yellow
+	keyword ? green
+	keyword \\ red
+	keyword \+ yellow
+	keyword ~ brightgreen
+	keyword , brightcyan
+	keyword ; brightmagenta
+	keyword . white
+	keyword : brightcyan
+	keyword _ brown
+
+	keyword \* red
+	keyword % yellow
+	keyword &\s yellow
+	keyword && green
+	keyword - yellow
+	keyword <= yellow
+	keyword >= yellow
+	keyword < yellow
+	keyword -> yellow
+	keyword => yellow
+	keyword > yellow
+	keyword | red
+
+	keyword whole absstrlen yellow
+	keyword whole action yellow
+	keyword whole addtabkey yellow
+	keyword whole after yellow
+	keyword whole afterw yellow
+	keyword whole ajoinitem yellow
+	keyword whole alias yellow
+	keyword whole aliasctl yellow
+	keyword whole annoy yellow
+	keyword whole ascii yellow
+	keyword whole assign yellow
+	keyword whole before yellow
+	keyword whole bitchx yellow
+	keyword whole bless yellow
+	keyword whole break magenta
+	keyword whole call yellow
+	keyword whole center yellow
+	keyword whole cexist yellow
+	keyword whole chanmode yellow
+	keyword whole channel yellow
+	keyword whole channel_nick yellow
+	keyword whole channel_signoff yellow
+	keyword whole chmod yellow
+	keyword whole chngw yellow
+	keyword whole chop yellow
+	keyword whole chops yellow
+	keyword whole chr yellow
+	keyword whole close yellow
+	keyword whole comment yellow
+	keyword whole common yellow
+	keyword whole connect yellow
+	keyword whole connect yellow
+	keyword whole continue magenta
+	keyword whole convert yellow
+	keyword whole copattern yellow
+	keyword whole count yellow
+	keyword whole cparse yellow
+	keyword whole crypt yellow
+	keyword whole ctcp yellow
+	keyword whole ctcp_reply yellow
+	keyword whole curpos yellow
+	keyword whole currchans yellow
+	keyword whole dcc_chat yellow
+	keyword whole dcc_connect yellow
+	keyword whole dcc_list yellow
+	keyword whole dcc_lost yellow
+	keyword whole dcc_offer yellow
+	keyword whole dcc_raw yellow
+	keyword whole dcc_request yellow
+	keyword whole decode yellow
+	keyword whole delarray yellow
+	keyword whole delitem yellow
+	keyword whole deuhc yellow
+	keyword whole disconnect yellow
+	keyword whole do magent
+	keyword whole dump yellow
+	keyword whole echo yellow
+	keyword whole encode yellow
+	keyword whole encrypted_notice yellow
+	keyword whole encrypted_privmsg yellow
+	keyword whole eof yellow
+	keyword whole epic yellow
+	keyword whole eval yellow
+	keyword whole exec yellow
+	keyword whole exec yellow
+	keyword whole exec_errors yellow
+	keyword whole exec_exit yellow
+	keyword whole exec_prompt yellow
+	keyword whole exit yellow
+	keyword whole fe yellow
+	keyword whole fec yellow
+	keyword whole fexist yellow
+	keyword whole filedialog yellow
+	keyword whole filter yellow
+	keyword whole finditem yellow
+	keyword whole findw yellow
+	keyword whole flood yellow
+	keyword whole fnexist yellow
+	keyword whole fontdialog yellow
+	keyword whole for magenta
+	keyword whole foreach magenta
+	keyword whole fromw yellow
+	keyword whole fsize yellow
+	keyword whole ftime yellow
+	keyword whole geom yellow
+	keyword whole getarrays yellow
+	keyword whole getenv yellow
+	keyword whole getgid yellow
+	keyword whole getitem yellow
+	keyword whole getlogin yellow
+	keyword whole getmatches yellow
+	keyword whole getopt yellow
+	keyword whole getpgrp yellow
+	keyword whole getsets yellow
+	keyword whole gettmatch yellow
+	keyword whole getuid yellow
+	keyword whole glob yellow
+	keyword whole gui yellow
+	keyword whole help yellow
+	keyword whole hook yellow
+	keyword whole hook yellow
+	keyword whole idle yellow
+	keyword whole idle yellow
+	keyword whole if yellow
+	keyword whole ifindfirst yellow
+	keyword whole ifinditem yellow
+	keyword whole igetitem yellow
+	keyword whole igetmatches yellow
+	keyword whole igmask yellow
+	keyword whole igtype yellow
+	keyword whole index yellow
+	keyword whole indextoitem yellow
+	keyword whole info yellow
+	keyword whole input yellow
+	keyword whole input yellow
+	keyword whole insertw yellow
+	keyword whole invite yellow
+	keyword whole iptoname yellow
+	keyword whole irclib yellow
+	keyword whole isalpha yellow
+	keyword whole ischannel yellow
+	keyword whole ischanop yellow
+	keyword whole ischanvoice yellow
+	keyword whole isconnected yellow
+	keyword whole iscurchan yellow
+	keyword whole isdigit yellow
+	keyword whole isnumber yellow
+	keyword whole itemtoindex yellow
+	keyword whole join yellow
+	keyword whole jot yellow
+	keyword whole key yellow
+	keyword whole kick yellow
+	keyword whole kill yellow
+	keyword whole lastclickline yellow
+	keyword whole lastclickx yellow
+	keyword whole lastclicky yellow
+	keyword whole lastserver yellow
+	keyword whole leave yellow
+	keyword whole left yellow
+	keyword whole leftpc yellow
+	keyword whole leftw yellow
+	keyword whole list yellow
+	keyword whole listarray yellow
+	keyword whole listen yellow
+	keyword whole load yellow
+	keyword whole loaddll yellow
+	keyword whole loadtcl yellow
+	keyword whole local yellow
+	keyword whole mail yellow
+	keyword whole mask yellow
+	keyword whole match yellow
+	keyword whole matchitem yellow
+	keyword whole menu yellow
+	keyword whole menucontrol yellow
+	keyword whole menuitem yellow
+	keyword whole mid yellow
+	keyword whole midw yellow
+	keyword whole mkdir yellow
+	keyword whole mode yellow
+	keyword whole mode_stripped yellow
+	keyword whole msar yellow
+	keyword whole msg yellow
+	keyword whole msg_group yellow
+	keyword whole mychannels yellow
+	keyword whole myservers yellow
+	keyword whole names yellow
+	keyword whole nametoip yellow
+	keyword whole next magenta
+	keyword whole nickname yellow
+	keyword whole nohighlight yellow
+	keyword whole note yellow
+	keyword whole notice yellow
+	keyword whole notify yellow
+	keyword whole notify_signoff yellow
+	keyword whole notify_signon yellow
+	keyword whole numarrays yellow
+	keyword whole numitems yellow
+	keyword whole numonchannel yellow
+	keyword whole numwords yellow
+	keyword whole odd_server_stuff yellow
+	keyword whole on yellow
+	keyword whole on/ yellow
+	keyword whole onchannel yellow
+	keyword whole open yellow
+	keyword whole oper_notice yellow
+	keyword whole ovserver yellow
+	keyword whole package yellow
+	keyword whole pad yellow
+	keyword whole parsekey yellow
+	keyword whole pattern yellow
+	keyword whole pid yellow
+	keyword whole pipe yellow
+	keyword whole pmpaste yellow
+	keyword whole pong yellow
+	keyword whole pop yellow
+	keyword whole pop yellow
+	keyword whole popupmenu yellow
+	keyword whole popupmsg yellow
+	keyword whole ppid yellow
+	keyword whole pretend yellow
+	keyword whole printlen yellow
+	keyword whole properties yellow
+	keyword whole public yellow
+	keyword whole public_msg yellow
+	keyword whole public_notice yellow
+	keyword whole public_other yellow
+	keyword whole push yellow
+	keyword whole querywin yellow
+	keyword whole queue yellow
+	keyword whole quote yellow
+	keyword whole rand yellow
+	keyword whole randread yellow
+	keyword whole raw_irc yellow
+	keyword whole read yellow
+	keyword whole redirect yellow
+	keyword whole redirect yellow
+	keyword whole regex yellow
+	keyword whole remw yellow
+	keyword whole remws yellow
+	keyword whole rename yellow
+	keyword whole repeat yellow
+	keyword whole repeat yellow
+	keyword whole rest yellow
+	keyword whole restw yellow
+	keyword whole return magenta
+	keyword whole reverse yellow
+	keyword whole revw yellow
+	keyword whole right yellow
+	keyword whole rigmask yellow
+	keyword whole rigtype yellow
+	keyword whole rmdir yellow
+	keyword whole sar yellow
+	keyword whole save yellow
+	keyword whole saveirc yellow
+	keyword whole send yellow
+	keyword whole send_action yellow
+	keyword whole send_ctcp yellow
+	keyword whole send_dcc_chat yellow
+	keyword whole sendline yellow
+	keyword whole send_msg yellow
+	keyword whole send_notice yellow
+	keyword whole send_public yellow
+	keyword whole send_to_server yellow
+	keyword whole servergroup yellow
+	keyword whole server_lost yellow
+	keyword whole servername yellow
+	keyword whole servernick yellow
+	keyword whole server_notice yellow
+	keyword whole serverport yellow
+	keyword whole servnum yellow
+	keyword whole servports yellow
+	keyword whole set yellow
+	keyword whole setenv yellow
+	keyword whole setitem yellow
+	keyword whole shift yellow
+	keyword whole shook yellow
+	keyword whole signoff yellow
+	keyword whole silence yellow
+	keyword whole sleep yellow
+	keyword whole sort yellow
+	keyword whole splice yellow
+	keyword whole split yellow
+	keyword whole srand yellow
+	keyword whole stack yellow
+	keyword whole status yellow
+	keyword whole status_update yellow
+	keyword whole stime yellow
+	keyword whole strchr yellow
+	keyword whole strftime yellow
+	keyword whole strip yellow
+	keyword whole stripansi yellow
+	keyword whole stripansicodes yellow
+	keyword whole stripc yellow
+	keyword whole strlen yellow
+	keyword whole strrchr yellow
+	keyword whole stub yellow
+	keyword whole submenu yellow
+	keyword whole substr yellow
+	keyword whole switch yellow
+	keyword whole tdiff yellow
+	keyword whole time yellow
+	keyword whole timer yellow
+	keyword whole timer yellow
+	keyword whole tolower yellow
+	keyword whole topic yellow
+	keyword whole topic yellow
+	keyword whole toupper yellow
+	keyword whole tow yellow
+	keyword whole tr yellow
+	keyword whole trunc yellow
+	keyword whole twiddle yellow
+	keyword whole type yellow
+	keyword whole uhc yellow
+	keyword whole umask yellow
+	keyword whole uname yellow
+	keyword whole uniq yellow
+	keyword whole unlink yellow
+	keyword whole unload yellow
+	keyword whole unload yellow
+	keyword whole unshift yellow
+	keyword whole unshift yellow
+	keyword whole userhost yellow
+	keyword whole usermode yellow
+	keyword whole usleep yellow
+	keyword whole utime yellow
+	keyword whole version yellow
+	keyword whole wait yellow
+	keyword whole wall yellow
+	keyword whole wallop yellow
+	keyword whole which yellow
+	keyword whole while magenta
+	keyword whole who yellow
+	keyword whole widelist yellow
+	keyword whole winbound yellow
+	keyword whole winchan yellow
+	keyword whole window yellow
+	keyword whole window_create yellow
+	keyword whole window_kill yellow
+	keyword whole winitem yellow
+	keyword whole winlevel yellow
+	keyword whole winnam yellow
+	keyword whole winnicklist yellow
+	keyword whole winnum yellow
+	keyword whole winrefs yellow
+	keyword whole winserv yellow
+	keyword whole winsize yellow
+	keyword whole winvisible yellow
+	keyword whole word yellow
+	keyword whole write yellow
+	keyword whole writeb yellow
+	keyword whole xecho yellow
+	keyword whole xeval yellow
+	keyword whole xtype yellow
+	keyword whole yell yellow
+
+context linestart # \n brown
+	spellcheck
+
+context exclusive [ ] green
+	keyword wholeright $\{0123456789\}\{0123456789\} red
+	keyword wholeright $\{0123456789\} red
+	keyword wholeright $+ brightgreen
+
+context " " green
+	keyword wholeright $\{0123456789\}\{0123456789\} red
+	keyword wholeright $\{0123456789\} red
+	keyword wholeright $+ brightgreen

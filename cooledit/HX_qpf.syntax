@@ -1,0 +1,22 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword \t gray red
+	keyword \{ABCDEFGHabcdefgh\} brightgreen
+	keyword \{Mm\}\{LNSlns\} brightmagenta
+	keyword \{LOPTlopt\} brightmagenta
+	keyword \{Xx\} red
+	keyword \{0123456789\} cyan
+	keyword .\{0123456789\} cyan
+	keyword ( brightcyan
+	keyword ) brightcyan
+	keyword $+ brightred
+	keyword \t gray red
+	keyword \\ yellow
+	keyword \+ yellow
+	keyword - yellow
+	keyword < green
+	keyword > green
+
+context linestart # \n brown
+	spellcheck

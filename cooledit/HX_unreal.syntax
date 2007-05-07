@@ -1,0 +1,118 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword whole None white
+	keyword whole Super white
+	keyword whole abstract white
+	keyword whole auto white
+	keyword whole bool white
+	keyword whole byte white
+	keyword whole break white
+	keyword whole case white
+	keyword whole class white
+	keyword whole color white
+	keyword whole const white
+	keyword whole continue white
+	keyword whole coords white
+	keyword whole defaultproperties white
+	keyword whole default white
+	keyword whole do white
+	keyword whole final white
+	keyword whole float white
+	keyword whole foreach white
+	keyword whole for white
+	keyword whole else white
+	keyword whole enum white
+	keyword whole event white
+	keyword whole exec white
+	keyword whole expands white
+	keyword whole extends white
+	keyword whole function white
+	keyword whole localized white
+	keyword whole if white
+	keyword whole ignores white
+	keyword whole int white
+	keyword whole iterator white
+	keyword whole local white
+	keyword whole name white
+	keyword whole nativereplication white
+	keyword whole native white
+	keyword whole noexport white
+	keyword whole optional white
+	keyword whole out white
+	keyword whole reliable white
+	keyword whole replication white
+	keyword whole return white
+	keyword whole rotator white
+	keyword whole safereplace white
+	keyword whole self white
+	keyword whole simulated white
+	keyword whole state white
+	keyword whole static white
+	keyword whole string white
+	keyword whole struct white
+	keyword whole switch white
+	keyword whole texture white
+	keyword whole transient white
+	keyword whole travel white
+	keyword whole unreliable white
+	keyword whole until white
+	keyword whole var white
+	keyword whole vector white
+	keyword whole while white
+
+	keyword /\* yellow
+	keyword \*/ yellow
+
+	keyword '\\\{"abtnvfr\}' brightgreen
+	keyword '\\x\{0123456789abcdefABCDEF\}\{0123456789abcdefABCDEF\}' brightgreen
+	keyword '\\\{0123\}\{01234567\}\{01234567\}' brightgreen
+	keyword '\\'' brightgreen
+	keyword '\\\\' brightgreen
+	keyword '\\0' brightgreen
+	keyword '\{\s!"#$%&()\*\+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~\}' brightgreen
+
+	keyword 0x cyan
+	keyword \{0123456789\} cyan
+	keyword .\{0123456789\} cyan
+
+	keyword ^ white
+	keyword ! white
+	keyword ( brightcyan
+	keyword ) brightcyan
+	keyword [ brightcyan
+	keyword ] brightcyan
+	keyword { brightcyan
+	keyword } brightcyan
+	keyword = white
+	keyword ? white
+	keyword & white
+	keyword \+ white
+	keyword ~ white
+	keyword , brightcyan
+	keyword ; brightcyan
+	keyword . brightcyan
+	keyword : white
+	keyword \* white
+	keyword % white
+	keyword - white
+	keyword < white
+	keyword > white
+	keyword // yellow
+	keyword / white
+	keyword | white
+	keyword \s#define\[\t\s\]\[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789\]\[\t\s\]0x\[0123456789abcdefABCDEF\] brightred
+
+context linestart # \n brightred
+
+context exclusive /\* \*/ yellow
+
+context exclusive // \n yellow
+
+context " " green
+	keyword \\\\ brightgreen
+	keyword \\" brightgreen
+
+context ' ' green
+	keyword \\\\ brightgreen
+	keyword \\' brightgreen

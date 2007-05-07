@@ -1,0 +1,100 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword whole $DYNAMIC white
+	keyword whole $INCLUDE white
+	keyword whole $STATIC white
+	keyword whole Absolute white
+	keyword whole AND white
+	keyword whole ANY white
+	keyword whole AS white
+	keyword whole CALL white
+	keyword whole CASE white
+	keyword whole CDECL white
+	keyword whole COMMAND$ white
+	keyword whole COMMON white
+	keyword whole CONST white
+	keyword whole DATA white
+	keyword whole DECLARE white
+	keyword whole DEF white
+	keyword whole DEFCUR white
+	keyword whole DEFDBL white
+	keyword whole DEFINT white
+	keyword whole DEFLNG white
+	keyword whole DEFSNG white
+	keyword whole DEFSTR white
+	keyword whole DIM white
+	keyword whole DOUBLE white
+	keyword whole DO white
+	keyword whole ELSEIF white
+	keyword whole ELSE white
+	keyword whole END white
+	keyword whole ENVIRON$ white
+	keyword whole EXIT white
+	keyword whole FOR white
+	keyword whole FUNCTION white
+	keyword whole GOSUB white
+	keyword whole GOTO white
+	keyword whole IF white
+	keyword whole INTEGER white
+	keyword whole INTERRUPT white
+	keyword whole IS white
+	keyword whole LONG white
+	keyword whole LOOP white
+	keyword whole NEXT white
+	keyword whole NOT white
+	keyword whole ON white
+	keyword whole OR white
+	keyword whole PUBLIC white
+	keyword whole RESUME white
+	keyword whole RETURN white
+	keyword whole SELECT white
+	keyword whole SHARED white
+	keyword whole SINGLE white
+	keyword whole STATIC white
+	keyword whole STEP white
+	keyword whole STRING white
+	keyword whole SUB white
+	keyword whole THEN white
+	keyword whole TO white
+	keyword whole TYPE white
+	keyword whole UNTIL white
+	keyword whole WEND white
+	keyword whole WHILE white
+	keyword whole XOR white
+
+	keyword \{0123456789\} cyan
+	keyword .\{0123456789\} cyan
+	keyword wholeright &H+ cyan
+
+	keyword ^ white
+	keyword ( brightcyan
+	keyword ) brightcyan
+	keyword [ brightcyan
+	keyword ] brightcyan
+	keyword { brightcyan
+	keyword } brightcyan
+	keyword ; brightcyan
+	keyword , brightcyan
+	keyword : brightmagenta
+	keyword < white
+	keyword > white
+	keyword = white
+	keyword \+ white
+	keyword - white
+	keyword / white
+	keyword \* white
+	keyword <> white
+	keyword \\ white
+	keyword #\{0123456789\} white
+
+context linestart REM \n yellow
+	spellcheck
+
+context linestart ' \n yellow
+	spellcheck
+
+context ' \n yellow
+	spellcheck
+
+context " " green

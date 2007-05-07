@@ -1,0 +1,100 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword whole linestart #!\[\s\]/bin/\[abkpct\]sh white red
+
+	keyword wholeright $\{0123456789\}\{0123456789\} white
+	keyword wholeright $\{0123456789\} white
+	keyword $\{!$?@\+\*~#<|>-_\} white
+	keyword ${+} brightgreen
+	keyword wholeright $+ brightgreen
+
+	keyword ^ white
+	keyword ! white
+	keyword / white
+	keyword ( brightcyan
+	keyword ) brightcyan
+	keyword [ brightcyan
+	keyword ] brightcyan
+	keyword { brightcyan
+	keyword } brightcyan
+	keyword = white
+	keyword ? white
+	keyword \\\{0123\}\{01234567\}\{01234567\} white
+	keyword \\x\{0123456789ABCDEFabcdef\}\{0123456789ABCDEFabcdef\} cyan
+	keyword \\\{\"\'\`\} brightred
+	keyword \\ brightcyan
+	keyword \+ white
+	keyword ~ white
+	keyword , brightcyan
+	keyword ; brightcyan
+	keyword : brightcyan
+
+	keyword @ white
+	keyword $ white
+	keyword \* white
+	keyword % white
+	keyword & white
+	keyword < white
+	keyword > white
+	keyword | white
+
+	keyword whole alias white
+	keyword whole bg white
+	keyword whole break white
+	keyword whole case white
+	keyword whole continue white
+	keyword whole done white
+	keyword whole do white
+	keyword whole elif white
+	keyword whole else white
+	keyword whole esac white
+	keyword whole eval white
+	keyword whole exec white
+	keyword whole exit white
+	keyword whole export white
+	keyword whole fg white
+	keyword whole fi white
+	keyword whole for white
+	keyword whole function white
+	keyword whole if white
+	keyword whole local white
+	keyword whole in white
+	keyword whole read white
+	keyword whole return white
+	keyword whole select white
+	keyword whole set white
+	keyword whole shift white
+	keyword whole then white
+	keyword whole trap white
+	keyword whole umask white
+	keyword whole unset white
+	keyword whole until white
+	keyword whole while white
+	keyword #\n yellow
+
+context linestart # \n yellow
+	spellcheck
+
+context #\s \n yellow
+	spellcheck
+
+context ## \n yellow
+	spellcheck
+
+context exclusive whole <<\[\s\]\[-\]\[\s\]\[\\\]EOF EOF green
+context exclusive whole <<\[\s\]\[-\]\[\s\]\[\\\]END END green
+
+context exclusive ` ` black white
+	keyword \\\` red
+	keyword $\{!\"%&/()[]=?$\\\`'@\+\*~#<|>,;.:-\} red
+
+context " " green
+	keyword $\{!\"%&/()[]=?$\\\`'@\+\*~#<|>,;.:-\} brightgreen
+	keyword wholeright $+ brightgreen
+	keyword \\" brightgreen
+	keyword \\$ brightgreen
+	keyword \\@ brightgreen
+	keyword \\\\ brightgreen
+
+context ' ' brightgreen

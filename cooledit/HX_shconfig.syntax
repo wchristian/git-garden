@@ -1,0 +1,24 @@
+# -*- cooleditsyntax -*-
+
+context default brightgreen
+	keyword = lightgray
+
+context linestart #\s \n lightgray
+	spellcheck
+
+context linestart #\t \n lightgray
+	spellcheck
+
+context linestart #-- \n lightgray
+	spellcheck
+
+context linestart #== \n lightgray
+	spellcheck
+
+context linestart #\n \n lightgray
+	spellcheck
+
+context linestart # \n yellow
+	spellcheck
+
+context exclusive = \n white
