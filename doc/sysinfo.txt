@@ -1,0 +1,22 @@
+
+Syntax: sysinfo
+
+Prints out an IRC-style machine info, like:
+
+	Host: ichi.hopto.org |
+	System Info: Linux 2.6.20.2-ccj48-default |
+	AMD Athlon(tm) XP 2000+ 1666 MHz |
+	Load: 0.62 Procs: 1/133 |
+	MemUse: 241/757MB |
+	DiskUse: 157/232GB |
+	Up: 12h 23m 4s |
+	Gfx: nVidia Corporation NV11
+	[GeForce2 MX/MX 400] (rev a1) @ 2944x2208x24bpp
+
+(without all the newlines).
+The load number is the EWMA over the last 60 seconds;
+The proc numbers are: running/total;
+Memory and disk are: used/total; (NOT free/total)
+The <xres>x<yres>x<depth>bpp line is only available if
+$DISPLAY is set and valid. xres and yres will be the
+dimensions of the _virtual_ size, not the resolution.

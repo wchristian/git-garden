@@ -1,0 +1,39 @@
+
+Syntax: pesubst [-f] [-s PAT] [-d PAT] [-m MODIFIER] FILE[...]
+
+  -f    pad the replacement with '\0''s if it is smaller than a
+        particular match of source
+
+  -s    source pattern
+
+  -d    replacement pattern
+
+  -m    modifiers (quoted from perlre):
+        e    Evaluate the right side as an expression.
+        g    Replace globally, i.e., all occurrences.
+        i    Do case-insensitive pattern matching.
+        m    Treat string as multiple lines. That is, change "^" and "$" from
+             matching the start or end of the string to matching the start or
+             end of any line anywhere within the string.
+        o    Compile pattern only once.
+        s    Treat string as single line.  That is, change "." to
+             match any character whatsoever, even a newline, which
+             normally it would not match.
+        x    Extend your pattern's legibility by permitting
+             whitespace and comments
+
+Replaces strings in a file, according to the rules of PERL Regular Expressions.
+If you use the ^ and $ anchors, make sure you know what they do when /m is in
+effect, and when /s (opposite of /m) is!
+
+Examples:
+
+  Change all occurrences of foo (case-insensitive) to bar:
+      pesubst -mi -s foo -d bar myfile
+
+  Change all Shell-style comments into C++ ones
+      pesubst -mm -s '^#' -d // myfile
+
+  Using both the "m" and "i" flags:
+       pesubst -mmi ...
+  (or) pesubst -mim ...

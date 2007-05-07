@@ -1,0 +1,11 @@
+
+Syntax: tailhex [-B bytes] [-e start] [-Qaf] FILE
+
+  -B bytes       Buffer and window width
+  -Q             Use 64-bit pos numbers beginning from 0
+  -a             Approximate position start
+  -e start       Exact position start (64-bit max)
+  -f             Retry at EOF (tail follow mode)
+
+About the same as `od -x`, but with 64-bit support, readable printout and
+tail following.
