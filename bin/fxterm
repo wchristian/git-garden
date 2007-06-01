@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 #	fxterm - work around strange xterm font handling
+#	Requires that the same font is available with and without _b suffix.
 #
 #	Common usage:
 #		fxterm ^tosh [other xterm options]
