@@ -7,6 +7,7 @@
 context default
 
 # Keywords
+	keyword whole background brightgreen
 	keyword whole blob brightgreen
 	keyword whole bounded_by brightgreen
 	keyword whole box brightgreen
@@ -32,6 +33,7 @@ context default
 	keyword whole light_source brightgreen
 	keyword whole looks_like brightgreen
 	keyword whole material brightgreen
+	keyword whole matrix brightgreen
 	keyword whole merge brightgreen
 	keyword whole normal brightgreen
 	keyword whole object brightgreen
@@ -40,6 +42,7 @@ context default
 	keyword whole pigment_pattern brightgreen
 	keyword whole pigment brightgreen
 	keyword whole plane brightgreen
+	keyword whole polygon brightgreen
 	keyword whole quadric brightgreen
 	keyword whole radiosity brightgreen
 	keyword whole scattering brightgreen
@@ -55,12 +58,16 @@ context default
 	keyword whole torus brightgreen
 	keyword whole union brightgreen
 	keyword whole warp brightgreen
+	keyword whole x brightgreen
+	keyword whole y brightgreen
+	keyword whole z brightgreen
 
 # Constructions
 	keyword whole #break brightred
 	keyword whole #case brightred
 	keyword whole #debug brightred
 	keyword whole #declare brightred
+	keyword whole #else brightred
 	keyword whole #end brightred
 	keyword whole #ifdef brightred
 	keyword whole #if brightred
