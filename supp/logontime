@@ -11,7 +11,7 @@ use strict;
 my %Total;
 my $ARG_time;
 
-&Getopt::Long::Configure(qw(bundling pass_through));
+&Getopt::Long::Configure(qw(bundling));
 &GetOptions("t" => \$ARG_time);
 
 open(IN, "last -ax |");
