@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+#
+#	mpg2ogg
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+use Getopt::Long;
+use strict;
+
+my %pat;
+my $regex;
+
+&Getopt::Long::Configure(qw(bundling));
+&GetOptions(
+	"X=s" => \$regex,
+	"G=s" => \&asgn,
+	"N=s" => \&asgn,
+	"a=s" => \&asgn,
+	"d=s" => \&asgn,
+	"l=s" => \&asgn,
+	"o=s" => \&asgn,
+	"q=s" => \&asgn,
+	"t=s" => \&asgn,
+);
+
+sub asgn ($$)
+{
+	$pat{$_[0]} = $_[1];
+	return;
+}
+
+foreach my $file (@ARGV) {
+	my $cmd = "mpg123 -vw- \"$file\" | oggenc -q4 -";
+	my %res;
+
+	eval '@_ = ($file =~ m{'.$regex.'});';
+
+	foreach my $name (split(//, "GNadloqt")) {
+		if (!defined($pat{$name})) {
+			next;
+		}
+		my $tmp = $pat{$name};
+		$tmp =~ s/(?<!\\)\$(\d+)/$_[$1-1]/gs;
+		$tmp =~ s/(?<!\\)\$\{(\d+)}/$_[$1-1]/gs;
+		if ($name eq "N" && $tmp !~ /\D/) {
+			$tmp += 0;
+		}
+		$cmd .= " -$name \"$tmp\"";
+	}
+
+	print "Executing: $cmd\n";
+	system $cmd;
+}
