@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+#
+#	pmap_dirty
+#	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2006 - 2007
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; however ONLY version 2 of the License.
+#	For details, see the file named "LICENSE.GPL2".
+#
+# Usage: pmap_dirty [pid...]
+#
+# Ex: pmap_dirty
+#	 pmap_dirty $$
+#	 pmap_dirty `pidof init` `pidof java`
+#
+use strict;
+my $total_dirty = 0;
+
+if(scalar(@ARGV) == 0) {
+	@ARGV = sort { $a <=> $b } map {
+		$_ = ($_ =~ m{^/proc/(\d+)$})[0];
+		$_ eq "" ? () : $_
+	} glob("/proc/*");
+}
+
+foreach my $pid (@ARGV) {
+	local *FH;
+	open(FH, "pmap $pid |");
+	<FH>;
+	<FH>;
+
+	my $proc_dirty = 0;
+	while(my($start, $size, $rss, $dirty) = split(/\s+/, <FH>)) {
+		if(substr($start, 0, 6) eq "Total:") {
+			last;
+		}
+		$proc_dirty += ($dirty =~ /(\d+)/)[0];
+	}
+	print "$pid: ${proc_dirty}K\n";
+	close FH;
+	$total_dirty += $proc_dirty;
+}
+
+print "Total: ${total_dirty}K\n";
