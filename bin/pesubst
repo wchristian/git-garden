@@ -18,7 +18,7 @@ my($p_dest, $p_src, $p_mod, $o_fit);
 );
 
 foreach my $file (@ARGV) {
-	if(!open(IN, "< $file")) {
+	if (!open(IN, "< $file")) {
 		warn "Could not open $file: $!\n";
 		next;
 	}
@@ -26,13 +26,13 @@ foreach my $file (@ARGV) {
 	my $data = join("", <IN>);
 	close IN;
 
-	if($o_fit) {
+	if ($o_fit) {
 		eval "\$data =~ s{$p_src}{".&fit_in($p_dest, length($p_src))."}g$p_mod";
 	} else {
 		eval "\$data =~ s{$p_src}{$p_dest}g$p_mod";
 	}
 
-	if(!open(OUT, "> $file")) {
+	if (!open(OUT, "> $file")) {
 		warn "Could not reopen $file: $!\n";
 		next;
 	}
@@ -41,7 +41,7 @@ foreach my $file (@ARGV) {
 	close OUT;
 }
 
-sub fit_in ( $$ )
+sub fit_in($$)
 {
 	my($str, $len) = @_;
 	$str = substr($str, 0, $len);

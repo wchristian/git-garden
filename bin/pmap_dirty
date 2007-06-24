@@ -17,7 +17,7 @@
 use strict;
 my $total_dirty = 0;
 
-if(scalar(@ARGV) == 0) {
+if (scalar(@ARGV) == 0) {
 	@ARGV = sort { $a <=> $b } map {
 		$_ = ($_ =~ m{^/proc/(\d+)$})[0];
 		$_ eq "" ? () : $_
@@ -31,8 +31,8 @@ foreach my $pid (@ARGV) {
 	<FH>;
 
 	my $proc_dirty = 0;
-	while(my($start, $size, $rss, $dirty) = split(/\s+/, <FH>)) {
-		if(substr($start, 0, 6) eq "Total:") {
+	while (my($start, $size, $rss, $dirty) = split(/\s+/, <FH>)) {
+		if (substr($start, 0, 6) eq "Total:") {
 			last;
 		}
 		$proc_dirty += ($dirty =~ /(\d+)/)[0];

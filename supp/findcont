@@ -8,24 +8,24 @@
 use strict;
 my($ws, $state, $line, $ifs, $nocont, $spc_cont, $tab_cont);
 
-while(defined($_ = <>)) {
-	if((++$line & 0xFFFF) == 0) {
+while (defined($_ = <>)) {
+	if ((++$line & 0xFFFF) == 0) {
 		&status();
 	}
 
 	# Strip comments at the end
 	$_ =~ s{\s*/\*.*?\*/\s*$}{}g;
 
-	if($state == 1 && $_ =~ /^${ws}\tif\s*\(/s) {
+	if ($state == 1 && $_ =~ /^${ws}\tif\s*\(/s) {
 		# Special case: if(a)\n\tif(b)
 		++$nocont;
 	}
 
-	if($_ =~ /^(\s*)if\s*\(/s) {
+	if ($_ =~ /^(\s*)if\s*\(/s) {
 		# Record whitespace at if level
 		$ws = $1;
 		++$ifs;
-		if($_ =~ /\)\s*{\s*$/) {
+		if ($_ =~ /\)\s*{\s*$/) {
 			# Definitely no continuation
 			++$nocont;
 			$state = 0;
@@ -35,14 +35,14 @@ while(defined($_ = <>)) {
 		next;
 	}
 
-	if($state >= 1) {
-		if($_ =~ /^$ws\x20{2,}/) {
+	if ($state >= 1) {
+		if ($_ =~ /^$ws\x20{2,}/) {
 			# Continued with 2+ spaces = space continuation
 			++$spc_cont;
 			$state = 2;
 			next;
 		}
-		if($_ =~ /^$ws\t{2,}/) {
+		if ($_ =~ /^$ws\t{2,}/) {
 			# Continued with 2+ tabs = tab continuation
 			++$tab_cont;
 			$state = 2;
@@ -50,7 +50,7 @@ while(defined($_ = <>)) {
 		}
 
 		# $nocont can only increase at the first line after if()
-		if($state == 1) {
+		if ($state == 1) {
 			if($_ =~ /^$ws\t/) {
 				# Continued with one tab = must be code
 				$state = 0;

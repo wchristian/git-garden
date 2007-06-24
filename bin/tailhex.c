@@ -1,12 +1,13 @@
 /*
-	tailhex.c - tail follower with hexdump
-	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2005 - 2007
-
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; however ONLY version 2 of the License.
-	For details, see the file named "LICENSE.GPL2".
-*/
+ *	tailhex.c - tail follower with hexdump
+ *	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2005 - 2007
+ *
+ *	This program is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU General Public License
+ *	as published by the Free Software Foundation; either version
+ *	2.1 of the License, or (at your option) any later version. 
+ *	For details, see the file named "LICENSE.GPL2".
+ */
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <ctype.h>
@@ -46,67 +47,67 @@ int main(int argc, const char **argv)
 	long long rax;
 	int ret, fd;
 
-	if(get_options(&argc, &argv) <= 0)
+	if (get_options(&argc, &argv) <= 0)
 		return EXIT_FAILURE;
 
-	if((buf = malloc(Opt.bsize)) == NULL) {
+	if ((buf = malloc(Opt.bsize)) == NULL) {
 		fprintf(stderr, "Could not allocate buffer of size %d\n", Opt.bsize);
 		return EXIT_FAILURE;
 	}
 
-	if((fd = open(*++argv, O_RDONLY)) < 0) {
+	if ((fd = open(*++argv, O_RDONLY)) < 0) {
 		fprintf(stderr, "Could not open %s: %s\n", *argv, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	fstat(fd, &sb);
-	if(!Opt.start && Opt.approx)
+	if (!Opt.start && Opt.approx)
 		Opt.start = (sb.st_size >> 8) << 8;
-	if(Opt.start < 0)
+	if (Opt.start < 0)
 		rax = lseek(fd, Opt.start, SEEK_END);
 	else
 		rax = lseek(fd, Opt.start, SEEK_SET);
-	if(rax < 0)
+	if (rax < 0)
 		perror("seek to %lld failed");
 
-	while(1) {
+	while (1) {
 		long long pos;
 		int i;
 
 		pos = lseek(fd, 0, SEEK_CUR);
 		ret = read(fd, buf + buf_offset, Opt.bsize - buf_offset);
-		if(ret == 0) /* eof */
+		if (ret == 0) /* eof */
 			break;
-		if(ret < 0) {
+		if (ret < 0) {
 			perror("read()");
 			exit(EXIT_FAILURE);
 		}
-		if(Opt.follow && ret < Opt.bsize) {
+		if (Opt.follow && ret < Opt.bsize) {
 			buf_offset = ret;
 			sched_yield();
 			continue;
 		}
 
 		buf_offset = 0;
-		if(Opt.quad || pos > (long long)0xFFFFFFFF)
+		if (Opt.quad || pos > (long long)0xFFFFFFFF)
 			printf("0x%016llx |", pos);
 		else
 			printf("0x%08llx |", pos);
 
-		for(i = 0; i < Opt.bsize; ++i) {
+		for (i = 0; i < Opt.bsize; ++i) {
 			printf(" ");
-			if(i < ret)   printf("%02x", (int)buf[i]);
-			else          printf("  ");
-			if(++i < ret) printf("%02x", (int)buf[i]);
-			else          printf("  ");
+			if (i < ret)   printf("%02x", (int)buf[i]);
+			else           printf("  ");
+			if (++i < ret) printf("%02x", (int)buf[i]);
+			else           printf("  ");
 		}
 		printf(" | ");
 
-		for(i = 0; i < Opt.bsize; ++i) {
-			if(i < ret)   printf("%c", printable(buf[i]));
-			else          printf(" ");
-			if(++i < ret) printf("%c", printable(buf[i]));
-			else          printf(" ");
+		for (i = 0; i < Opt.bsize; ++i) {
+			if (i < ret)   printf("%c", printable(buf[i]));
+			else           printf(" ");
+			if (++i < ret) printf("%c", printable(buf[i]));
+			else           printf(" ");
 		}
 		printf("\n");
 	}
@@ -132,10 +133,10 @@ static int get_options(int *argc, const char ***argv)
 		HXOPT_TABLEEND,
 	};
 
-	if(HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) <= 0)
+	if (HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) <= 0)
 		return 0;
 
-	if(*argc == 1) {
+	if (*argc == 1) {
 		fprintf(stderr, "Error: You need to provide a filename\n");
 		return 0;
 	}
@@ -153,5 +154,3 @@ static inline int printable(char x)
 {
 	return isprint(x) ? x : '.';
 }
-
-//=============================================================================

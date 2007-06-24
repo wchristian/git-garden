@@ -17,14 +17,53 @@ use strict;
 our $FOLEVEL = 8;
 &main();
 
-sub strip_vra ( $ )
+sub main()
+{
+	local *FH;
+	my($start_file, $start_level) = (undef, 1);
+	my($stage1_out, $stage2_out, $stage3_out) = (undef, undef, undef);
+	my $stage4_out = "-";
+	my $w;
+
+	&GetOptions(
+		"fanout-height|fanout-width=i" => \$FOLEVEL,
+		"start-file=s"  => \$start_file,
+		"start-level=i" => \$start_level,
+		"stage1-out=s"  => \$stage1_out,
+		"stage2-out=s"  => \$stage2_out,
+		"stage3-out=s"  => \$stage3_out,
+		"stage4-out=s"  => \$stage4_out,
+		"h|help"        => \&help,
+	);
+	if ($start_file) {
+		$w = do $start_file;
+	}
+	if ($start_level == 1) {
+		$w = &stage1($stage1_out);
+		++$start_level;
+	}
+	if ($start_level == 2) {
+		&stage2($stage2_out, $w);
+		++$start_level;
+	}
+	if ($start_level == 3) {
+		&stage3($stage3_out, $w);
+		++$start_level;
+	}
+	if ($start_level == 4) {
+		&printout($stage4_out, $w);
+	}
+	return;
+}
+
+sub strip_vra($)
 {
 	my $pkg = shift @_;
 	$pkg =~ s/-[\w\.]+-[\w\.]+\.\w+$//; # version-release-arch
 	return $pkg
 }
 
-sub stage1 ( $ )
+sub stage1($)
 {
 	print STDERR "# Stage 1: Finding dependencies\n";
 
@@ -32,15 +71,15 @@ sub stage1 ( $ )
 	my @pkglist    = `rpm -qa --qf='\%{NAME}\\n'`;
 	my $pkghash    = {};
 
-	for(my $count = 0; $count <= $#pkglist; ++$count) {
+	for (my $count = 0; $count <= $#pkglist; ++$count) {
 		my $pkg = $pkglist[$count];
 		my %h;
 
 		chomp $pkg;
-		printf STDERR "#\t(%u/%u) $pkg\n", $count+1, $#pkglist+1;
+		printf STDERR "#\t(%u/%u) $pkg\n", $count + 1, $#pkglist + 1;
 
 		foreach my $src (`rpm --test -e "$pkg" 2>&1`) {
-			if(substr($src, 0, 1) ne "\t") {
+			if (substr($src, 0, 1) ne "\t") {
 				next;
 			}
 			chomp $src;
@@ -51,7 +90,7 @@ sub stage1 ( $ )
 		%{$pkghash->{$pkg}} = %h;
 	}
 
-	if($stage1_out ne "") {
+	if ($stage1_out ne "") {
 		local *FH;
 		open(FH, "> $stage1_out") ||
 			warn "Could not open $stage1_out: $!\n";
@@ -62,7 +101,7 @@ sub stage1 ( $ )
 	return $pkghash;
 }
 
-sub count_deps ( $ )
+sub count_deps($)
 {
 	my $pkghash = shift @_;
 	my $ret = 0;
@@ -74,7 +113,7 @@ sub count_deps ( $ )
 	return $ret;
 }
 
-sub stage2 ( $$ )
+sub stage2($$)
 {
 	print STDERR "# Stage 2: Reduce visible links\n";
 
@@ -87,10 +126,10 @@ sub stage2 ( $$ )
 		my $href = $pkghash->{$firstpkg};
 		foreach my $firstdep (keys %$href) {
 			foreach my $scndpkg (keys %$pkghash) {
-				if($firstpkg eq $scndpkg) {
+				if ($firstpkg eq $scndpkg) {
 					next;
 				}
-				if($pkghash->{$scndpkg}->{$firstdep}) {
+				if ($pkghash->{$scndpkg}->{$firstdep}) {
 #					print STDERR "#\t$firstdep->$firstpkg->$scndpkg, DELETE $firstdep->$scndpkg\n";
 					delete $pkghash->{$scndpkg}->{$firstdep};
 				}
@@ -100,7 +139,7 @@ sub stage2 ( $$ )
 
 	print STDERR "#\toutput: ", &count_deps($pkghash), " dependencies\n";
 
-	if($stage2_out ne "") {
+	if ($stage2_out ne "") {
 		local *FH;
 		open(FH, "> $stage2_out") ||
 			warn "Could not open $stage2_out: $!\n";
@@ -111,18 +150,18 @@ sub stage2 ( $$ )
 	return $pkghash;
 }
 
-sub alphanumeric ( $$ )
+sub alphanumeric($$)
 {
 	my($a_alpha, $a_num) = ($_[0] =~ /^(.*?)(?:<(\d+)>)?$/);
 	my($b_alpha, $b_num) = ($_[1] =~ /^(.*?)(?:<(\d+)>)?$/);
 	my $ret = $a_alpha cmp $b_alpha;
-	if($ret != 0) {
+	if ($ret != 0) {
 		return $ret;
 	}
 	return $a_num <=> $b_num;
 }
 
-sub stage3 ( $$ )
+sub stage3($$)
 {
 	print STDERR "# Stage 3: Link simplexer\n";
 
@@ -137,7 +176,9 @@ sub stage3 ( $$ )
 		my $iter  = 1;
 		my $reloc = 0;
 
-		for(my $elem; ($elem = scalar keys %$href) > $FOLEVEL; ++$iter) {
+		for (my $elem; ($elem = scalar keys %$href) > $FOLEVEL;
+		    ++$iter)
+		{
 			my $nphash = {};
 
 			printf STDERR "#\t(%u/%u) %s round %u, height %u\n",
@@ -160,7 +201,7 @@ sub stage3 ( $$ )
 
 	&merge_hash($pkghash, $newhash);
 
-	if($stage3_out ne "") {
+	if ($stage3_out ne "") {
 		local *FH;
 		open(FH, "> $stage3_out") ||
 			warn "Could not open $stage3_out: $!\n";
@@ -171,7 +212,7 @@ sub stage3 ( $$ )
 	return;
 }
 
-sub merge_hash ( $@ )
+sub merge_hash($@)
 {
 	my $target = shift @_;
 	foreach my $source (@_) {
@@ -182,7 +223,7 @@ sub merge_hash ( $@ )
 	return;
 }
 
-sub printout ( $ )
+sub printout($)
 {
 	my $stage4_out = shift @_;
 	my $pkghash    = shift @_;
@@ -194,7 +235,7 @@ sub printout ( $ )
 	print FH "\trankdir=LR;\n";
 	foreach my $pkg (sort alphanumeric keys %$pkghash) {
 		my $href = $pkghash->{$pkg};
-		if($pkg =~ /<\d+>$/) {
+		if ($pkg =~ /<\d+>$/) {
 			# routing node
 			print FH "\t\"$pkg\" [shape=\"point\"];\n";
 		}
@@ -206,7 +247,7 @@ sub printout ( $ )
 	return;
 }
 
-sub help ()
+sub help()
 {
 	print <<"--EOF";
 
@@ -229,43 +270,4 @@ Example for fast regeneration of graph:
 
 --EOF
 	exit 0;
-}
-
-sub main ()
-{
-	local *FH;
-	my($start_file, $start_level) = (undef, 1);
-	my($stage1_out, $stage2_out, $stage3_out) = (undef, undef, undef);
-	my $stage4_out = "-";
-	my $w;
-
-	&GetOptions(
-		"fanout-height|fanout-width=i" => \$FOLEVEL,
-		"start-file=s"  => \$start_file,
-		"start-level=i" => \$start_level,
-		"stage1-out=s"  => \$stage1_out,
-		"stage2-out=s"  => \$stage2_out,
-		"stage3-out=s"  => \$stage3_out,
-		"stage4-out=s"  => \$stage4_out,
-		"h|help"        => \&help,
-	);
-	if($start_file) {
-		$w = do $start_file;
-	}
-	if($start_level == 1) {
-		$w = &stage1($stage1_out);
-		++$start_level;
-	}
-	if($start_level == 2) {
-		&stage2($stage2_out, $w);
-		++$start_level;
-	}
-	if($start_level == 3) {
-		&stage3($stage3_out, $w);
-		++$start_level;
-	}
-	if($start_level == 4) {
-		&printout($stage4_out, $w);
-	}
-	return;
 }

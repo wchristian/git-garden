@@ -15,10 +15,10 @@ my $ARG_time;
 &GetOptions("t" => \$ARG_time);
 
 open(IN, "last -ax |");
-while(defined(my $l = <IN>)) {
+while (defined(my $l = <IN>)) {
 	chomp $l;
 	my($user, $dur) = ($l =~ /^(\w+)\s+.+?\((.*?)\)/);
-	if($user eq "") {
+	if ($user eq "") {
 		next;
         }
 
@@ -27,7 +27,7 @@ while(defined(my $l = <IN>)) {
 }
 close IN;
 
-if($ARG_time) {
+if ($ARG_time) {
 	# Time sort
 	foreach my $u (sort { $Total{$b} <=> $Total{$a} } keys %Total) {
 		printf "%-8s: %3ud %2uh %2um (%5um)\n",
@@ -43,5 +43,3 @@ if($ARG_time) {
 		       $Total{$u};
 	}
 }
-
-#==============================================================================
