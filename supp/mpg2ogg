@@ -8,6 +8,7 @@
 use Getopt::Long;
 use strict;
 
+my $wav;
 my %pat;
 my $regex;
 
@@ -22,17 +23,31 @@ my $regex;
 	"o=s" => \&asgn,
 	"q=s" => \&asgn,
 	"t=s" => \&asgn,
+	"w"   => \$wav,
 );
 
-sub asgn ($$)
+if (!defined($regex) || $regex eq "") {
+	die "You must supply the -X option\n";
+}
+if (!defined($pat{"o"}) || $pat{"o"} eq "") {
+	die "You must supply the -o option\n";
+}
+
+sub asgn($$)
 {
 	$pat{$_[0]} = $_[1];
 	return;
 }
 
 foreach my $file (@ARGV) {
-	my $cmd = "mpg123 -vw- \"$file\" | oggenc -q4 -";
+	my $cmd;
 	my %res;
+	
+	if ($wav) {
+		$cmd = "oggenc -q4 \"$file\"";
+	} else {
+		$cmd = "mpg123 -vw- \"$file\" | oggenc -q4 -";
+	}
 
 	eval '@_ = ($file =~ m{'.$regex.'});';
 
