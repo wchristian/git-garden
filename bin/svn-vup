@@ -10,5 +10,5 @@ my $new = "HEAD";
 
 print "Executing svn up -r$new ", join(" ", @ARGV), "\n";
 system "svn", "up", "-r$new", @ARGV;
-print "Executing svn log -r$old:$new ", join(" ", @ARGV), "\n";
-system "svn", "log", "-r$old:$new", @ARGV;
+print "Executing svn log -r$new ", join(" ", @ARGV), "\n";
+system "svn", "log", "-r$new", @ARGV;
