@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+#	recursive_lower
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+
+function descend_into()
+{
+	for src in "$@"; do
+		dest="`echo -en \"$src\" | tr A-Z a-z`";
+		mv "$src" "$id" && \
+		mv "$id" "$dest";
+		echo "$src" "->" "$dest";
+		if [ -d "$src" -o -d "$dest" ]; then
+			descend_into "$dest"/*;
+		fi;
+	done;
+	return;
+}
+
+id=`mktemp -u .tmp.$$.XXXXXXXX`;
+descend_into "$@";
