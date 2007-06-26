@@ -1,0 +1,43 @@
+SYNOPSIS
+
+    checkbrack FILE[...]
+
+
+DESCRIPTION
+
+    Displays each line of the file(s), together with their open bracket count
+    that is reached at the end of line. It allows you to find missing closing
+    brackets, in particular.
+
+
+EXAMPLE
+
+    $ checkbrack /usr/lib/hxtools/bin/checkbrack | less -S
+    #   () [] {}
+     13  0  0  1 foreach my $file (@ARGV) {
+     14  0  0  1     if(!-f $file) { next; }
+     15  0  0  1     print "Displaying $file...\n";
+     16  0  0  2     if(!open(IN, "< $file")) {
+     17  0  0  2         print "Error opening $file: $!\n";
+     18  0  0  2         next;
+     19  0  0  1     }
+
+    The numbers at the front are: line number, number of unclosed left
+    parentheses, number of unclosed left square brackets and number of unclosed
+    left square braces.
+
+    At the end of line 19, we would need to close one more brace to make it
+    syntactically valid code.
+
+    The interesting thing of this, that if GCC, Perl or whatever outputs an
+    error and you do not figure out what it means -- that's often the case with
+    missing braces -- run checkbrack on the source file, skip to the end, and
+    watch the brace counts.
+
+    Scroll up until the brace counts seem normal (i.e. 0 open braces) at
+    outside any function.
+
+
+HINTS
+
+    It is advised to page checkbrack's output through a pager, e.g. `less -S`.

@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+#
+#	recursive_lower
+#	by Jan Engelhardt <jengelh [at] gmx de>, 1999 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+
+use strict;
+
+foreach my $file (@ARGV) {
+	if (!-f $file) {
+		next;
+	}
+	print "Displaying $file...\n";
+	print "  # () [] {}\n";
+	open(IN, "< $file") || warn "Error opening $file: $!\n";
+
+	my($l, $p1, $p2, $p3, $num);
+	while (defined(my $line = <IN>)) {
+		++$num;
+		chomp($line);
+		my @p11 = ($line =~ /((?<!\$)\()/g);
+		my @p12 = ($line =~ /((?<!\$)\))/g);
+		my @p21 = ($line =~ /((?<!\$)\[)/g);
+		my @p22 = ($line =~ /((?<!\$)\])/g);
+		my @p31 = ($line =~ /(\{)/g);
+		my @p32 = ($line =~ /(\})/g);
+		$p1 += scalar @p11; $p1 -= scalar @p12;
+		$p2 += scalar @p21; $p2 -= scalar @p22;
+		$p3 += scalar @p31; $p3 -= scalar @p32;
+		printf "%3d %2d %2d %2d %s\n", $., $p1, $p2, $p3, $line;
+	}
+
+	close IN;
+	print "\n";
+}
