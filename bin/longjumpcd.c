@@ -67,8 +67,9 @@ int main(int argc, char **argv)
                          * child directories of @ptr and put them at the end of
                          * @dq.
                          */
-			char fullname[MAXFNLEN], *this;
 			void *wd = HXdir_open(ptr);
+			char fullname[MAXFNLEN];
+			const char *this;
 			struct stat sb;
 
 			while ((this = HXdir_read(wd)) != NULL) {

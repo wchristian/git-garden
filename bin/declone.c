@@ -51,7 +51,7 @@ int main(int argc, const char **argv)
 		fchmod(out, sb.st_mode);
 		while ((ret = read(in, buffer, BLOCKSIZE)) > 0)
 			if (write(out, buffer, ret) < 0) {
-				fprintf(stderr, "Error during write() to %s: ",.
+				fprintf(stderr, "Error during write() to %s: "
 				        "%s\n", *argv, strerror(errno));
 				break;
 			}

@@ -146,7 +146,7 @@ static int get_options(int *argc, const char ***argv)
 
 static void getopt_op_e(const struct HXoptcb *cbi)
 {
-	Opt.start = strtoll(cbi->s, NULL, 0);
+	Opt.start = strtoll(cbi->data, NULL, 0);
 	return;
 }
 

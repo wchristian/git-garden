@@ -392,7 +392,7 @@ static void play(int argc, const char **argv)
 	dv = HXdeque_init();
 	if (!playrec_getopt(&argc, &argv, dv))
 		return;
-	if (dv->itemcount == 0)
+	if (dv->items == 0)
 		HXdeque_push(dv, DEVDSP);
 
 	travp = dv->first;
@@ -556,7 +556,7 @@ static int playrec_getopt(int *argc, const char ***argv,
 
 static void getopt_op_K(const struct HXoptcb *cbi)
 {
-	pri.seekto = strtoll(cbi->s, NULL, 0);
+	pri.seekto = strtoll(cbi->data, NULL, 0);
 	return;
 }
 
@@ -565,17 +565,17 @@ static void getopt_op_kjump(const struct HXoptcb *cbi)
 	char *p, *timespec;
 	unsigned long s;
 
-	if (cbi->s == NULL || strlen(cbi->s) == 0)
+	if (cbi->data == NULL || strlen(cbi->data) == 0)
 		return;
 
-	timespec = HX_strdup(cbi->s);
+	timespec = HX_strdup(cbi->data);
 	s = 0;
 
-	if ((p = strchr(cbi->s, ':')) == NULL) {
-		s = strtoul(cbi->s, NULL, 0);
+	if ((p = strchr(cbi->data, ':')) == NULL) {
+		s = strtoul(cbi->data, NULL, 0);
 	} else {
 		*p++ = '\0';
-		s = 60 * strtoul(cbi->s, NULL, 0) + strtoul(p, NULL, 0);
+		s = 60 * strtoul(cbi->data, NULL, 0) + strtoul(p, NULL, 0);
 	}
 
 	pri.seekto = s * pri.smpsize * pri.channels / 8 * pri.smprate;
@@ -654,7 +654,7 @@ static void record(int argc, const char **argv)
 	dv = HXdeque_init();
 	if (!playrec_getopt(&argc, &argv, dv))
 		return;
-	if (dv->itemcount == 0)
+	if (dv->items == 0)
 		HXdeque_push(dv, DEVDSP);
 
 	if ((dsp_fd = open(dv->first->ptr, O_RDONLY)) < 0) {
