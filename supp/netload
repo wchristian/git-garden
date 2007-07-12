@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+#	netload
+#	written by Jan Engelhardt <jengelh [at] gmx de>, 2002 - 2007
+#	released in the Public Domain
+#
+# NOTE: This script uses /proc/net/dev. Note that TX counters are NOT updated
+# for vmnet-bridge traffic!
+
+if [ -z "$1" ]; then
+	echo "Usage: $0 <device> [interval]";
+	exit 1;
+fi
+
+if [ -z "$2" ]; then
+	sleeper=sleep;
+	wait=1;
+elif [ "$2" -ge 50000 ]; then
+	sleeper=usleep;
+	wait="$2";
+else
+	sleeper=sleep;
+	wait="$2";
+fi;
+
+while :; do
+	cat /proc/net/dev | grep " $1" | cut -f 2 -d:;
+	"$sleeper" $wait;
+done | perl -pe '$|=1;s/.*://' | while read rxcnt rxpkt c d e f g h txcnt txpkt; do
+	if [ "$all" != "" ]; then
+		now="`cat /proc/uptime | cut -f 1 -d " " | sed s/"\."//g`";
+		[ $[$now-$oldtm] -eq 0 ] && continue;
+		rxbytes=$[($rxcnt-$oldrx)*100/($now-$oldtm)];
+		rxint=$[$rxbytes/1024];
+		rxfrac=$[$rxbytes-($rxbytes/1024*1024)];
+
+		txbytes=$[($txcnt-$oldtx)*100/($now-$oldtm)];
+		txint=$[$txbytes/1024];
+		txfrac=$[$txbytes-($txbytes/1024*1024)];
+
+		printf "\r\e[2K""  IN: %9d.%03d KB/s    OUT: %9d.%03d KB/s" \
+			$rxint $rxfrac $txint $txfrac;
+	fi;
+	all=$[$rxcnt+$txcnt];
+	oldrx=$rxcnt;
+	oldtx=$txcnt;
+	oldtm="`cat /proc/uptime | cut -f 1 -d " " | sed s/"\."//g`";
+done;

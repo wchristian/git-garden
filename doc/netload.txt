@@ -1,0 +1,10 @@
+
+Syntax: netlod DEVICE [INTERVAL]
+
+  DEVICE      Device to look at
+  INTERVAL    Intervals to collect data over, in seconds.
+              If greater than 50000, in microseconds.
+              Defaults to 1 second.
+
+Shows the current bandwidth utilization of DEVICE using an average over
+INTERVAL seconds.
