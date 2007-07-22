@@ -5,6 +5,7 @@ context default
 	keyword whole __attribute__ white
 	keyword whole __inline__ white
 	keyword whole __inline white
+	keyword whole __restrict white
 	keyword whole __typeof__ white
 	keyword whole __volatile__ white
 
@@ -34,11 +35,11 @@ context default
 	keyword whole goto white
 	keyword whole if white
 	keyword whole inline white
-	keyword whole int white
 	keyword whole int16_t white
 	keyword whole int32_t white
 	keyword whole int64_t white
 	keyword whole int8_t white
+	keyword whole int white
 	keyword whole loff_t white
 	keyword whole long white
 	keyword whole mutable white
@@ -74,6 +75,10 @@ context default
 	keyword whole typeid white
 	keyword whole typename white
 	keyword whole typeof white
+	keyword whole u_int16_t white
+	keyword whole u_int32_t white
+	keyword whole u_int64_t white
+	keyword whole u_int8_t white
 	keyword whole uint16_t white
 	keyword whole uint32_t white
 	keyword whole uint64_t white
@@ -98,7 +103,23 @@ context default
 	keyword '\\0' brightgreen
 	keyword '\{\s!"#$%&()\*\+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~\}' brightgreen
 
-	keyword 0x cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
+	keyword 0x\{0123456789ABCDEF\} cyan
 	keyword \{0123456789\} cyan
 	keyword .\{0123456789\} cyan
 
@@ -135,6 +156,15 @@ context exclusive /\* \*/ yellow
 context linestart # \n brightred
 	keyword \\\n yellow
 	keyword /\**\*/ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
+	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
 	keyword //\s+\s+\s+\s+\s+\s+\s+\s+ yellow
 	keyword //\s+\s+\s+\s+\s+\s+\s+ yellow
 	keyword //\s+\s+\s+\s+\s+\s+ yellow
