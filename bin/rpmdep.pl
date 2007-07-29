@@ -14,7 +14,7 @@
 use Data::Dumper;
 use Getopt::Long;
 use strict;
-our $FOLEVEL = 8;
+our $FOLEVEL = 4;
 &main();
 
 sub main()
