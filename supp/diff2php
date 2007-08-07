@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+#
+#	diff2php - turn a .diff into a multi-purpose PHP script
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+use strict;
+
+my %C = qw(black 000000 red      AA0000 green  00AA00 brown  AA5500
+           blue  0000AA magenta  AA00AA cyan   00AAAA gray   AAAAAA
+           dgray 555555 hred     FF0000 hgreen 00FF00 yellow FFFF00
+           hblue 0000FF hmagenta FF00FF hcyan  00FFFF white  FFFFFF);
+my $F = "</font>";
+my %D;
+my @keep;
+
+foreach my $key (keys %C) {
+	$D{$key} = "<font color=\"".$C{$key}."\">";
+}
+
+print <<"--EOF";
+<?php
+	if(getenv("QUERY_STRING") == "1") {
+		header("Content-Type: text/plain\n");
+?>
+--EOF
+
+while (defined(my $ln = <STDIN>)) {
+	push(@keep, $ln);
+	print $ln;
+}
+
+print <<"--EOF";
+<?php } else { ?>
+<html>
+<style type="text/css">
+	a { color: B0B0B0; }
+</style>
+<body style="background-color: #$C{blue}; color: #$C{gray};">
+<p><a href="?1"><i>Download this file as TXT</i></a></p>
+<hr />
+<pre>
+--EOF
+
+while (defined(my $line = shift @keep)) {
+	chomp($line);
+	$line =~ s/&/&amp;/gso;
+	$line =~ s/</&lt;/gso;
+	$line =~ s/>/&gt;/gso;
+
+	$line =~ s/^(#.*)/$D{yellow}$1$F/ ||
+	$line =~ s/^(\@\@.+\@\@)(.*)/$D{cyan}$1$F$D{hcyan}$2$F/ ||
+	$line =~ s/^(Index:\s.*)/$D{black}$1$F/ ||
+	$line =~ s/^(diff.*)/<span style="background-color: #$C{red};">$D{white}$1$F<\/span>/ ||
+	$line =~ s/^((---|\+\+\+|\*\*\*).*)/$D{hmagenta}$1$F/ ||
+	$line =~ s/^(===.*)/$D{brown}$1$F/ ||
+	$line =~ s/^([\+\>].*)/$D{hgreen}$1$F/ ||
+	$line =~ s/^([\-\<].*)/$D{hred}$1$F/ ||
+	$line =~ s/^(\!.*)/$D{yellow}$1$F/ ||
+	$line =~ s/^(\?.*)/$D{brown}$1$F/ ||
+	$line =~ s/^((RCS|retrieving)\s.*)/$D{brown}$1$F/ ||
+	$line =~ s/^((Only|Common|File|Files|Binary)\s.*)/$D{hblue}$1$F/ ||
+	$line =~ s/^ (.*)/<span style="background-color: #$C{gray};">&nbsp;<\/span>$1/;
+	print $line, "\n";
+}
+
+print <<"--EOF";
+</pre>
+<?php } ?>
+</body>
+</html>
+--EOF

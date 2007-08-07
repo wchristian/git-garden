@@ -1,0 +1,3 @@
+
+Create a PHP file from a DIFF patch, which can be opened in either colored 
+style, or as text/plain.
