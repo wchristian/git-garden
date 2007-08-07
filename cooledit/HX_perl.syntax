@@ -16,7 +16,8 @@ context default
 	keyword wholeright @_ white
 	keyword wholeright %_ white
 
-	keyword whole <+> brightred
+	keyword <=> white
+	keyword <> white
 	keyword <+> brightred
 
 	keyword 0x\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\}\{0123456789ABCDEF\} cyan
