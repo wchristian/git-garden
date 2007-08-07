@@ -154,11 +154,7 @@ sub alphanumeric($$)
 {
 	my($a_alpha, $a_num) = ($_[0] =~ /^(.*?)(?:<(\d+)>)?$/);
 	my($b_alpha, $b_num) = ($_[1] =~ /^(.*?)(?:<(\d+)>)?$/);
-	my $ret = $a_alpha cmp $b_alpha;
-	if ($ret != 0) {
-		return $ret;
-	}
-	return $a_num <=> $b_num;
+	return $a_alpha cmp $b_alpha || $a_num <=> $b_num;
 }
 
 sub stage3($$)
