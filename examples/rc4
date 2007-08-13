@@ -1,0 +1,9 @@
+#!/usr/bin/perl -p
+#
+#	rc4 in *two* lines of Perl (139 chars)
+#	Adam Beck <adam [at] cypherspace org>
+#	Jan Engelhardt <jengelh [at] gmx de>, 2003 - 2004
+#	and the PerlGolf team which also crunched it a lot
+#
+INIT{@k=pop=~/../g;$=map@s[$w++,$]=@s[$+=$_+hex$k[$w%@k],$w],@s=0..255}
+s#\C#$&^chr$s[255&map{1..$_}@s[$,$x]=@s[++$x,$+=$s[$x%=@s]]]#eg
