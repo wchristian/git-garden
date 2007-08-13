@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 targets            = ahnv.pcf.gz ahnv_b.pcf.gz tosh.pcf.gz tosh_b.pcf.gz
-nodist_bin_SCRIPTS = $(targets)
+kbd_SCRIPTS        = $(targets)
 CLEANFILES         = $(targets)
 
 %.pcf.gz: %.bdf

@@ -12,6 +12,11 @@ AC_CHECK_HEADER([libHX.h], [],
 #endif
 ])
 
+kbddir='${exec_prefix}/kbd';
+suppdir='${exec_prefix}/supp';
+AC_SUBST(kbddir)
+AC_SUBST(suppdir)
+
 AC_CFLAGS="-D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 \
 	-D_REENTRANT -Wall -Waggregate-return -Wmissing-declarations \
 	-Wmissing-prototypes -Wredundant-decls -Wshadow -Wstrict-prototypes \
