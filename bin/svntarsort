@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+#
+#	svntarsort - presort files for more efficient compression
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+#	Example:
+#		find project -print0 | svntarsort -0 | tar -T- --null \
+#		--no-r -cjf project.tar.bz2
+#
+#
+use Getopt::Long;
+use strict;
+&Getopt::Long::Configure(qw(bundling));
+&GetOptions("0" => sub { $/ = "\x00"; });
+
+sub svntarsort($$)
+{
+	my($a, $b) = @_;
+	chomp $a;
+	chomp $b;
+	$a =~ s{/\.svn/text-base/([^/]+)\.svn-base$}{/$1}s;
+	$b =~ s{/\.svn/text-base/([^/]+)\.svn-base$}{/$1}s;
+	return $a cmp $b;
+}
+
+print sort svntarsort <>;
