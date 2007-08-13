@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+#
+#	vcsaview - show Linux vt contents
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+#	Usage: vcsaview </dev/vcsa1
+#
+use strict;
+
+undef $/;
+my $data   = join("", <>);
+my $height = ord(substr($data, 0, 1));
+my $width  = ord(substr($data, 1, 1));
+
+for (my $y = 0; $y < $height; ++$y) {
+	for (my $x = 0; $x < $width; ++$x) {
+		my $p = 4 + 2 * ($y * $width + $x);
+		print &attr2color(substr($data, $p+1, 1)),
+		      substr($data, $p, 1);
+	}
+	print "\n";
+}
+
+sub asc2ans($)
+{
+	my $i = shift @_;
+	return ($i &~ 5) | (($i & 1) ? 4 : 0) |	(($i & 4) ? 1 : 0);
+}
+
+sub attr2color($)
+{
+	my $char = ord shift @_;
+
+	print "\e[0;";
+	if($char & 0x08) {
+		print "1;";
+	}
+	print "4", &asc2ans(($char & 0x70) >> 4), ";";
+	print "3", &asc2ans(($char & 0x07)), "m";
+	return;
+}
