@@ -1,5 +1,10 @@
 #!/usr/bin/perl
-
+#
+#	svn-vup - update, show log and diffstat
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
 use Getopt::Long;
 use strict;
 &Getopt::Long::Configure(qw(bundling pass_through));
