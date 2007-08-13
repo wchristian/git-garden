@@ -1,0 +1,4 @@
+
+Syntax: testdl LIBRARY[...]
+
+Tries to load bare libraries and check for missing symbols.
