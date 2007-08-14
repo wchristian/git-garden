@@ -1,0 +1,23 @@
+
+Syntax: wktimer [-Hiqs] [-A NAME[...]] [-D NAME[...]] [-F] [-L [NAME...]]
+                [-S NAME[...]] [-W NAME[...]] [-t TimerFile]
+
+  -A | --add      Create timer or restamp existing timer
+  -D | --del      Delete timer
+  -F | --flush    Flush timer table (delete all timers)
+  -L | --list     List timer (or all timers if without args)
+  -S | --stop     Stop timer or restamp existing timer
+  -W | --switch   Switch to timer (deactive all timers and resume given timer)
+
+  -H | --nohdr    Do not show header
+  -i | --istart   Show I-Start
+  -q | --quiet    Be quiet
+  -s | --sec      Show Cumulative and Elapsed time in seconds
+  -t | --file     Use timer file (rather than /tmp/timers.\$USER)
+
+If no arguments are given, shows the timer table.
+
+Restamping the start mark of a timer will add the elapsed time to the
+cumulative count.
+Restamping the stop mark of a timer will extend the elapsed time
+(and thus, cumulative time) to "now".
