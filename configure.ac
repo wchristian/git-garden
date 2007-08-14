@@ -12,7 +12,7 @@ AC_CHECK_HEADER([libHX.h], [],
 #endif
 ])
 
-kbddir='${exec_prefix}/kbd';
+kbddir='${prefix}/kbd';
 suppdir='${exec_prefix}/supp';
 AC_SUBST(kbddir)
 AC_SUBST(suppdir)
