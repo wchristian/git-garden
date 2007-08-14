@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+#
+#	extract_q2pak - extract Quake1/Quake2 PAK files
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+use strict;
+do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
+	die "Could not load shared.pm: $!\n";
+
+my($buf, $dir, $dirofs, $dirlen);
+
+open(IN, "< ".$ARGV[0]);
+binmode IN;
+if (&getcf(\*IN, 4) ne "PACK") {
+	die "Not a PAK file\n";
+}
+$dirofs = unpack("V", &getcf(\*IN, 4));
+$dirlen = unpack("V", &getcf(\*IN, 4));
+seek(IN, $dirofs, 0);
+read(IN, $dir, $dirlen);
+
+for (my $i = 0; $i < $dirlen; $i += 64) {
+	my $dentry = substr($dir, $i, 64);
+	my($nam, $ofs, $len) = unpack("Z56VV", $dentry);
+	$nam =~ s{/}{__}giso;
+	open(OUT, "> $nam");
+	binmode OUT;
+	seek(IN, $ofs, 0);
+	read(IN, $buf, $len);
+	print OUT $buf;
+	close OUT;
+	print "$nam\n";
+}

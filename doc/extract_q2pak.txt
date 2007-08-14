@@ -1,0 +1,5 @@
+
+Syntax: extract_q2pak ARCHIVE.PAK
+
+Extracts a PACK file (ID software) found in games like Quake and others who
+borrowed it, into the current directory.

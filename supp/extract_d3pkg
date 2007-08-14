@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+#
+#	extract_d3pkg - extract Descent3 PKG files
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2003 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+use strict;
+do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
+	die "Could not load shared.pm: $!\n";
+
+my $inputf  = $ARGV[0];
+my $out_dir = $ARGV[1] || ".";
+
+local *IN;
+open(IN, "< $inputf") || die "Could not open $inputf: $!\n";
+binmode IN;
+if (&getcf(\*IN, 4) ne "GKPO") {
+	die "Not a GKPO file\n";
+}
+
+my $num_entries = unpack("V", &getcf(\*IN, 4));
+print "$num_entries entries\n";
+
+for (my $i = 0; $i < $num_entries; ++$i) {
+	local *OUT;
+	my $dir_len       = unpack("V", &getcf(\*IN, 4));
+	my $dir_name      = unpack("Z*", &getcf(\*IN, $dir_len - 1));
+	$dir_name         =~ s/\\/\//go;
+	my $file_name_len = unpack("V", &getcf(\*IN, 4));
+	my $file_name     = unpack("Z*", &getcf(\*IN, $file_name_len - 1));
+	my $file_size     = unpack("V", &getcf(\*IN, 4));
+	my $u1            = unpack("V", &getcf(\*IN, 4));
+	my $u2            = unpack("V", &getcf(\*IN, 4));
+	print "$dir_name$file_name ($file_size bytes)\n";
+
+	&mkdir_p("$out_dir/$dir_name");
+#	seek(IN, $filesize, 1);
+	open(OUT, "> $out_dir/$dir_name/$file_name") ||
+		warn "Could not write to $out_dir/$dir_name/$file_name: $!\n";
+	binmode OUT;
+	&transfer(\*OUT, \*IN, $file_size);
+	close OUT;
+}

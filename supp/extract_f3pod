@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+#
+#	extract_f3pod - extract Fury3 POD files
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+use strict;
+do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
+	die "Could not load shared.pm: $!\n";
+
+my($buf, $dir, $num_files);
+
+open(IN, "< ".$ARGV[0]);
+binmode IN;
+$num_files = unpack("V", &getcf(\*IN, 4));
+read(IN, $buf, 5 * 16);
+read(IN, $dir, $num_files * 40);
+
+for (my $i = 0; $i < $num_files; ++$i) {
+	my $dentry = substr($dir, 40 * $i, 40);
+	my($nam, $len, $ofs) = unpack("Z32VV", $dentry);
+	$nam =~ s{/}{__}giso;
+	open(OUT, "> $nam");
+	binmode OUT;
+	seek(IN, $ofs, 0);
+	read(IN, $buf, $len);
+	print OUT $buf;
+	close OUT;
+	print "$nam\n";
+}

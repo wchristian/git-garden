@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+#
+#	extract_d3hog - extract Descent3 HOG files
+#	by Jan Engelhardt <jengelh [at] gmx de>, 2003 - 2007
+#	http://jengelh.hopto.org/
+#	released in the Public Domain
+#
+use strict;
+do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
+	die "Could not load shared.pm: $!\n";
+
+my $inputf  = $ARGV[0];
+my $out_dir = $ARGV[1] || ".";
+
+local *IN;
+open(IN, "< $inputf") || die "Could not open $inputf: $!\n";
+binmode IN;
+if (&getcf(\*IN, 4) ne "HOG2") {
+	die "Not a HOG2 file\n";
+}
+
+my $num_entries = unpack("V", &getcf(\*IN, 4));
+my $offset      = unpack("V", &getcf(\*IN, 4));
+&getcf(\*IN, 56); # 0xff
+
+print STDERR"$num_entries entries\n";
+
+for (my $i = 0; $i < $num_entries; ++$i) {
+	# 48 long, 36 name, 4 length, 4 unknown
+	my $file_name  = unpack("Z*", &getcf(\*IN, 40));
+	my $file_size  = unpack("V", &getcf(\*IN, 4));
+	my $time_stamp = unpack("V", &getcf(\*IN, 4));
+
+	print STDERR "$file_name ($file_size bytes, offset=$offset)\n";
+	$offset += $file_size;
+
+	&mkdir_p($out_dir);
+	open(OUT, "> $out_dir/$file_name") ||
+		warn "Could not write to $out_dir/$file_name: $!\n";
+	binmode OUT;
+	&transfer(\*OUT, \*IN, $file_size, $offset);
+	close OUT;
+}
