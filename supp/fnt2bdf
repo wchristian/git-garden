@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+#
+#	fnt2bdf
+#	Convert a VGA raw font (4096 bytes) to BDF (X11)
+#	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2005 - 2007
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 or 3 of the license.
+#
+use Getopt::Long;
+use strict;
+
+my $no_xlat;
+my %xlat;
+my $s_infile   = shift(@ARGV) || "-";
+my $s_fontname = "default".int(rand() * 0xFFFF);
+my $s_fontwid  = 9;
+
+&Getopt::Long::Configure(qw(bundling pass_through));
+&GetOptions(
+	"n=s" => \$s_fontname,
+	"w=i" => \$s_fontwid,
+	"x"   => \$no_xlat,
+);
+
+#
+# Prepare translation table
+#
+if ($no_xlat) {
+	for (my $i = 0; $i < 256; ++$i) {
+		$xlat{$i} = $i;
+	}
+} else {
+	#
+	# Only CP437 here
+	#
+	for (my $i = 0; $i < 32; ++$i) {
+		$xlat{$i} = 0;
+	}
+	for (my $i = 32; $i < 128; ++$i) {
+		$xlat{$i} = $i;
+	}
+	my %xlat_src = (
+		4 =>   1,  21 => 167,
+		128 => 199, 129 => 252, 130 => 233, 131 => 226,
+		132 => 228, 133 => 224, 134 => 229, 135 => 231,
+		136 => 234, 137 => 235, 138 => 232, 139 => 239,
+		140 => 238, 141 => 236, 142 => 196, 143 => 197,
+		144 => 201, 145 => 230, 146 => 198, 147 => 244,
+		148 => 246, 149 => 242, 150 => 251, 151 => 249,
+		152 => 255, 153 => 214, 154 => 220, 155 => 162,
+		156 => 163, 157 => 165, 160 => 225, 161 => 237,
+		162 => 243, 163 => 250, 164 => 241, 165 => 209,
+		166 => 170, 167 => 186, 170 => 172, 171 => 189,
+		172 => 188, 174 => 171, 175 => 187, 176 =>   2,
+		179 =>  25, 180 =>  22, 191 =>  12, 192 =>  14,
+		193 =>  23, 194 =>  24, 195 => 21,
+		196 =>  18, 197 =>  15, 217 =>  11, 218 =>  13,
+		225 => 223, 230 => 181,
+		235 => 240, 237 => 248,
+		241 => [177, 10],
+		246 => 247,
+		248 => [176, 9],
+		249 => [183, 31],
+		252 => 179,
+		253 => 178,
+		254 => 164,
+	);
+	foreach my $key (keys %xlat_src) {
+		#
+		# merge xlat_src (always static) into xlat
+		# (already filled with 0/$i)
+		#
+		$xlat{$key} = $xlat_src{$key};
+	}
+}
+
+#
+# Read FNT
+#
+my($i, $j) = (0, 0);
+my @tab;
+my $buf;
+
+open(IN, "< $s_infile") || die $!;
+binmode IN;
+while (read(IN, $buf, 16)) {
+	$j = $i++;
+	if (ref($xlat{$j}) ne "") {
+		foreach my $k (@{$xlat{$j}}) {
+			$tab[$k] = $buf;
+		}
+	} elsif ($xlat{$j} eq "") {
+		;
+	} else {
+		if ($xlat{$j} ne "") {
+			$j = $xlat{$j};
+		}
+		$tab[$j] = $buf;
+	}
+}
+
+#
+# Fixup xlat table
+#
+for (my $i = 0; $i < 256; ++$i) {
+	if ($tab[$i] eq "") {
+		$tab[$i] = "\x00" x 16;
+	}
+}
+
+#
+# Output header
+#
+print <<"--EOF";
+STARTFONT 2.1
+FONT $s_fontname
+SIZE 16 75 75
+FONTBOUNDINGBOX 8 16 0 -4
+STARTPROPERTIES 11
+POINT_SIZE 160
+FONT "$s_fontname"
+WEIGHT 10
+RESOLUTION 103
+RESOLUTION_X 75
+RESOLUTION_Y 75
+X_HEIGHT -1
+QUAD_WIDTH 8
+DEFAULT_CHAR 0
+FONT_ASCENT 12
+FONT_DESCENT 4
+ENDPROPERTIES
+CHARS 256
+--EOF
+
+#
+# Print
+#
+for (my $i = 0; $i < 256; ++$i) {
+	printf
+		"STARTCHAR C%03x\n".
+		"ENCODING %d\n".
+		"SWIDTH 480 0\n".
+		"DWIDTH %d 0\n".
+		"BBX %d 16 0 -4\n".
+		"BITMAP\n",
+		$i, $i, $s_fontwid, $s_fontwid;
+	printf "%02x00\n", ord $_ for split//,$tab[$i];
+	print "ENDCHAR\n";
+}
+
+print "ENDFONT\n";
