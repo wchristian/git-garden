@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+# Display the ANSI color table
+for$+(0..7){for$-(0,1,7){print"\e[0;$-;$_;4$+mAZ"for 30..37,39}print"\e[0m\n"}
+print"\e[1mbold\e[0m \e[2mdim\e[0m \e[3mitalic\e[0m \e[4munderscore\e[0m ",
+"\e[5mblink\e[0m \e[6mrapidblink\e[0m \e[7mreverse\e[0m\ndefault \e[37mgray\e[0m\n";
