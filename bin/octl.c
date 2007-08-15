@@ -2,11 +2,9 @@
  *	octl.c - Interface to OSS-API volume, recording and playback
  *	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2005 - 2007
  *
- *	This program is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU General Public License
- *	as published by the Free Software Foundation; either version
- *	2.1 of the License, or (at your option) any later version. 
- *	For details, see the file named "LICENSE.GPL2".
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 or 3 of the license.
  */
 #include <sys/ioctl.h>
 #include <sys/soundcard.h>
