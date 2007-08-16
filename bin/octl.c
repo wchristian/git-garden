@@ -420,7 +420,9 @@ static void play(int argc, const char **argv)
 		unsigned long long rel_bytes = 0, rel_pos = 0;
 		int run = 1, ffd;
 
-		if ((ffd = open(*argv, O_RDONLY)) < 0) {
+		if (strcmp(*argv, "-") == 0) {
+			ffd = STDIN_FILENO;
+		} else if ((ffd = open(*argv, O_RDONLY)) < 0) {
 			fprintf(stderr, "Could not open %s: %s\n",
 			        *argv, strerror(errno));
 			++argv;
@@ -663,7 +665,9 @@ static void record(int argc, const char **argv)
 
 	++argv;
 	playrec_setopt(dsp_fd);
-	if (pri.seekto != 0) {
+	if (strcmp(*argv, "-") == 0) {
+		ffd = STDOUT_FILENO;
+	} else if (pri.seekto != 0) {
 		if ((ffd = open(*argv, O_RDWR | O_APPEND | O_CREAT,
 		    S_IRUSR | S_IWUSR | S_IWGRP | S_IWOTH)) < 0) {
 			fprintf(stderr, "Could not open %s: %s\n",
