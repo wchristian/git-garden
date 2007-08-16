@@ -51,16 +51,28 @@ static struct pcspkr pcsp = {
 //-----------------------------------------------------------------------------
 int main(int argc, const char **argv)
 {
-	if (argc < 2) {
-		fprintf(stderr, "Syntax: %s [FILE...]\n", *argv);
-		exit(EXIT_FAILURE);
-	}
+	static const struct HXoption options_table[] = {
+		{.sh = 'i', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_sine,
+		 .help = "Proportion of sine-wave calculation mixed in"},
+		{.sh = 'q', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_square,
+		 .help = "Proportion of square-wave calculation mixed in"},
+		{.sh = 'r', .type = HXTYPE_UINT, .ptr = &pcsp.sample_rate,
+		 .help = "Sample rate (default: 48000)"},
+		HXOPT_AUTOHELP,
+		HXOPT_TABLEEND,
+	};
+
+	if (HX_getopt(options_table, &argc, &argv, HXOPT_USAGEONERR) <= 0)
+		return EXIT_FAILURE;
 
 	pcsp.file_ptr = stdout;
 	init_maps();
 
-	while (--argc > 0)
-		parse_file(*++argv);
+	if (argc == 1)
+		parse_file("-");
+	else
+		while (--argc > 0)
+			parse_file(*++argv);
 
 	return EXIT_SUCCESS;
 }
@@ -120,7 +132,12 @@ static void parse_file(const char *fn)
 	char *ln = NULL;
 	FILE *fp;
 
-	if ((fp = fopen(fn, "r")) == NULL) {
+	if (strcmp(fn, "-") == 0)
+		fp = fdopen(STDIN_FILENO, "r");
+	else
+		fp = fopen(fn, "r");
+
+	if (fp == NULL) {
 		fprintf(stderr, "** Could not open %s: %s\n", fn, strerror(errno));
 		return;
 	}
@@ -153,10 +170,10 @@ static unsigned int parse_arg_ag(const char *origptr)
 	char lookup[4] = {};
 
 	lookup[0] = *ptr++;
-	if (*ptr == '#' || *ptr == '+' || *ptr == '-') // c#
+	if (*ptr == '#' || *ptr == '+' || *ptr == '-') /* c# */
 		lookup[1] = *ptr++;
 
-	if (isdigit(*ptr)) // c2, or c#2
+	if (isdigit(*ptr)) /* c2, or c#2 */
 		note_len = strtoul(ptr, (char **)&ptr, 10);
 
 	if ((lookup[0] == 'c' && lookup[1] == '-') ||
@@ -166,7 +183,7 @@ static unsigned int parse_arg_ag(const char *origptr)
 		fprintf(stderr, "** Illegal note \"%s\" in C dur, coercing it\n", lookup);
 
 	/* convert to ticks */
-	note_len = 48000 * 240 / (note_len * glob_spd);
+	note_len = pcsp.sample_rate * 240 / (note_len * glob_spd);
 	fprintf(stderr, "%s", lookup);
 
 	while (*ptr == '.') {
@@ -182,9 +199,9 @@ static unsigned int parse_arg_ag(const char *origptr)
 		fprintf(stderr, "Irk. fq_node == NULL\n");
 	} else {
 		pcspkr_output(&pcsp,
-			/* hz  */ notemap[glob_octave * 12 + (long)fq_node->data],
-			/* dur */ note_dur,
-			/* afp */ note_len - note_dur
+			notemap[glob_octave * 12 + (long)fq_node->data],
+			note_dur,
+			note_len - note_dur
 		);
 	}
 	return ptr - origptr;

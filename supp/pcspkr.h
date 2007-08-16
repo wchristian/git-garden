@@ -16,7 +16,7 @@ enum pcspkr_format {
 struct pcspkr {
 	double prop_square, prop_sine;
 	FILE *file_ptr;
-	long sample_rate;
+	unsigned int sample_rate;
 	enum pcspkr_format format;
 };
 

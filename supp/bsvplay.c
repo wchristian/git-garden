@@ -8,12 +8,13 @@
  */
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <errno.h>
 #include <fcntl.h>
-#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <libHX.h>
 #include "pcspkr.h"
 
 #define SAMPLE_RATE 48000
@@ -29,41 +30,71 @@ static struct pcspkr pcsp = {
 	.prop_sine   = 1,
 };
 
-int main(int argc, const char **argv)
+static void parse_file(const char *file)
 {
-	double factor = 1.0 / 1024;
-	unsigned int count = 0;
+	unsigned int count = 0, ticks = 0;
 	struct bsv_insn tone;
-	int ifd;
+	int fd;
 
-	if (argc < 2)
-		return EXIT_FAILURE;
+	if (strcmp(file, "-") == 0)
+		fd = STDIN_FILENO;
+	else
+		fd = open(file, O_RDONLY);
 
-	// sd FILE SQUARE_PROPORTION SINE_PROPRTION FDIV
-	ifd = open(argv[1], O_RDONLY);
-	if (argc >= 3)
-		pcsp.prop_square = strtod(argv[2], NULL);
-	if (argc >= 4)
-		pcsp.prop_sine = strtod(argv[3], NULL);
-	if (argc >= 5)
-		factor = 1.0 / strtod(argv[4], NULL);
+	if (fd < 0) {
+		fprintf(stderr, "Could not open %s: %s\n", file, strerror(errno));
+		return;
+	}
 
-	pcsp.file_ptr    = fopen("/dev/stdout", "wb");
-
-	while (read(ifd, &tone, sizeof(struct bsv_insn)) ==
+	while (read(fd, &tone, sizeof(struct bsv_insn)) ==
 	    sizeof(struct bsv_insn))
 	{
 		long frequency = 0x1234DD / tone.divisor;
 
-		pcspkr_output(&pcsp, frequency,
-		              tone.duration * SAMPLE_RATE * factor,
-		              tone.af_pause * SAMPLE_RATE * factor);
 		fprintf(stderr, "(%5u) %5hu %5ld %5hu %5hu\n",
 			++count, tone.divisor, frequency, tone.duration,
 		        tone.af_pause);
-		fflush(stderr);
+		/*
+		 * It seems that in the sample BSV executables from 1989
+		 * calculate the cpu speed and then do around 1086 ticks/sec.
+		 * entertan.exe: 199335 / 183 = 1089
+		 * ihold.exe:     73248 /  68 = 1077
+		 * maplleaf.exe: 170568 / 157 = 1086
+		 * mnty.exe:     119680 / 110 = 1088
+		 * willtell.exe: 225350 / 206 = 1093
+		 */
+		ticks += tone.duration + tone.af_pause;
+		pcspkr_output(&pcsp, frequency,
+		              tone.duration * SAMPLE_RATE / 1086,
+		              tone.af_pause * SAMPLE_RATE / 1086);
 	}
 
-	fprintf(stderr, "\n");
+	fprintf(stderr, "Total ticks: %u\n", ticks);
+	return;
+}
+
+int main(int argc, const char **argv)
+{
+	static const struct HXoption options_table[] = {
+		{.sh = 'i', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_sine,
+		 .help = "Proportion of sine-wave calculation mixed in"},
+		{.sh = 'q', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_square,
+		 .help = "Proportion of square-wave calculation mixed in"},
+		{.sh = 'r', .type = HXTYPE_UINT, .ptr = &pcsp.sample_rate,
+		 .help = "Sample rate (default: 48000)"},
+		HXOPT_AUTOHELP,
+		HXOPT_TABLEEND,
+	};
+
+	if (HX_getopt(options_table, &argc, &argv, HXOPT_USAGEONERR) <= 0)
+		return EXIT_FAILURE;
+
+	pcsp.file_ptr = fdopen(STDOUT_FILENO, "wb");
+	if (argc == 1)
+		parse_file("-");
+	else
+		while (--argc > 0)
+			parse_file(*++argv);
+
 	return EXIT_SUCCESS;
 }
