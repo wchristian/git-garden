@@ -27,7 +27,7 @@ AC_ARG_WITH([vgafontdir], AS_HELP_STRING([--with-vgafontdir=PATH],
 	[vgafontdir="$withval"])
 AC_ARG_WITH([x11fontdir], AS_HELP_STRING([--with-x11fontdir=PATH],
 	[Path to the X11 font directory [[PREFIX/kbd]].
-	Most likely /usr/share/fonts/misc.]),
+	Most likely /usr/share/fonts.]),
 	[x11fontdir="$withval"])
 AC_SUBST(suppdir)
 AC_SUBST(keymapdir)

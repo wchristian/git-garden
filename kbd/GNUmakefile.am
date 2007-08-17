@@ -1,11 +1,18 @@
 # -*- Makefile -*-
 
 x11fonts        = ahnv.pcf.gz ahnv_b.pcf.gz tosh.pcf.gz tosh_b.pcf.gz
-keymap_SCRIPTS  = de_ccj.map us_ccj.map us_ccj_sonyvaiou3.map
+x11miscdir      = ${x11fontdir}/misc
+x11misc_SCRIPTS = ${x11fonts}
+CLEANFILES      = ${x11fonts}
+
+qwertydir       = ${keymapdir}/i386/qwerty
+qwerty_SCRIPTS  = us_ccj.map us_ccj_sonyvaiou3.map
+
+qwertzdir       = ${keymapdir}/i386/qwertz
+qwertz_SCRIPTS  = de_ccj.map
+
 vgafont_SCRIPTS = ahnv.fnt ati.fnt gotik.fnt ital.fnt neuropol.fnt nvidia.fnt \
                   rhx.fnt tosh.fnt verdana.fnt vmware.fnt
-x11font_SCRIPTS = $(x11fonts)
-CLEANFILES      = $(x11fonts)
 
 %.pcf.gz: %.bdf
 	bdftopcf <"$<" | gzip -9c >"$@";
