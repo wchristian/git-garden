@@ -43,16 +43,18 @@ int main(int argc, const char **argv)
 		close(master);
 		close(slave);
 		++argv;
-		return execvp(*argv, argv);
+		return execvp(*argv, (char *const *)argv);
 	} else {
 		char buf[PIPE_BUF];
 		ssize_t rd;
+		int status;
 
 		while ((rd = read(STDIN_FILENO, buf, PIPE_BUF)) > 0)
 			write(master, buf, rd);
 		close(master);
 		waitpid(pid, &status, 0);
+		return status;
 	}
 
-	return status;
+	return EXIT_FAILURE;
 }
