@@ -1,0 +1,302 @@
+#!/usr/bin/perl
+#
+#	stxdb 2.1 (Audio file database)
+#	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2005 - 2007
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 or 3 of the license.
+#
+use Data::Dumper;
+use Encode;
+use Getopt::Long;
+use strict;
+
+binmode STDIN,  ":utf8";
+binmode STDOUT, ":utf8";
+select((select(STDERR), $| = 1)[0]);
+my $EXTENSIONS = qr/\.(ogg|mp3|it|mid|divx?|mpe?g)/i;
+
+# Data::Dumper configuration
+$Data::Dumper::Useqq = 1;
+$Data::Dumper::Indent = 1;
+
+# Option gathering
+my @Addpt;
+my $Convert;
+my $Db_file;
+my $Do_mount;
+my $Do_save_db;
+my $Do_show_db;
+my $Vol_id;
+my %Opts;
+
+&Getopt::Long::Configure(qw(bundling pass_through));
+&GetOptions(
+	"A=s" => \@Addpt,      # path to directory which to add
+	"C"   => \$Convert,
+	"M"   => \$Do_mount,   # (un)mount each "add" target
+	"S"   => \$Do_save_db, # save database after operation
+	"V=s" => \$Vol_id,     # volume identifier
+	"W"   => \$Do_show_db, # show database after operation
+	"a"   => \$Opts{artist},
+	"f=s" => \$Db_file,    # use specified file
+	"l"   => \$Opts{album},
+	"o=s" => \%Opts,
+);
+
+&load_db();
+&process_add();
+if($Convert)    { &convert_db(); }
+if($Do_save_db) { &save_db(); }
+if($Do_show_db) { &show_db(); }
+
+#------------------------------------------------------------------------------
+sub add_target($$)
+{
+	my $count = 0; # added this many files
+	my($vol_id, $dir) = @_;
+
+	foreach my $filename (`find "$dir" -type f`) {
+		my($artist, $album, $title);
+
+		chomp $filename;
+		if ($filename !~ /$EXTENSIONS/s) {
+			next;
+		}
+
+		++$count;
+		my $filesize = -s $filename;
+		$filename =~ s[^\Q$dir\E/][];
+
+		my $regname = $filename;
+		$regname =~ s/$EXTENSIONS$//s;
+
+		#
+		# Different kinds of naming schemes:
+		#
+		if ($regname =~ m{([^/]+)\s+-\s+([^/]+)/([^/]+)$}) {
+			#
+			# >> "Artist - Album/Title"
+			#
+			# This storage method is obviously used for complete albums.
+			#
+			($artist, $album, $title) = ($1, $2, $3);
+		} elsif ($regname =~ m{([^/]+)/([^/]+)$}) {
+			#
+			# >> "Artist/Title.ogg"
+			#
+			# This one is used when you do not want to sort by album, probably
+			# because:
+			# - you do not have the full album and thus intermix them
+			# - the track does not belong to any album or
+			# - has more than one "home" album
+			#
+			($artist, $album, $title) = ($1, undef, $2);
+		} elsif ($regname =~ m{([^/]+)\s+-\s+([^/]+)$}) {
+			#
+			# >> "Artist - Title.ogg"
+			#
+			# This is like the above, but used when there are X (depends on
+			# personal preference, I use 3 or 4 for X) or less files for that
+			# artist on the volume.
+			#
+			($artist, $album, $title) = ($1, undef, $2);
+		} else {
+			#
+			# >> "Single file.ogg"
+			#
+			# For files which do not [quite] have an artist, for example the
+			# "Star Trek TNG Theme". (You could use "Theme" as artist, though.)
+			# To give a clearer example: "Cool Cat". Go figure.
+			#
+			($artist, $album, $title) = (undef, undef, $regname);
+
+			# Print a warning; maybe this file was not recognized by the above
+			# regular expressions.
+			print STDERR "Warning: Adding single file \"$filename\"\n";
+		}
+
+		$::DB->{$artist}{$album}{$title} = [$filesize, "$vol_id/$filename"];
+	}
+
+	return $count;
+}
+
+#
+# Process -f option: Load database
+#
+sub load_db()
+{
+	if ($Db_file eq "") {
+		my $name = getpwuid($>);
+		if ($name eq "") {
+			$Db_file = "stxdb.dat";
+		} else {
+			$Db_file = "stxdb-$name.dat";
+		}
+		do $Db_file;
+	} else {
+		# Explicit filename was given, so croak if it cannot be loaded
+		do $Db_file || die "Error loading database: $!\n";
+	}
+	return;
+}
+
+#
+# Process -A targets, if any.
+#
+sub process_add()
+{
+	foreach my $pt (@Addpt) {
+		if($Do_mount) {
+			system "mount", $pt;
+		}
+		&add_target($Vol_id, $pt);
+		if($Do_mount) {
+			system "umount", $pt;
+		}
+	}
+	return;
+}
+
+#
+# Process -S
+#
+sub save_db()
+{
+	my $db = Dumper($::DB);
+	$db =~ s[^\$VAR1 = \{][\$::DB = \{]s; # }}
+
+	open(OUT, "> $Db_file");
+	print OUT "#!/usr/bin/perl\n", $db;
+	close OUT;
+	return 1;
+}
+
+sub convert_db()
+{
+	my $ND = {};
+
+	while (my($artist, $album_hash) = each %$::DB) {
+		print "Converting artist \"", $artist, "\"\n";
+		my $artist_utf = decode("utf-8", $artist);
+		my $NA = {};
+		$ND->{$artist_utf} = $NA;
+
+		while (my($album, $title_hash) = each %$album_hash) {
+			print "Converting album \"", $album, "\"\n";
+			my $album_utf = decode("utf-8", $album);
+			my $NT = {};
+			$NA->{$album_utf} = $NT;
+
+			while (my($title, $title_data) = each %$title_hash) {
+				print "Converting title \"", $title, "\"\n";
+				my $title_utf = decode("utf-8", $title);
+				$NT->{$title_utf} = $title_data;
+			}
+		}
+	}
+
+	$::DB = $ND;
+	return;
+}
+
+#
+# Process -W
+# Displays the database in a nice text-tabular format.
+# show_db() is always executed after save_db(), so that bytes-per-artist
+# are not stored in the database.
+#
+sub show_db()
+{
+	my($total_files, $total_size) = (0, 0);
+
+	printf "%-50s  %16s  LOCATION\n", "ARTIST / ALBUM / TITLE", "FILES / SIZE";
+	print "-" x 160, "\n";
+
+	#
+	# Compute bytes-per-artist, bytes-per-album and total sizes
+	# Will use "each" since order does not matter here.
+	#
+	my $stat = {};
+	while (my($artist, $album_hash) = each %$::DB) {
+		while (my($album, $title_hash) = each %$album_hash) {
+			while (my($title, $title_data) = each %$title_hash) {
+				++$total_files;
+				$total_size += $title_data->[0];
+				++$stat->{$artist}[0];
+				$stat->{$artist}[1] += $title_data->[0];
+				++$stat->{$artist}[2]{$album};
+				$stat->{$artist}[3]{$album} += $title_data->[0];
+			}
+		}
+	}
+
+	# Now traverse the assoc arrays for printing
+	foreach my $artist (sort keys %$::DB) {
+		my $album_hash = $::DB->{$artist};
+		my $indent = 0;
+		if ($artist ne "") {
+			printf "%-42s %25s\n", "$artist >",
+			       sprintf "(%u files, %.1f MB)",
+			       $stat->{$artist}[0],
+			       $stat->{$artist}[1] / 1048576;
+			$indent += 2;
+		}
+		# -o artist shows only ... artists
+		if (defined $Opts{artist}) {
+			next;
+		}
+		&show_albums($artist, $album_hash, $stat, $indent);
+	}
+
+	print "-" x 160, "\n";
+	printf "%-50s  %16s  (%.1f MB, %.2f GB, %.2f TB)\n",
+	       $total_files." files", &commify($total_size, "_"),
+	       $total_size / (1024 ** 2), $total_size / (1024 ** 3),
+	       $total_size / (1024 ** 4);
+	return;
+}
+
+sub show_albums($$$$)
+{
+	my($artist, $album_hash, $stat, $indent) = @_;
+
+	foreach my $album (sort keys %$album_hash) {
+		my $title_hash = $album_hash->{$album};
+
+		if ($album ne "") {
+			printf "  %-39s  %25s\n", "$album >",
+			       sprintf "(%u files, %.1f MB)",
+			       $stat->{$artist}[2]{$album},
+			       $stat->{$artist}[3]{$album} / 1048576;
+			$indent += 2;
+		}
+
+		if (!defined($Opts{album})) {
+			# show_titles()
+			my $len = 57 - $indent;
+			foreach my $title (sort keys %$title_hash) {
+				printf "%s%-*s  %9d  %13s %s\n", " " x $indent,
+				       $len, $title, @{$title_hash->{$title}};
+			}
+		}
+
+		if ($album ne "") {
+			$indent -= 2;
+		}
+	}
+
+	return;
+}
+
+sub commify($$)
+{
+	# from perl manuals
+	my $v = shift @_;
+	my $sep = shift(@_) || ",";
+	while($v =~ s/^([-+]?\d+)(\d{3})/$1$sep$2/) {
+	}
+	return $v;
+}
