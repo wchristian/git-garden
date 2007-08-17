@@ -1,0 +1,6 @@
+
+Syntax: pipe2pt PROGRAM [ARGS...]
+
+pipe2pt reads the input on STDIN, opens a pty (pseudo terminal) pair and
+hands the data out to the next process over the terminal, making it look like
+the (original) data came from a tty, not from a pipe.
