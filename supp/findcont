@@ -17,7 +17,7 @@ while (defined($_ = <>)) {
 	$_ =~ s{\s*/\*.*?\*/\s*$}{}g;
 
 	if ($state == 1 && $_ =~ /^${ws}\tif\s*\(/s) {
-		# Special case: if(a)\n\tif(b)
+		# Special case: if (a)\n\tif (b)
 		++$nocont;
 	}
 
@@ -49,9 +49,9 @@ while (defined($_ = <>)) {
 			next;
 		}
 
-		# $nocont can only increase at the first line after if()
+		# $nocont can only increase at the first line after if ()
 		if ($state == 1) {
-			if($_ =~ /^$ws\t/) {
+			if ($_ =~ /^$ws\t/) {
 				# Continued with one tab = must be code
 				$state = 0;
 				++$nocont;

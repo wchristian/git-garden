@@ -124,7 +124,7 @@ int main(int argc, const char **argv)
 			setutent();
 			pututline(&entry);
 		}
-		if(Opt.op_wtmp)
+		if (Opt.op_wtmp)
 			updwtmp(Opt.fwtmp, &entry);
 	}
 

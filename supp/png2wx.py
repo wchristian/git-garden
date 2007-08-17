@@ -45,9 +45,9 @@ def encoded(file):
 def parse_options():
 	(opts, sys.argv) = getopt.gnu_getopt(sys.argv[1:], "C:H:M:")
 	for i in opts:
-		if(i[0] == "-C"): c = i[1]
-		if(i[0] == "-H"): h = i[1]
-		if(i[0] == "-M"): m = i[1]
+		if (i[0] == "-C"): c = i[1]
+		if (i[0] == "-H"): h = i[1]
+		if (i[0] == "-M"): m = i[1]
 	try:
 		return (c, h, m)
 	except:

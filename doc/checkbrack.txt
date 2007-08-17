@@ -15,9 +15,9 @@ EXAMPLE
     $ checkbrack /usr/lib/hxtools/bin/checkbrack | less -S
     #   () [] {}
      13  0  0  1 foreach my $file (@ARGV) {
-     14  0  0  1     if(!-f $file) { next; }
+     14  0  0  1     if (!-f $file) { next; }
      15  0  0  1     print "Displaying $file...\n";
-     16  0  0  2     if(!open(IN, "< $file")) {
+     16  0  0  2     if (!open(IN, "< $file")) {
      17  0  0  2         print "Error opening $file: $!\n";
      18  0  0  2         next;
      19  0  0  1     }

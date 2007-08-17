@@ -325,8 +325,8 @@ static void mixer_proc_ctl(int mixer_fd, const char *ctl, const char *vol)
 		if (vol_r > 100) vol_r = 100;
 		arg = vol_l | (vol_r << 8);
 
-		if(ioctl(mixer_fd, MIXER_WRITE(i), &arg) < 0) {
-			if(errno == EINVAL) {
+		if (ioctl(mixer_fd, MIXER_WRITE(i), &arg) < 0) {
+			if (errno == EINVAL) {
 				fprintf(stderr, "Invalid mixer control: %s\n",
 				        mixer_ctlname[i]);
 			} else {

@@ -21,7 +21,7 @@ foreach my $key (keys %C) {
 
 print <<"--EOF";
 <?php
-	if(getenv("QUERY_STRING") == "1") {
+	if (getenv("QUERY_STRING") == "1") {
 		header("Content-Type: text/plain\n");
 ?>
 --EOF

@@ -107,7 +107,7 @@ sub start_timer($$)
 			# was a stopped timer
 			$t->{Start} = time();
 			$t->{Stop}  = -1;
-			if($flags & OP_VERBOSE) {
+			if ($flags & OP_VERBOSE) {
 				print "Restarted timer \"$name\"\n";
 			}
 		}
@@ -320,7 +320,7 @@ sub is_running($)
 sub sec2date($)
 {
 	my $in = shift @_;
-	if($in < 0) {
+	if ($in < 0) {
 		return "(running)";
 	}
 	my @d = localtime $in;

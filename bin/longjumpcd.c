@@ -102,18 +102,18 @@ int main(int argc, char **argv)
 		 * Stop if we walked too far (only count for DOWN!).  Setting
 		 * MAX_DOWN_DEPTH to 1 will render this program useless.
 		 */
-		if(++depth >= MAX_DOWN_DEPTH)
+		if (++depth >= MAX_DOWN_DEPTH)
 			break;
 
 		/*
 		 * If the root directory was already seen, do not try any
 		 * parent directories. root->parent == root.
 		 */
-		if(hit_root)
+		if (hit_root)
 			continue;
-		if(try_path(upath, *argv, Base_inode))
+		if (try_path(upath, *argv, Base_inode))
 			break;
-		if(get_inode(upath) == Root_inode)
+		if (get_inode(upath) == Root_inode)
 			++hit_root;
 		HX_strlcat(upath, "/..", MAXFNLEN);
 	}

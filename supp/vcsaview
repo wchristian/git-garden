@@ -34,7 +34,7 @@ sub attr2color($)
 	my $char = ord shift @_;
 
 	print "\e[0;";
-	if($char & 0x08) {
+	if ($char & 0x08) {
 		print "1;";
 	}
 	print "4", &asc2ans(($char & 0x70) >> 4), ";";
