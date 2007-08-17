@@ -17,8 +17,6 @@
 #include <libHX.h>
 #include "pcspkr.h"
 
-#define SAMPLE_RATE 48000
-
 struct bsv_insn {
 	uint16_t divisor, duration, af_pause;
 };
@@ -65,8 +63,8 @@ static void parse_file(const char *file)
 		 */
 		ticks += tone.duration + tone.af_pause;
 		pcspkr_output(&pcsp, frequency,
-		              tone.duration * SAMPLE_RATE / 1086,
-		              tone.af_pause * SAMPLE_RATE / 1086);
+		              tone.duration * pcsp.sample_rate / 1086,
+		              tone.af_pause * pcsp.sample_rate / 1086);
 	}
 
 	fprintf(stderr, "Total ticks: %u\n", ticks);
