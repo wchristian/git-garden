@@ -14,7 +14,7 @@ use strict;
 #------------------------------------------------------------------------------
 sub main($)
 {
-	my($cpp_file, $hpp_file, $Marker, $main, $tmp);
+	my($cpp_file, $hpp_file, $hpp_include, $Marker, $main, $tmp);
 	&Getopt::Long::Configure(qw(bundling));
 	&GetOptions(
 		"C=s"  => \$cpp_file,
@@ -25,6 +25,8 @@ sub main($)
 	if ($cpp_file eq "" || $hpp_file eq "" || $Marker eq "") {
 		die "You need to specify -C, -H and -M options.\n";
 	}
+
+	$hpp_include = ($hpp_file =~ m{/([^/]*)$})[0];
 
 	#
 	# C++ header
@@ -59,7 +61,7 @@ extern void initialize_images(void);
 #	include <wx/wx.h>
 #endif
 #include <wx/mstream.h>
-#include "$hpp_file"
+#include "$hpp_include"
 
 --EOF
 
