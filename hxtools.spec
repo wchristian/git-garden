@@ -1,16 +1,17 @@
 
-Name:           hxtools
-Version:        20070817
-Release:        ccj0
-Group:          System/Base
-URL:            http://jengelh.hopto.org/
-Summary:        Collection of day-to-day tools
+Name:		hxtools
+Version:	20070817
+Release:	ccj0
+Group:		System/Base
+URL:		http://jengelh.hopto.org/
+Summary:	Collection of day-to-day tools
 
-Source:         %name-%version.tar.bz2
-License:        GPL,PD
-BuildRequires:	libHX >= 1.10
-BuildRoot:      %_tmppath/%name-%version-build
-Prefix:         /opt/hxtools
+Source:		%name-%version.tar.bz2
+License:	GPL,PD
+# freetype2, xorg-x11 for "bdftopcf"
+BuildRequires:	libHX >= 1.10, freetype2, xorg-x11
+BuildRoot:	%_tmppath/%name-%version-build
+Prefix:		/opt/hxtools
 
 %description
 A big tool collection.
@@ -21,7 +22,11 @@ A big tool collection.
 
 %build
 ./autogen.sh;
-%configure --prefix=%_prefix \
+%configure \
+	--prefix=/opt/hxtools \
+	--exec-prefix=/opt/hxtools \
+	--bindir=/opt/hxtools/bin \
+	--with-suppdir=/opt/hxtools/supp \
 	--with-keymapdir=%_datadir/kbd/keymaps \
 	--with-vgafontdir=%_datadir/kbd/consolefonts \
 	--with-x11fontdir=%_datadir/fonts
@@ -40,7 +45,7 @@ rm -Rf "%buildroot";
 %defattr(-,root,root)
 %_datadir/kbd/consolefonts/*
 %_datadir/kbd/keymaps/i386/*/*
-%_libdir/%name
+/opt/hxtools
 %_datadir/fonts/misc/*
 %doc doc/*
 
