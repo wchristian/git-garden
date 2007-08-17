@@ -1,0 +1,5 @@
+
+Syntax:  mod2ogg [-qQUALITY] FILE[...]
+Example: mod2ogg -q6 Snowfields.it
+
+Converts MOD/Tracker files to OGG.
