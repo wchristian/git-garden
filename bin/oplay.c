@@ -377,7 +377,7 @@ static void sighandler(int s)
 		pri.smprate += 1000;
 
 	while (travp != NULL) {
-		playrec_setopt((int)travp->ptr);
+		playrec_setopt((long)travp->ptr);
 		travp = travp->next;
 	}
 	return;
@@ -401,7 +401,7 @@ static void play(int argc, const char **argv)
 			        cdevp, strerror(errno));
 			exit(EXIT_FAILURE);
 		}
-		travp->ptr = (void *)dsp_fd;
+		travp->ptr = (void *)(long)dsp_fd;
 		playrec_setopt(dsp_fd);
 		travp = travp->next;
 	}
@@ -454,7 +454,7 @@ static void play(int argc, const char **argv)
 
 			travp = dv->first;
 			while (travp != NULL) {
-				if (write((int)travp->ptr, pri.buf, have_read) < 0) {
+				if (write((long)travp->ptr, pri.buf, have_read) < 0) {
 					fprintf(stderr, "\r%s: Error while "
 					        "writing to DSP: %s\e[K\n",
 					        *argv, strerror(errno));
@@ -493,7 +493,7 @@ static void play(int argc, const char **argv)
 
 	travp = dv->first;
 	while (travp != NULL) {
-		close((int)travp->ptr);
+		close((long)travp->ptr);
 		travp = travp->next;
 	}
 	HXdeque_free(dv);

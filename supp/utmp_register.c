@@ -85,6 +85,7 @@ static bool get_options(int *argc, const char ***argv)
 int main(int argc, const char **argv)
 {
 	struct utmp entry = {};
+	struct timeval tv;
 
 	if (!get_options(&argc, &argv))
 		return EXIT_FAILURE;
@@ -117,7 +118,9 @@ int main(int argc, const char **argv)
 		HX_strlcpy(entry.ut_host, Opt.host, sizeof(entry.ut_host));
 
 	entry.ut_session = Opt.sess;
-	gettimeofday(&entry.ut_tv, NULL);
+	gettimeofday(&tv, NULL);
+	entry.ut_tv.tv_sec  = tv.tv_sec;
+	entry.ut_tv.tv_usec = tv.tv_usec;
 
 	if (Opt.op_add) {
 		if (Opt.op_utmp) {
