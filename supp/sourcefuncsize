@@ -1,0 +1,217 @@
+#!/usr/bin/perl
+#
+#	sourcefuncsize - classify source code
+#	http://jengelh.hopto.org/
+#	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2005 - 2007
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 or 3 of the license.
+#
+use Getopt::Long;
+use strict;
+my($Color, $Ext, $Verbose, $Sort_type, $Empty);
+
+&Getopt::Long::Configure(qw(bundling pass_through));
+&GetOptions(
+	"b"  => sub { $Sort_type = 0; },
+	"c"  => \$Color,
+	"e+" => \$Empty,
+	"l"  => sub { $Sort_type = 1; },
+	"v"  => \$Verbose,
+	"x"  => \$Ext,
+);
+
+#
+# We can use \^\w+ as segment identifiers as they can not clash with function
+# names.
+#
+my %COLOR = (
+	"^pre"   => "\e[1;31m",
+	"^other" => "\e[0;34m",
+	"^cm"    => "\e[1;33m",
+	"^lcm"   => "\e[1;33m",
+	"^empty" => "\e[1;30m",
+);
+my %SEG_MAP = (
+	"^pre"   => "[Preprocessor]",
+	"^other" => "[Other data]",
+	"^cm"    => "[Comments]",
+	"^lcm"   => "[Comments]",
+	"^empty" => "[Empty lines]",
+);
+
+#
+# The regex which matches function starts (well, not if you use fancy extras)
+#
+my $FUNC_RX = qr/^
+	(?:inline\s+)?
+	(?:static\s+)?
+	(?:inline\s+)? # inline can be before static or after static
+	(?:const\s+)?
+	(?:
+		# certain mixtures of (un)signed with {char,short,long} and int
+		(?:(?:un)?signed)?\s+(?:char|byte|short|long) |
+		(?:(?:un)?signed)?\s+(?:(?:short|long)\s+)?int |
+		\w+ |                   # other atomic type, maybe typedef
+		(?:struct|union)\s+\w+  # aggregates
+	)
+	(?:
+		\s*\*+\s* |             # returns pointer
+		\s+                     # returns type
+	)
+	(\w+)                           # function name
+	\s*\(\s*.*?\s*\)                # function args
+	\s*\{
+/xs;
+
+&main();
+
+#------------------------------------------------------------------------------
+sub main()
+{
+	my($func, $total) = &analyze_data(<STDIN>);
+	&print_results($func, $total);
+	return;
+}
+
+sub analyze_data(@)
+{
+	my %cnt_func;           # lines/bytes usage per function
+	my %cnt_total;          # simple total of lines/bytes
+	my $cur_seg = "^other"; # segment to which current line belongs
+	my @saved_seg;
+	my $stops = 0;          # lines to wait for returning to $saved_seg
+	                        # (used for multi-line function introducers)
+	my $seg_lcomm = 0;      # we are in a /* */ comment block
+	my $depth = 0;          # brace tracker for finding start/end of func
+	my $depth_track = 0;
+
+	for ($. = 0; $. <= $#_; ++$.) {
+		my $ln = $_[$.];
+
+		if ($Ext) {
+			#
+			# enhanced recognition
+			#
+			if ($ln =~ m[^\s*#]so) {
+				push(@saved_seg, $cur_seg);
+				$cur_seg = "^pre";
+			} elsif ($ln =~ m[^\s*//]so) {
+				push(@saved_seg, $cur_seg);
+				$cur_seg = "^cm";
+			} elsif ($ln =~ m[^\s*/\*]so) {
+				#
+				# multi-line /* */ comment
+				#
+				push(@saved_seg, $cur_seg);
+				$cur_seg = "^lcm";
+				++$seg_lcomm;
+			} elsif ($ln =~ m[/\*.*?\*/]so) {
+				#
+				# one-line /* */ comment, with possibly code in
+				# the same line thus, do nothing here
+				#
+			} elsif ($ln =~ m[\*/]so) {
+				$seg_lcomm = 0;
+			} elsif ($Empty) {
+				my $s;
+				chomp($s = $ln);
+				if ($s =~ /^\s*$/so && ($cur_seg eq "^other" ||
+				    $Empty > 1)) {
+					push(@saved_seg, $cur_seg);
+					$cur_seg = "^empty";
+					$stops = 0;
+				}
+			}
+		}
+
+		#
+		# There just is no meaning in having function introducers in
+		# preprocessor commands or comments other than for preprocessor
+		# or commentary purposes.
+		#
+		if ($cur_seg !~ /^\^(?:pre|l?cm)$/iso) {
+			if ($ln =~ $FUNC_RX) {
+				push(@saved_seg, $cur_seg);
+				$cur_seg = $1;
+				$stops = 1;
+				++$depth_track;
+			} elsif (join($/, @_[$...($.+1)]) =~ $FUNC_RX) {
+				# A retry for a two-line introducer.
+				# (If you have an introducer longer than this, you should
+				# really consider another programming style.)
+				push(@saved_seg, $cur_seg);
+				$cur_seg = $1;
+				$stops = 2;
+				++$depth_track;
+			}
+		}
+
+		my $b_open  = $ln =~ tr/\{/\{/;
+		my $b_close = $ln =~ tr/\}/\}/;
+		$depth += $b_open - $b_close;
+
+		#
+		# Increment the usage count for the current segment or function
+		#
+		my $cname_seg = $SEG_MAP{$cur_seg};
+		if (!defined($cname_seg)) {
+			$cname_seg = $cur_seg;
+		}
+		$cnt_func{$cname_seg}{b} += length $ln;
+		$cnt_total{b} += length $ln;
+		++$cnt_func{$cname_seg}{l};
+		++$cnt_total{l};
+
+		if ($Verbose) {
+			if ($Color) {
+				my $s = $COLOR{$cur_seg};
+				print $s ? $s : "\e[0;32m";
+			}
+			my $sb = sprintf "%s:%-3d", $cname_seg, $cnt_func{$cname_seg}{l};
+			printf "<%4d>%-25s\t", $. + 1, $sb;
+			print $ln;
+			if ($Color) {
+				print "\e[0m";
+			}
+		}
+
+		if ($cur_seg =~ /^\^(?:cm|pre|empty)$/iso ||
+		    ($cur_seg eq "^lcm" && !$seg_lcomm)) {
+			$cur_seg = pop @saved_seg;
+			next;
+		}
+
+		if ($seg_lcomm == 0 && --$stops <= 0 && (
+		    (!$depth_track || ($depth_track && $depth == 0)))) {
+			#
+			# Only discard the current function when depth == 0
+			#
+			my $oldseg = pop @saved_seg;
+			if (defined $oldseg) {
+				$cur_seg = $oldseg;
+			}
+		}
+	}
+
+	return(\%cnt_func, \%cnt_total);
+}
+
+sub print_results($$)
+{
+	my %func  = %{shift @_};
+	my %total = %{shift @_};
+
+	printf "%6s           %6s           %s\n", "BYTES", "LINES", "FUNCTION";
+
+	foreach my $n (sort { !$Sort_type ? $func{$b}{b} <=> $func{$a}{b} :
+	    $func{$b}{l} <=> $func{$a}{l}; } keys %func)
+	{
+		printf "%6d(%6.2f%%)  %6d(%6.2f%%)  %s\n",
+		       $func{$n}{b}, $func{$n}{b} * 100 / $total{b},
+		       $func{$n}{l}, $func{$n}{l} * 100 / $total{l}, $n;
+	}
+
+	return;
+}
