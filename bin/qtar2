@@ -1,0 +1,6 @@
+#!/bin/bash
+
+output="$1";
+shift;
+find "$@" -print0 | svntarsort -0 | tar -T- --null --no-r --owner=root --group=root \
+-cvjf "$output";
