@@ -1,0 +1,5 @@
+
+Syntax: mailsplit FILE[...]
+
+Splits the mbox-style mailbox file into a folder ".FILE.split-up". It also
+creates a HTML index file for it.
