@@ -1,0 +1,9 @@
+
+Syntax: alplay [-aqz] FILE[...]
+
+  -a    Display full instrumental sheet (only timidity)
+  -q    Do not print time position while playing (only timidity)
+  -z    Shuffle file list
+
+Plays the given files, using external programs. It is some sort of simple
+frontend for the various file types, such as OGG, UMX, MID/MOD/XM/IT/S3M, MP3.
