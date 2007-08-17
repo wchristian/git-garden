@@ -12,7 +12,7 @@ oplay_LDFLAGS      = -lHX
 tailhex_LDFLAGS    = -lHX
 
 omixer: oplay
-	ln -s oplay omixer;
+	[ ! -e omixer ] && ln -s oplay omixer;
 
 orec: oplay
-	ln -s oplay orec;
+	[ ! -e orec ] && ln -s oplay orec;
