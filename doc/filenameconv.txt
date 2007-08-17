@@ -1,0 +1,12 @@
+
+Usage: filenameconv [-Y] -f FROMCHARSET -t TOCHARSET DIRECTORY...
+
+  -f FROMCHARSET    The charset which your files are currently in
+  -t TOCHARSET      The charset you want to have the files afterwards
+  -Y                Process the files instead of showing what would be done
+
+Convert filenames on the whole filesystem between two charsets.
+The selected charsets must be supported by the `iconv` program!
+
+Example:
+    filenameconv -f iso-8859-1 -t utf-8 .
