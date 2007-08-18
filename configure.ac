@@ -3,6 +3,7 @@ AC_INIT(hxtools, SVN)
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE
 AC_PROG_CC
+AM_PROG_CC_C_O
 
 AC_CHECK_HEADER([libHX.h], [],
 	AC_MSG_RESULT([Some programs need libHX 1.10 (or newer) but which is not installed. Use `make -k` to ignore build errors on these programs.]), [
