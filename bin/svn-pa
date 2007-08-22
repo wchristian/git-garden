@@ -1,0 +1,14 @@
+#!/bin/bash
+
+property="$1";
+value="$2";
+shift;
+shift;
+if [ -z "$property" -o -z "$value" ]; then
+	echo "Usage: $0 property value [FILE...]";
+	exit 1;
+fi;
+for i in "$@"; do
+	svn ps -F <(svn pg "$property" "$i" |
+		grep -v '^$'; echo "$value";) "$property" "$i";
+done;
