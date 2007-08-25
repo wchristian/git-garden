@@ -4,7 +4,7 @@ AM_CFLAGS        = $(AC_CFLAGS)
 CLEANFILES       = omixer orec
 
 bin_PROGRAMS     = declone longjumpcd omixer oplay orec tailhex truncate
-bin_SCRIPTS      = alplay checkbrack fxterm pesubst pmap_dirty qtar qtar2 \
+bin_SCRIPTS      = checkbrack fxterm pesubst playmuch pmap_dirty qtar qtar2 \
                    recursive_lower rpmdep.pl stxdb svn-pa svn-vup svntarsort \
                    sysinfo wktimer ytdl
 longjumpcd_LDADD = -lHX
