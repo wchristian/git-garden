@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-AM_CFLAGS     = $(AC_CFLAGS)
+AM_CFLAGS     = $(regular_CFLAGS)
 
 supp_PROGRAMS = bsvplay testdl pipe2pt qplay testdl utmp_register
 supp_SCRIPTS  = diff2php extract_d3hog extract_d3pkg extract_f3pod \

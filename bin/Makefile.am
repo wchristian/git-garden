@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-AM_CFLAGS        = $(AC_CFLAGS)
+AM_CFLAGS        = $(regular_CFLAGS)
 CLEANFILES       = omixer orec
 
 bin_PROGRAMS     = declone longjumpcd omixer oplay orec tailhex truncate

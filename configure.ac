@@ -36,9 +36,9 @@ AC_SUBST(keymapdir)
 AC_SUBST(vgafontdir)
 AC_SUBST(x11fontdir)
 
-AC_CFLAGS="-D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 \
+regular_CFLAGS="-D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 \
 	-D_REENTRANT -Wall -Waggregate-return -Wmissing-declarations \
 	-Wmissing-prototypes -Wredundant-decls -Wshadow -Wstrict-prototypes \
 	-Winline -pipe"
-AC_SUBST(AC_CFLAGS)
-AC_OUTPUT(Makefile bin/Makefile kbd/GNUmakefile supp/Makefile)
+AC_SUBST(regular_CFLAGS)
+AC_OUTPUT([Makefile bin/Makefile kbd/GNUmakefile supp/Makefile])
