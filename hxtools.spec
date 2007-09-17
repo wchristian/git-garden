@@ -1,7 +1,7 @@
 
 Name:		hxtools
-Version:	20070817
-Release:	ccj0
+Version:	20070917
+Release:	0
 Group:		System/Base
 URL:		http://jengelh.hopto.org/
 Summary:	Collection of day-to-day tools
@@ -9,7 +9,7 @@ Summary:	Collection of day-to-day tools
 Source:		%name-%version.tar.bz2
 License:	GPL,PD
 # freetype2, xorg-x11 for "bdftopcf"
-BuildRequires:	libHX >= 1.10, freetype2, xorg-x11
+BuildRequires:	libHX-devel >= 1.10, freetype2, xorg-x11
 BuildRoot:	%_tmppath/%name-%version-build
 Prefix:		/opt/hxtools
 
@@ -21,7 +21,6 @@ A big tool collection.
 %setup
 
 %build
-./autogen.sh;
 %configure \
 	--prefix=/opt/hxtools \
 	--exec-prefix=/opt/hxtools \
