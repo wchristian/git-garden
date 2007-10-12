@@ -194,7 +194,7 @@ def calc_speed(start, now, bytes):
 
 # Create the command line options parser and parse command line
 cmdl_usage = 'usage: %prog [options] video_url'
-cmdl_version = '2007.10.09'
+cmdl_version = '2007.10.12'
 cmdl_parser = optparse.OptionParser(usage=cmdl_usage, version=cmdl_version, conflict_handler='resolve')
 cmdl_parser.add_option('-h', '--help', action='help', help='print this help text and exit')
 cmdl_parser.add_option('-v', '--version', action='version', help='print program version and exit')
@@ -328,7 +328,7 @@ video_url_real = const_video_url_real_str % (video_url_id, video_url_t_param)
 try:
 	cond_print('Requesting video file... ')
 	video_data = perform_request(video_url_real)
-	cond_print('done.')
+	cond_print('done.\n')
 	cond_print('Video data found at %s\n' % video_data.geturl())
 
 	if cmdl_opts.get_title:
