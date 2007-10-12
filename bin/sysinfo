@@ -24,17 +24,30 @@ if (open(IN, "< /proc/version")) {
 }
 
 if (open(IN, "</proc/cpuinfo")) {
-	my($cpu_mhz, $cpu_model);
+	my($cpu_mhz, $cpu_model, $cpu_vendor, $cpu_arch, $cpu_num);
 	while (defined(my $l = <IN>)) {
 		chomp $l;
-		if ($l =~ /^model name\s+:\s+(.*)/i) {
+		if ($l =~ /^processor\s+:/i) {
+			++$cpu_num;
+		} elsif ($l =~ /^vendor\s+:\s+(.*)/i) {
+			$cpu_vendor = $1;
+		} elsif ($l =~ /^arch\s+:\s+(.*)/i) {
+			$cpu_arch = $1;
+		} elsif ($l =~ /^model name\s+:\s+(.*)/i) {
 	                $cpu_model = $1;
 		} elsif ($l =~ /^cpu mhz\s+:\s+(.*)/i) {
 			$cpu_mhz = $1;
 		}
 	}
 	$cpu_mhz =~ s/\..*/$1/;
-	print " | $cpu_model $cpu_mhz MHz";
+	if ($cpu_model eq "") {
+		$cpu_model = "$cpu_vendor $cpu_arch";
+	}
+	print " | ";
+	if ($cpu_num > 1) {
+		print "${cpu_num}x ";
+	}
+	print "$cpu_model $cpu_mhz MHz";
 	close IN;
 }
 
@@ -101,7 +114,7 @@ if (open(IN, "</proc/uptime")) {
 	close IN;
 }
 
-if (open(IN, "lspci | grep 'VGA compatible controller:' |")) {
+if (open(IN, "/sbin/lspci | grep 'VGA compatible controller:' |")) {
 	my $dev;
 	chomp($dev = <IN>);
 	$dev =~ s/^.*VGA compatible controller:\s+//;
