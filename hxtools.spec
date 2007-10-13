@@ -1,7 +1,7 @@
 
 Name:		hxtools
-Version:	20070917
-Release:	0
+Version:	20071014
+Release:	ccj0
 Group:		System/Base
 URL:		http://jengelh.hopto.org/
 Summary:	Collection of day-to-day tools
@@ -11,10 +11,19 @@ License:	GPL,PD
 # freetype2, xorg-x11 for "bdftopcf"
 BuildRequires:	libHX-devel >= 1.10, freetype2, xorg-x11
 BuildRoot:	%_tmppath/%name-%version-build
+Recommends:	hxtools-data
 Prefix:		/opt/hxtools
 
 %description
 A big tool collection.
+
+%package data
+Group:		System/Base
+Summary:	Collection day-to-day tools (data)
+Recommends:	hxtools
+
+%description data
+Architecture-indepent data for hxtools.
 
 %debug_package
 %prep
@@ -36,16 +45,22 @@ b="%buildroot";
 rm -Rf "$b";
 mkdir "$b";
 make install DESTDIR="$b";
+install -dm0755 "$b/%_datadir/mc/syntax";
+install -pm0644 cooledit/*.syntax "$b/%_datadir/mc/syntax/";
 
 %clean
 rm -Rf "%buildroot";
 
 %files
 %defattr(-,root,root)
+/opt/hxtools
+
+%files data
+%defattr(-,root,root)
 %_datadir/kbd/consolefonts/*
 %_datadir/kbd/keymaps/i386/*/*
-/opt/hxtools
 %_datadir/fonts/misc/*
+%_datadir/mc/syntax/*
 %doc doc/*
 
 %changelog -n hxtools
