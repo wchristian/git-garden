@@ -1,7 +1,6 @@
 # -*- cooleditsyntax -*-
 
 context default
-	keyword \t gray red
 	keyword \{ABCDEFGHabcdefgh\} brightgreen
 	keyword \{Mm\}\{LNSlns\} brightmagenta
 	keyword \{LOPTlopt\} brightmagenta
@@ -11,7 +10,6 @@ context default
 	keyword ( brightcyan
 	keyword ) brightcyan
 	keyword $+ brightred
-	keyword \t gray red
 	keyword \\ yellow
 	keyword \+ yellow
 	keyword - yellow
