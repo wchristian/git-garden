@@ -1,7 +1,7 @@
 
 Name:		hxtools
 Version:	20071014
-Release:	ccj0
+Release:	ccj1
 Group:		System/Base
 URL:		http://jengelh.hopto.org/
 Summary:	Collection of day-to-day tools
@@ -45,8 +45,9 @@ b="%buildroot";
 rm -Rf "$b";
 mkdir "$b";
 make install DESTDIR="$b";
-install -dm0755 "$b/%_datadir/mc/syntax";
+install -dm0755 "$b/%_sysconfdir/openldap/schema" "$b/%_datadir/mc/syntax";
 install -pm0644 cooledit/*.syntax "$b/%_datadir/mc/syntax/";
+install -pm0644 data/rfc2307bis-utf8.schema "$b/%_sysconfdir/openldap/schema/";
 
 %clean
 rm -Rf "%buildroot";
@@ -57,6 +58,7 @@ rm -Rf "%buildroot";
 
 %files data
 %defattr(-,root,root)
+%_sysconfdir/openldap/schema/*
 %_datadir/kbd/consolefonts/*
 %_datadir/kbd/keymaps/i386/*/*
 %_datadir/fonts/misc/*
