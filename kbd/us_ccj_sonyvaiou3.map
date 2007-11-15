@@ -1,4 +1,4 @@
-include "us_jen.map"
+include "us_ccj.map"
 
 plain keycode 124 = equal
 shift keycode 124 = plus
