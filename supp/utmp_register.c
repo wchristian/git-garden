@@ -9,8 +9,10 @@
  *	2.1 of the License, or (at your option) any later version. 
  *	For details, see the file named "LICENSE.GPL2".
  */
+#include <sys/stat.h>
 #include <sys/time.h>
-#include <paths.h>
+#include <sys/types.h>
+#include <fcntl.h>
 #include <pwd.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -20,6 +22,13 @@
 #include <unistd.h>
 #include <utmp.h>
 #include <libHX.h>
+#include "config.h"
+#ifdef HAVE_LASTLOG_H
+#	include <lastlog.h>
+#endif
+#ifdef HAVE_PATHS_H
+#	include <paths.h>
+#endif
 
 /* Definitions */
 #ifndef _PATH_UTMP
@@ -28,16 +37,25 @@
 #ifndef _PATH_WTMP
 #	define _PATH_WTMP "/var/log/wtmp"
 #endif
+#ifndef _PATH_LASTLOG
+#	define _PATH_LASTLOG "/var/log/lastlog"
+#endif
 
 /* Variables */
 static struct {
-	char *host, *line, *user, *futmp, *fwtmp;
+	char *host, *line, *user, *futmp, *fwtmp, *flastlog;
 	long sess;
-	int epid, pid, op_add, op_del, op_utmp, op_wtmp;
+	unsigned int epid, pid, op_add, op_del, op_utmp, op_wtmp, op_lastlog;
 } Opt = {
-	.futmp = _PATH_UTMP,
-	.fwtmp = _PATH_WTMP,
+	.futmp    = _PATH_UTMP,
+	.fwtmp    = _PATH_WTMP,
+	.flastlog = _PATH_LASTLOG,
 };
+
+static inline unsigned int imax(unsigned int a, unsigned int b)
+{
+	return (a > b) ? a : b;
+}
 
 static bool get_options(int *argc, const char ***argv)
 {
@@ -46,6 +64,8 @@ static bool get_options(int *argc, const char ***argv)
 		 .help = "Add an entry"},
 		{.sh = 'D', .type = HXTYPE_NONE, .ptr = &Opt.op_del,
 		 .help = "Delete an entry"},
+		{.sh = 'L', .type = HXTYPE_NONE, .ptr = &Opt.op_lastlog,
+		 .help = "Perform operation on lastlog"},
 		{.sh = 'U', .type = HXTYPE_NONE, .ptr = &Opt.op_utmp,
 		 .help = "Perform operation on UTMP"},
 		{.sh = 'W', .type = HXTYPE_NONE, .ptr = &Opt.op_wtmp,
@@ -80,6 +100,35 @@ static bool get_options(int *argc, const char ***argv)
 	}
 
 	return true;
+}
+
+static void update_lastlog(const char *file, const struct utmp *utmp)
+{
+#ifdef HAVE_LASTLOG_H
+	struct lastlog entry = {};
+	struct passwd *pwd;
+	int fd;
+
+	if ((pwd = getpwnam(utmp->ut_user)) == NULL)
+		return;
+
+	if ((fd = open(_PATH_LASTLOG, O_WRONLY)) < 0)
+		return;
+	if (lseek(fd, pwd->pw_uid * sizeof(struct lastlog), SEEK_SET) !=
+	    pwd->pw_uid * sizeof(struct lastlog)) {
+		close(fd);
+		return;
+	}
+
+	entry.ll_time = utmp->ut_tv.tv_sec;
+	strncpy(entry.ll_line, utmp->ut_line,
+	        imax(sizeof(entry.ll_line), sizeof(utmp->ut_line)));
+	strncpy(entry.ll_host, utmp->ut_host,
+	        imax(sizeof(entry.ll_host), sizeof(utmp->ut_host)));
+	write(fd, &entry, sizeof(entry));
+	close(fd);
+	return;
+#endif
 }
 
 int main(int argc, const char **argv)
@@ -129,6 +178,8 @@ int main(int argc, const char **argv)
 		}
 		if (Opt.op_wtmp)
 			updwtmp(Opt.fwtmp, &entry);
+		if (Opt.op_lastlog)
+			update_lastlog(Opt.flastlog, &entry);
 	}
 
 	entry.ut_type = DEAD_PROCESS;
