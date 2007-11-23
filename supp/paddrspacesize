@@ -3,21 +3,24 @@
 use strict;
 local *FH;
 
+print "#### This script uses a heuristic, so may not be accurate\n";
+
 my @list = `ps afhx -o pid,command`;
 foreach my $line (@list) {
 	my($pid, $reset) = ($line =~ /^\s*(\d+)\s+(.*)/);
+	my $bitness = 0;
 
 	if (!open(FH, "</proc/$pid/maps")) {
 		next;
 	}
 
-	<FH> =~ /^([0-9a-f]+)/i;
-	if (length($1) == 16) {
-		print "[64] $line";
-	} elsif (length($1) == 8) {
-		print "[32] $line";
-	} else {
-		print "[--] $line";
+	while (defined(my $subline = <FH>)) {
+		$subline =~ /^([0-9a-f]+)/i;
+		if ($bitness < length($1)) {
+			$bitness = length($1);
+		}
 	}
+
+	printf "[%2s] %s", $bitness == 0 ? "--" : 4 * $bitness, $line;
 	close FH;
 }
