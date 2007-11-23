@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+use strict;
+local *FH;
+
+my @list = `ps afhx -o pid,command`;
+foreach my $line (@list) {
+	my($pid, $reset) = ($line =~ /^\s*(\d+)\s+(.*)/);
+
+	if (!open(FH, "</proc/$pid/maps")) {
+		next;
+	}
+
+	<FH> =~ /^([0-9a-f]+)/i;
+	if (length($1) == 16) {
+		print "[64] $line";
+	} elsif (length($1) == 8) {
+		print "[32] $line";
+	} else {
+		print "[--] $line";
+	}
+	close FH;
+}
