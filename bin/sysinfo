@@ -52,10 +52,10 @@ if (open(IN, "</proc/cpuinfo")) {
 }
 
 if (open(IN, "</proc/loadavg")) {
-	my($load1, $load5, $load15, $rproc, $sproc) =
+	my($load1, $load5, $load15, $rtask, $stask) =
 		(<IN> =~ /^(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\/(.+?)\s/);
-	my $total = $rproc + $sproc;
-	printf " | Load: $load1 Procs: $rproc/$total";
+	my $total = $rtask + $stask;
+	printf " | Load: $load1 Tasks: $total";
 	close IN;
 }
 
