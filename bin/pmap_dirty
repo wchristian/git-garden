@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 #
 #	pmap_dirty
 #	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2006 - 2007
@@ -19,7 +19,7 @@ my $total_dirty = 0;
 if (scalar(@ARGV) == 0) {
 	@ARGV = sort { $a <=> $b } map {
 		$_ = ($_ =~ m{^/proc/(\d+)$})[0];
-		$_ eq "" ? () : $_
+		(!defined($_) || $_ eq "") ? () : $_
 	} glob("/proc/*");
 }
 
