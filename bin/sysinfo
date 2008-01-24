@@ -12,11 +12,10 @@ use strict;
 
 if (open(IN, "hostname --fqdn 2>/dev/null |")) {
 	chomp(my $l = <IN>);
-	print "Host: $l | ";
+	print "[$l] ";
 	close IN;
 }
 
-print "System Info: ";
 if (open(IN, "< /proc/version")) {
 	my ($os, $ver) = (<IN> =~ /^(\w+)\s+\w+\s+(\S+)/i);
 	print "$os $ver";
@@ -99,16 +98,13 @@ if (open(IN, "</proc/uptime")) {
 	my $minutes = floor($up / 60 % 60);
 	my $seconds = floor($up % 60);
 	printf " | Up:";
-	if ($days) {
+	if ($days > 0 ) {
 		printf " %ud", $days;
-	}
-	if ($hours) {
+	} elsif ($hours > 0) {
 		printf " %uh", $hours;
-	}
-	if ($minutes) {
+	} elsif ($minutes > 0) {
 		printf " %um", $minutes;
-	}
-	if ($seconds) {
+	} elsif ($seconds > 0) {
 		printf " %us", $seconds;
 	}
 	close IN;
