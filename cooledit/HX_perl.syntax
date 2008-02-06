@@ -10,6 +10,8 @@ context default
 	keyword wholeright $\{0123456789\}\{0123456789\} white
 	keyword wholeright $\{0123456789\} white
 	keyword $\{!\"%&/()[]=?\\\`'@\+\*~#<|>,;.:-\} white
+	keyword \\"
+	keyword \\'
 
 	keyword $^ white
 	keyword wholeright $_ white
@@ -147,7 +149,10 @@ context " " green
 	keyword wholeright @+ brightgreen
 	keyword \\\{0123\}\{01234567\}\{01234567\} brightgreen
 	keyword \\x\{0123456789ABCDEFabcdef\}\{0123456789ABCDEFabcdef\} brightgreen
-	keyword \\\{abcenrtv\} brightgreen
+	keyword \\\{"\\abcenrtv\} brightgreen
+
+context ' ' brightgreen
+	keyword \\\{'\\} brightgreen
 
 context exclusive linestart sub \n
 
