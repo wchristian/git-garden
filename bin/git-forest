@@ -1,0 +1,413 @@
+#!/usr/bin/perl
+#
+#	git-森林
+#	text-based tree visualisation
+#	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2008
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 or 3 of the license.
+#
+#	Options:
+#
+#	--style=1
+#		Use single-line visuals
+#	--style=2
+#		Use double-line visuals (default)
+#	--style=3
+#		Use single-line visuals in vertical direction,
+#		and double-line ones in horizontal direction.
+#	--sha
+#		Display SHAs for each commit
+#
+#	All other options and arguments are passed down to git-log.
+#	Commonly useful are --all and --topo-order; along with the
+#	tag name or commit range.
+#
+#	This tool does not try to minimize the empty space between branches
+#	like gitk does. Take it as a feature.
+#
+#	Notes on interpretation:
+#
+#	'╬' (or variants thereof, like ╪) is meant to be a "path bridge", i.e.
+#	traversal is only "allowed" horizontal OR vertical direction.
+#
+#	Branching:
+#	C D E F G
+#	╠═╬═╩═╩═╝  A->{C,E,F,G} and B->D.
+#	A B
+#
+#	Merging:
+#       E F
+#       ╠═╬═╦═╗    {A,C,D}->E, B->F.
+#       A B C D
+#
+use Getopt::Long;
+use Git;
+use strict;
+use encoding "utf8";
+my $Repo     = Git->repository($ENV{"GIT_DIR"} || ".");
+my $Style    = 2;
+my $With_sha = 0;
+
+&main();
+
+sub main ()
+{
+	&Getopt::Long::Configure(qw(bundling pass_through));
+	&GetOptions(
+		"style=i" => \$Style,
+		"sha"     => \$With_sha,
+	);
+	&process();
+}
+
+sub process ()
+{
+	my(@vine);
+	my $refs = &get_refs();
+	my($fh, $fhc) = $Repo->command_output_pipe("log",
+	                "--pretty=format:<%H><%h><%P>%s", @ARGV);
+
+	while (defined(my $line = <$fh>)) {
+		chomp $line;
+		my($sha, $mini_sha, $parents, $msg) =
+			($line =~ /^<(.*?)><(.*?)><(.*?)>(.*)/s);
+		my @parents = split(" ", $parents);
+
+		&vine_branch(\@vine, $sha);
+		my $ra = &vine_commit(\@vine, $sha, \@parents);
+
+		if (exists($refs->{$sha})) {
+			print &vis_post(&vis_commit($ra, "\e[1;30m─\e[0m"));
+			&ref_print($refs->{$sha});
+		} else {
+#			print &vis_post(&vis_commit($ra, "\e[1;30m∙\e[0m"));
+#			print &vis_post(&vis_commit($ra, "\e[1;30m─\e[0m"));
+			print &vis_post(&vis_commit($ra, "\e[1;30m·\e[0m"));
+		}
+		if ($With_sha) {
+			print $msg, "\e[1;30m──(\e[0;31m",
+			      $mini_sha, "\e[1;30m)\e[0m\n";
+		} else {
+			print $msg, "\n";
+		}
+
+		&vine_merge(\@vine, $sha, \@parents);
+	}
+	$Repo->command_close_pipe($fh, $fhc);
+}
+
+sub get_refs ()
+{
+	my($fh, $c) = $Repo->command_output_pipe("show-ref");
+	my $ret = {};
+
+	while (defined(my $ln = <$fh>)) {
+		chomp $ln;
+		if (length($ln) == 0) {
+			next;
+		}
+
+		my($sha, $name) = ($ln =~ /^(\S+)\s+(.*)/s);
+		if (!exists($ret->{$sha})) {
+			$ret->{$sha} = [];
+		}
+		push(@{$ret->{$sha}}, $name);
+		if ($name =~ m{^refs/tags/}) {
+			my $sub_sha = $Repo->command("log", "-1",
+			              "--pretty=format:%H", $name);
+			chomp $sub_sha;
+			if ($sha ne $sub_sha) {
+				push(@{$ret->{$sha}}, $name);
+			}
+		}
+	}
+
+	$Repo->command_close_pipe($fh, $c);
+	return $ret;
+}
+
+sub ref_print ($)
+{
+	foreach my $symbol (@{shift @_}) {
+		print "\e[1;30m[";
+		if ($symbol =~ m{^refs/(remotes/[^/]+)/(.*)}s) {
+			print "\e[1;35m$1\e[1;32m/$2";
+		} elsif ($symbol =~ m{^refs/heads/(.*)}s) {
+			print "\e[1;32m$1";
+		} elsif ($symbol =~ m{^refs/tags/(.*)}s) {
+			print "\e[1;33m$1";
+		} elsif ($symbol =~ m{^refs/(.*)}s) {
+			print "\e[1;34m$1";
+		}
+		print "\e[1;30m]──\e[0m";
+	}
+}
+
+sub vine_branch ($$)
+{
+	my($vine, $rev) = @_;
+	my $idx;
+
+	my $left = "╠";
+	my $matched = 0;
+	my $ret;
+
+#	print "merge: rev=$rev\n";
+	for ($idx = 0; $idx < scalar(@$vine); ++$idx) {
+#		print "merge: vine $idx has ", $vine->[$idx], "; ret=$ret,m=$matched\n";
+		if (!defined($vine->[$idx])) {
+			$ret .= "═";
+			next;
+		} elsif ($vine->[$idx] ne $rev) {
+			$ret .= "╪";
+			next;
+		}
+		if ($matched == 0) {
+			$ret .= "╠";
+		} else {
+			$ret .= "╩";
+			$vine->[$idx] = undef;
+		}
+		++$matched;
+	}
+
+#	print "ret=$ret matched=$matched\n";
+	if ($matched < 2) {
+		return;
+	}
+
+	while (!defined($vine->[$#$vine])) {
+		pop(@$vine);
+	}
+
+	print &vis_post(&vis_branch($ret)), "\n";
+}
+
+sub vine_commit ($$$)
+{
+	my($vine, $rev, $parents) = @_;
+	my $ret;
+
+	for (my $i = 0; $i <= $#$vine; ++$i) {
+#		print "commit: v=",$vine->[$i],"\n";
+		if (!defined($vine->[$i])) {
+			$ret .= " ";
+		} elsif ($vine->[$i] eq $rev) {
+			$ret .= "╟";
+		} else {
+			$ret .= "║";
+		}
+	}
+
+	if ($ret !~ /╟/) {
+		# Not having produced a ╟ before means this is a HEAD
+		$ret .= "╓";
+		push(@$vine, $rev);
+	}
+
+	while (scalar(@$vine) > 0 && !defined($vine->[$#$vine])) {
+		pop(@$vine);
+	}
+
+	if (scalar(@$parents) == 0) {
+		# tree root
+		$ret =~ s/╟/╙/g;
+	}
+
+	return $ret;
+}
+
+#
+#	Generate vine graphics for a merge
+#
+sub vine_merge ($$$)
+{
+	my($vine, $rev, $parents) = @_;
+	my $orig_vine = -1;
+	my @slot;
+	my($ret, $max);
+
+	for (my $i = 0; $i <= $#$vine; ++$i) {
+		if ($vine->[$i] eq $rev) {
+			$orig_vine = $i;
+			last;
+		}
+	}
+
+	if ($orig_vine == -1) {
+		die "vine_commit() did not add this vine.";
+	}
+
+	if (scalar(@$parents) <= 1) {
+		#
+		# A single parent does not need a visual. Update and return.
+		#
+		$vine->[$orig_vine] = $parents->[0];
+
+		while (scalar(@$vine) > 0 && !defined($vine->[$#$vine])) {
+			pop(@$vine);
+		}
+		return;
+	}
+
+	#
+	# Find some good spots to split out into.
+	# Slots that are tried:
+	# orig_vine, orig_vine-1, orig_vine+1, orig_vine-2, orig_vine+2, ...
+	# (fanout from current center)
+	#
+	push(@slot, $orig_vine);
+	for (my($seeker, $parent) = (2, 0); $parent < $#$parents; ++$seeker) {
+		my $idx = ($seeker % 2) ? -1 : 1;
+		$idx   *= int($seeker / 2);
+		$idx   += $orig_vine;
+
+		if ($idx >= 0 && !defined($vine->[$idx])) {
+			push(@slot, $idx);
+			++$parent;
+		}
+	}
+
+	if (scalar(@slot) != scalar(@$parents)) {
+		die "Serious internal problem";
+	}
+
+	@slot = sort { $a <=> $b } @slot;
+	$max  = scalar(@$vine) + scalar(@slot);
+
+#	print "vines=", scalar(@$vine), " parents=", scalar(@$parents), " max=$max\n";
+	for (my $i = 0; $i < $max; ++$i) {
+		if ($#slot >= 0 && $i == $slot[0]) {
+			shift @slot;
+			$vine->[$i] = shift @$parents;
+#			print "parent ", $vine->[$i], "\n";
+			$ret .= ($i == $orig_vine) ? "S" : "s";
+		} elsif (defined($vine->[$i])) {
+			$ret .= "║";
+		} else {
+			$ret .= " ";
+		}
+
+	}
+
+	$ret =~ s/ +$//gs;
+	print &vis_post(&vis_merge($ret)), "\n";
+}
+
+sub vis_branch ($)
+{
+	# Sample input: ╬═╠╬╬╬╩╬═╬╬╬╬╬╬╩╬╩═╬╬
+	my $ra = shift @_;
+	my $i;
+
+	$ra =~ s{^(.+?)╠}{
+		$_ = $1;
+		$_ =~ tr/╪═/║ /;
+		$_ =~ s/(.)/$1 /gs;
+		$_ .= '╠';
+	}es;
+	$ra =~ s{(╠.*)╩}{
+		$_ = $1;
+		$_ =~ s/(.)/$1═/gs;
+		$_ .= '╝';
+	}es;
+	$ra =~ s{╝(.*)$}{
+		$_ = $1;
+		$_ =~ tr/╪═/║ /;
+		$_ =~ s/(.)/$1 /gs;
+		$_ = "╝ $_";
+	}es;
+	return $ra;
+}
+
+sub vis_commit ($$)
+{
+	my($ra, $sep) = @_;
+	my($l, $r) = ($ra =~ /^(.*?)([╟╓╙].*)/);
+	$l =~ s/(.)/$1 /gs;
+	$r =~ s/(.)/$1 /gs;
+	$r =~ s/ /$sep/gs;
+	return $l.$r;
+}
+
+sub vis_merge ($)
+{
+	my $s = shift @_;
+
+	if ($s =~ s/(s.*)S(.*s)/&vis_merge3($1, $2)/es) {
+		;
+	} elsif ($s =~ /(?:s.*)S/s) {
+		while ($s =~ s/(s.*)║(.*S)/$1╪$2/s) {
+			;
+		}
+		$s =~ s/(s.*)S/&vis_merge2L($1)."╣"/es;
+	} elsif ($s =~ /S(?:.*s)/s) {
+		while ($s =~ s/(S.*)║(.*s)/$1╪$2/s) {
+			;
+		}
+		$s =~ /S(.*s)/;
+#		print "s:$s;r:$1\n";
+		$s =~ s/S(.*s)/"╠".&vis_merge2R($1)/es;
+	} else {
+		# $s =~ s/S/║/s;
+		;
+	}
+	$s =~ s{(.)}{&vis_merge1($1)}egs;
+	return $s;
+}
+
+sub vis_merge1 ($)
+{
+	if ($_[0] eq "╔" || $_[0] eq "╦" || $_[0] eq "╠" || $_[0] eq "╪") {
+		return $_[0]."═";
+	} else {
+		return $_[0]." ";
+	}
+}
+
+sub vis_merge2L ($)
+{
+	my $l = shift @_;
+	$l =~ s/^s/╔/;
+	$l =~ s/s/╦/g;
+	return $l;
+}
+
+sub vis_merge2R ($)
+{
+	my $r = shift @_;
+	$r =~ s/s$/╗/;
+	$r =~ s/s/╦/g;
+	return $r;
+}
+
+sub vis_merge3 ($$)
+{
+	my($l, $r) = shift @_;
+	$l =~ s/^s/╔/;
+	$l =~ s/s/╦/g;
+	$r =~ s/s$/╗/;
+	$r =~ s/s/╦/g;
+	return "$l╪$r";
+}
+
+#
+#	post-process vine graphic
+#
+sub vis_post ($)
+{
+	my $s = shift @_;
+
+	if ($Style == 1) {
+		$s =~ tr/╔╦╗╠╬╣╚╩╝║═╟╓╙╪/┌┬┐├┼┤└┴┘│─├┌└┼/;
+	} elsif ($Style == 2) {
+		$s =~ tr/╪/╬/;
+	} elsif ($Style == 3) {
+		$s =~ tr/╔╦╗╠╬╣╚╩╝║╟╓╙/╒╤╕╞╪╡╘╧╛│├┌└/;
+	}
+
+	$s =~ s/\e\[0m/$&\e\[33m/g;
+	return "\e[0;33m$s\e[0m";
+}
