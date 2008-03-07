@@ -5,6 +5,6 @@ for i in `git-rev-list --reverse "$@"`; do
 	let ++j;
 	f="`printf %04u.diff $j`";
 	echo -en "[$f] ";
-	git-log --abbrev-commit --pretty=oneline $i^..$i | cat;
-	git-log -C -M --stat=72 --summary -p $i^..$i >"$f";
+	git-log -1 --abbrev-commit --pretty=oneline "$i" | cat;
+	git-log -1 -C -M -p --stat=72 --summary "$i" >"$f";
 done;
