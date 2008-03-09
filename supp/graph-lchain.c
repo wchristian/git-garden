@@ -141,6 +141,10 @@ static void lchain_link(const char *source_name, const char *target_name)
 		return;
 	}
 
+	/*
+	 * If there is no edge <a1, ANY> in the (directed) tree, add edge to
+	 * tree, restart loop with next tuple ("CONTINUE"/RETURN).
+	 */
 	if (source_ptr->parent == NULL) {
 		if (lchain_contains(target_ptr, source_ptr))
 			return;
@@ -149,9 +153,15 @@ static void lchain_link(const char *source_name, const char *target_name)
 		return;
 	}
 
+	/* [ Now we know there must be a <a1, ANY> edge in the tree. ] */
+
+	/* If the edge <a1, a2> is already in the tree, CONTINUE. */
+
 	if (strcmp(source_ptr->parent->name, target_name) == 0)
 		/* Parent did not change */
 		return;
+
+	/* [ Now there is <a1, a3> in the tree, with a2 != a3 ] */
 
 	lchain_relink(source_ptr, target_ptr);
 }
@@ -161,9 +171,22 @@ static void lchain_relink(struct node *source, struct node *new_parent)
 	unsigned int old_path_length, new_path_length;
 	struct node *common_ancestor, *w;
 
+	/*
+	 * Check whether adding <a1, a2> to the tree would generate a
+	 * circle/loop a1-->a2-->...-->a1. If so, CONTINUE.
+	 *
+	 * This ensures the tree remains a tree. Once you have loops
+	 * the graph would quickly get cramped.
+	 */
+
 	/* Make sure it will be loop-free */
 	if (lchain_contains(new_parent, source))
 		return;
+
+	/*
+	 * [ Now we know that <a1, a2> is a potential candidate to replace
+	 * <a1, a3> and that the tree is indeed loop-free. ]
+	 */
 
 	/*
 	 * Find longest path towards common ancestor.
@@ -187,6 +210,12 @@ static void lchain_relink(struct node *source, struct node *new_parent)
 			break;
 	}
 
+	/*
+	 * Let c be a common ancestor of an existing path, e.g.
+	 * a1-->a3-->...-->c, and the "proposed" new path
+	 * a1-->a2-->...-->c. If no such common ancestor exists, CONTINUE.
+	 */
+
 	common_ancestor = w;
 	if (common_ancestor == NULL) {
 		/* No common ancestor. Clear flags. Bail out. */
@@ -203,6 +232,19 @@ static void lchain_relink(struct node *source, struct node *new_parent)
 	}
 	for (; w != NULL; w = w->parent)
 		w->mark = false;
+
+	/*
+	 * If the path a1-->a2-->...->c is longer (has more edges) than
+	 * a1-->a3->...-->c, delete <a1, a3> from the tree and add
+	 * <a1, a2> instead.
+	 *
+	 * This I call longest-chaining.
+	 *
+	 * One can see that this results in a tree with only ever one
+	 * tuple to match <a1, ANY>.
+	 * This ensures that no two edges ever overlap which "helps"
+	 * decramping the graph.
+	 */
 
 	source->parent = new_parent;
 }

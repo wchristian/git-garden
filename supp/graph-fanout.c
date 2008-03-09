@@ -7,6 +7,29 @@
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 or 3 of the license.
  */
+
+/*
+ * Assume you have a group of nodes X_1 ... X_n that all point to a next-node P
+ * (it is a directed graph). If n is within the threshold ("fan_height" in the
+ * source code), do nothing with this group.
+ *                                                                               
+ * Insert intermediate parent nodes for X_1 ... X_n so that P and every
+ * intermediate only has at most n nodes pointing to it.
+ *                                                                               
+ * (Just think of it like the n-level pagetables.)                               
+ *                                                                               
+ * This is basically just a hack for graphviz because it tends to overlap edges
+ * when it has to give them greater curvature. (Make yourself a tree with 32
+ * nodes X_1...X_32 and one root node to which all 32 are attached.) The edges
+ * X_1-->P and X_32-->P will have a great 'curvature', while X_16-->P is pretty
+ * linear.
+ *                                                                              
+ * The 'problem' (it's rather "we did not want to write code until the dawn of
+ * time just to avoid this problem") lies in graphviz's math parts to form the
+ * edge curvature -- so it happens that X_1-->P will overlap with X_4-->P. This
+ * is not so nice when you really want to follow all edges from your name to
+ * the root.
+ */
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
