@@ -25,10 +25,10 @@ print "$num_entries entries\n";
 for (my $i = 0; $i < $num_entries; ++$i) {
 	local *OUT;
 	my $dir_len       = unpack("V", &getcf(\*IN, 4));
-	my $dir_name      = unpack("Z*", &getcf(\*IN, $dir_len - 1));
+	my $dir_name      = unpack("Z*", &getcf(\*IN, $dir_len));
 	$dir_name         =~ s/\\/\//go;
 	my $file_name_len = unpack("V", &getcf(\*IN, 4));
-	my $file_name     = unpack("Z*", &getcf(\*IN, $file_name_len - 1));
+	my $file_name     = unpack("Z*", &getcf(\*IN, $file_name_len));
 	my $file_size     = unpack("V", &getcf(\*IN, 4));
 	my $u1            = unpack("V", &getcf(\*IN, 4));
 	my $u2            = unpack("V", &getcf(\*IN, 4));
