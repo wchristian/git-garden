@@ -119,7 +119,7 @@ sub get_refs ()
 			              "--pretty=format:%H", $name);
 			chomp $sub_sha;
 			if ($sha ne $sub_sha) {
-				push(@{$ret->{$sha}}, $name);
+				push(@{$ret->{$sub_sha}}, $name);
 			}
 		}
 	}
