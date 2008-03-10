@@ -254,17 +254,24 @@ sub vine_merge ($$$)
 
 	#
 	# Find some good spots to split out into.
-	# Slots that are tried:
-	# orig_vine, orig_vine-1, orig_vine+1, orig_vine-2, orig_vine+2, ...
-	# (fanout from current center)
 	#
 	push(@slot, $orig_vine);
-	for (my($seeker, $parent) = (2, 0); $parent < $#$parents; ++$seeker) {
-		my $idx = ($seeker % 2) ? -1 : 1;
+	my $parent = 0;
+
+	for (my $seeker = 2; $parent < $#$parents &&
+	    $seeker < 2 + 2 * $#$vine; ++$seeker)
+	{
+		my $idx = ($seeker % 2 == 0) ? -1 : 1;
 		$idx   *= int($seeker / 2);
 		$idx   += $orig_vine;
 
-		if ($idx >= 0 && !defined($vine->[$idx])) {
+		if ($idx >= 0 && $idx <= $#$vine && !defined($vine->[$idx])) {
+			push(@slot, $idx);
+			++$parent;
+		}
+	}
+	for (my $idx = $orig_vine + 1; $parent < $#$parents; ++$idx) {
+		if (!defined($vine->[$idx])) {
 			push(@slot, $idx);
 			++$parent;
 		}
