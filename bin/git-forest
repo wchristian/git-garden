@@ -49,6 +49,16 @@ use encoding "utf8";
 my $Repo     = Git->repository($ENV{"GIT_DIR"} || ".");
 my $Style    = 2;
 my $With_sha = 0;
+my %Color    = (
+	"default" => "\e[0m",
+	"at"      => "\e[1;30m",
+	"head"    => "\e[1;32m",
+	"ref"     => "\e[1;34m",
+	"remote"  => "\e[1;35m",
+	"sha"     => "\e[0;31m",
+	"tag"     => "\e[1;33m",
+	"tree"    => "\e[0;33m",
+);
 
 &main();
 
@@ -56,8 +66,9 @@ sub main ()
 {
 	&Getopt::Long::Configure(qw(bundling pass_through));
 	&GetOptions(
-		"style=i" => \$Style,
-		"sha"     => \$With_sha,
+		"no-color" => sub { %Color = (); },
+		"style=i"  => \$Style,
+		"sha"      => \$With_sha,
 	);
 	&process();
 }
@@ -79,16 +90,15 @@ sub process ()
 		my $ra = &vine_commit(\@vine, $sha, \@parents);
 
 		if (exists($refs->{$sha})) {
-			print &vis_post(&vis_commit($ra, "\e[1;30m─\e[0m"));
+			print &vis_post(&vis_commit($ra,
+			      $Color{at}."─".$Color{default}));
 			&ref_print($refs->{$sha});
 		} else {
-#			print &vis_post(&vis_commit($ra, "\e[1;30m∙\e[0m"));
-#			print &vis_post(&vis_commit($ra, "\e[1;30m─\e[0m"));
-			print &vis_post(&vis_commit($ra, "\e[1;30m·\e[0m"));
+			print &vis_post(&vis_commit($ra, " "));
 		}
 		if ($With_sha) {
-			print $msg, "\e[1;30m──(\e[0;31m",
-			      $mini_sha, "\e[1;30m)\e[0m\n";
+			print $msg, $Color{at}, "──(", $Color{sha}, $mini_sha,
+			      $Color{at}, ")", $Color{default}, "\n";
 		} else {
 			print $msg, "\n";
 		}
@@ -131,17 +141,17 @@ sub get_refs ()
 sub ref_print ($)
 {
 	foreach my $symbol (@{shift @_}) {
-		print "\e[1;30m[";
+		print $Color{at}, "[";
 		if ($symbol =~ m{^refs/(remotes/[^/]+)/(.*)}s) {
-			print "\e[1;35m$1\e[1;32m/$2";
+			print $Color{remote}, $1, $Color{head}, "/$2";
 		} elsif ($symbol =~ m{^refs/heads/(.*)}s) {
-			print "\e[1;32m$1";
+			print $Color{head}, $1;
 		} elsif ($symbol =~ m{^refs/tags/(.*)}s) {
-			print "\e[1;33m$1";
+			print $Color{tag}, $1;
 		} elsif ($symbol =~ m{^refs/(.*)}s) {
-			print "\e[1;34m$1";
+			print $Color{ref}, $1;
 		}
-		print "\e[1;30m]──\e[0m";
+		print $Color{at}, "]──", $Color{default};
 	}
 }
 
@@ -154,9 +164,7 @@ sub vine_branch ($$)
 	my $matched = 0;
 	my $ret;
 
-#	print "merge: rev=$rev\n";
 	for ($idx = 0; $idx < scalar(@$vine); ++$idx) {
-#		print "merge: vine $idx has ", $vine->[$idx], "; ret=$ret,m=$matched\n";
 		if (!defined($vine->[$idx])) {
 			$ret .= "═";
 			next;
@@ -173,7 +181,6 @@ sub vine_branch ($$)
 		++$matched;
 	}
 
-#	print "ret=$ret matched=$matched\n";
 	if ($matched < 2) {
 		return;
 	}
@@ -191,7 +198,6 @@ sub vine_commit ($$$)
 	my $ret;
 
 	for (my $i = 0; $i <= $#$vine; ++$i) {
-#		print "commit: v=",$vine->[$i],"\n";
 		if (!defined($vine->[$i])) {
 			$ret .= " ";
 		} elsif ($vine->[$i] eq $rev) {
@@ -284,12 +290,10 @@ sub vine_merge ($$$)
 	@slot = sort { $a <=> $b } @slot;
 	$max  = scalar(@$vine) + scalar(@slot);
 
-#	print "vines=", scalar(@$vine), " parents=", scalar(@$parents), " max=$max\n";
 	for (my $i = 0; $i < $max; ++$i) {
 		if ($#slot >= 0 && $i == $slot[0]) {
 			shift @slot;
 			$vine->[$i] = shift @$parents;
-#			print "parent ", $vine->[$i], "\n";
 			$ret .= ($i == $orig_vine) ? "S" : "s";
 		} elsif (defined($vine->[$i])) {
 			$ret .= "║";
@@ -355,11 +359,10 @@ sub vis_merge ($)
 			;
 		}
 		$s =~ /S(.*s)/;
-#		print "s:$s;r:$1\n";
 		$s =~ s/S(.*s)/"╠".&vis_merge2R($1)/es;
 	} else {
 		# $s =~ s/S/║/s;
-		;
+		die "Should not come here";
 	}
 	$s =~ s{(.)}{&vis_merge1($1)}egs;
 	return $s;
@@ -415,6 +418,8 @@ sub vis_post ($)
 		$s =~ tr/╔╦╗╠╬╣╚╩╝║╟╓╙/╒╤╕╞╪╡╘╧╛│├┌└/;
 	}
 
-	$s =~ s/\e\[0m/$&\e\[33m/g;
-	return "\e[0;33m$s\e[0m";
+	if ($Color{default} ne "") {
+		$s =~ s{\Q$Color{default}\E}{$&$Color{tree}}g;
+	}
+	return $Color{tree}, $s, $Color{default};
 }
