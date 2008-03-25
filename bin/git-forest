@@ -29,18 +29,12 @@
 #
 #	Notes on interpretation:
 #
-#	'╬' (or variants thereof, like ╪) is meant to be a "path bridge", i.e.
-#	traversal is only "allowed" horizontal OR vertical direction.
+#	Connections with four "legs" ('╬' or variants thereof, like '╪') are
+#	meant to be interpreted as being connected only in the horizontal and
+#	vertical direction, NOT around-the-corner.
 #
-#	Branching:
-#	C D E F G
-#	╠═╬═╩═╩═╝  A->{C,E,F,G} and B->D.
-#	A B
-#
-#	Merging:
-#       E F
-#       ╠═╬═╦═╗    {A,C,D}->E, B->F.
-#       A B C D
+#	Connections with three or less "legs" ('╠', '╩', '╦', etc.) imply
+#	a connection to all connected directions.
 #
 use Getopt::Long;
 use Git;
@@ -419,6 +413,8 @@ sub vis_post ($)
 		$s =~ tr/╪/╬/;
 	} elsif ($Style == 3) {
 		$s =~ tr/╔╦╗╠╬╣╚╩╝║╟╓╙/╒╤╕╞╪╡╘╧╛│├┌└/;
+	} elsif ($Style == 4) {
+		$s =~ tr/╔╦╗╠╬╣╚╩╝╪═/╓╥╖╟╫╢╙╨╜╫─/;
 	}
 
 	if ($Color{default} ne "") {
