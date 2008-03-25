@@ -142,8 +142,11 @@ sub ref_print ($)
 {
 	foreach my $symbol (@{shift @_}) {
 		print $Color{at}, "[";
-		if ($symbol =~ m{^refs/(remotes/[^/]+)/(.*)}s) {
-			print $Color{remote}, $1, $Color{head}, "/$2";
+		if ($symbol =~ m{^refs/remotes/([^/]+/[^/]+)$}s) {
+			print $Color{remote}, "remotes", $Color{head}, "/$1";
+		} elsif ($symbol =~ m{^refs/remotes/([^/]+)/(.+)}s) {
+			print $Color{remote}, "remotes", $Color{head},
+			      "/$1", $Color{ref}, "/$2";
 		} elsif ($symbol =~ m{^refs/heads/(.*)}s) {
 			print $Color{head}, $1;
 		} elsif ($symbol =~ m{^refs/tags/(.*)}s) {
