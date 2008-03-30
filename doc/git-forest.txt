@@ -1,0 +1,31 @@
+
+Usage: git-forest [--style=N] [--sha] [REVLISTOPTIONS] [REFSPEC...]
+
+--style=1
+	Use single-line visuals
+--style=2
+	Use double-line visuals (default)
+--style=3
+	Use single-line visuals in vertical direction,
+	and double-line ones in horizontal direction.
+--sha
+	Display SHAs for each commit
+
+All other options and arguments are passed down to git-log.
+Commonly useful options are --all and --topo-order.
+
+Example:
+	git-forest --all | less -RS
+	git-forest origin/master | less -RS
+
+This tool does not try to minimize the empty space between branches
+like gitk does. Take it as a feature.
+
+Notes on interpretation:
+
+Connections with four "legs" ('╬' or variants thereof, like '╪') are
+meant to be interpreted as being connected only in the horizontal and
+vertical direction, NOT around-the-corner.
+
+Connections with three or less "legs" ('╠', '╩', '╦', etc.) imply
+a connection to all connected directions.
