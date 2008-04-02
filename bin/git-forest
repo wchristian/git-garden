@@ -18,6 +18,7 @@ my $With_sha = 0;
 my %Color    = (
 	"default" => "\e[0m",
 	"at"      => "\e[1;30m",
+	"hhead"   => "\e[1;31m",
 	"head"    => "\e[1;32m",
 	"ref"     => "\e[1;34m",
 	"remote"  => "\e[1;35m",
@@ -101,6 +102,10 @@ sub get_refs ()
 	}
 
 	$Repo->command_close_pipe($fh, $c);
+
+	my $head = $Repo->command("rev-parse", "HEAD");
+	chomp $head;
+	unshift(@{$ret->{$head}}, "HEAD");
 	return $ret;
 }
 
@@ -108,7 +113,9 @@ sub ref_print ($)
 {
 	foreach my $symbol (@{shift @_}) {
 		print $Color{at}, "[";
-		if ($symbol =~ m{^refs/(remotes/[^/]+)/(.*)}s) {
+		if ($symbol eq "HEAD") {
+			print $Color{hhead}, "HEAD";
+		} elsif ($symbol =~ m{^refs/(remotes/[^/]+)/(.*)}s) {
 			print $Color{remote}, $1, $Color{head}, "/$2";
 		} elsif ($symbol =~ m{^refs/heads/(.*)}s) {
 			print $Color{head}, $1;
