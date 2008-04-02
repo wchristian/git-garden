@@ -34,3 +34,20 @@ vertical direction, NOT around-the-corner.
 
 Connections with three or less "legs" ('╠', '╩', '╦', etc.) imply
 a connection to all connected directions.
+
+Consider the following example history. The merge at 070 has merged
+together the branches with commits f21, 886 and 8f8, but NOT d3e.
+
+	╓─[HEAD]──[master]──-──(0c6)
+	╠═╗ 
+	║ ╟ -──(710)
+	╟ ║ -──(070)
+	╠═╬═╦═╗
+	║ ╟ ║ ║ -──(d3e)
+	║ ║ ╟ ║ -──(886)
+	║ ║ ║ ╟ -──(8f8)
+	║ ╠═╝ ║
+	║ ╟   ║ -──(199)
+	╟ ║   ║ -──(f21)
+	╠═╩═══╝ 
+	╙ -──(15f)
