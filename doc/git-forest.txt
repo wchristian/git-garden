@@ -10,6 +10,9 @@ Usage: git-forest [OPTIONS...] [REVLISTOPTIONS] [REFSPEC...]
 --style=3
 	Use single-line visuals in vertical direction,
 	and double-line ones in horizontal direction.
+--style=4
+	Use double-line visuals in vertical direction,
+	and single-line ones in horizontal direction.
 --sha
 	Display SHAs for each commit
 
