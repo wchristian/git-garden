@@ -13,6 +13,8 @@ use Git;
 use strict;
 use encoding "utf8";
 my $Repo     = Git->repository($ENV{"GIT_DIR"} || ".");
+my $Show_all = 0;
+my $Show_rebase = 1;
 my $Style    = 2;
 my $With_sha = 0;
 my %Color    = (
@@ -33,10 +35,15 @@ sub main ()
 {
 	&Getopt::Long::Configure(qw(bundling pass_through));
 	&GetOptions(
+		"all"      => \$Show_all,
 		"no-color" => sub { %Color = (); },
+		"no-rebase" => sub { $Show_rebase = 0; },
 		"style=i"  => \$Style,
 		"sha"      => \$With_sha,
 	);
+	if ($Show_all) {
+		unshift(@ARGV, "--all", "HEAD");
+	}
 	&process();
 }
 
@@ -103,9 +110,24 @@ sub get_refs ()
 
 	$Repo->command_close_pipe($fh, $c);
 
+	my $rebase = -e $Repo->repo_path()."/.dotest-merge/git-rebase-todo" &&
+	             $Show_rebase;
+	if ($rebase) {
+		my $up  = $Repo->command("rev-parse", ".dotest-merge/upstream");
+		my $old = $Repo->command("rev-parse", ".dotest-merge/head");
+		chomp $up;
+		chomp $old;
+		unshift(@{$ret->{$up}}, "rebase/upstream");
+		unshift(@{$ret->{$old}}, "rebase/old-HEAD");
+	}
+
 	my $head = $Repo->command("rev-parse", "HEAD");
 	chomp $head;
+	if ($rebase) {
+		unshift(@{$ret->{$head}}, "rebase/inprogress");
+	}
 	unshift(@{$ret->{$head}}, "HEAD");
+
 	return $ret;
 }
 
@@ -113,8 +135,8 @@ sub ref_print ($)
 {
 	foreach my $symbol (@{shift @_}) {
 		print $Color{at}, "[";
-		if ($symbol eq "HEAD") {
-			print $Color{hhead}, "HEAD";
+		if ($symbol eq "HEAD" || $symbol =~ m{^rebase/}) {
+			print $Color{hhead}, $symbol;
 		} elsif ($symbol =~ m{^refs/(remotes/[^/]+)/(.*)}s) {
 			print $Color{remote}, $1, $Color{head}, "/$2";
 		} elsif ($symbol =~ m{^refs/heads/(.*)}s) {

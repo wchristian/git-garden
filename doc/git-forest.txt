@@ -1,6 +1,8 @@
 
-Usage: git-forest [--style=N] [--sha] [REVLISTOPTIONS] [REFSPEC...]
+Usage: git-forest [OPTIONS...] [REVLISTOPTIONS] [REFSPEC...]
 
+--no-rebase
+	Do not show rebase/ pseudo-refs
 --style=1
 	Use single-line visuals
 --style=2
