@@ -42,6 +42,10 @@ sub main ()
 		"sha"      => \$With_sha,
 	);
 	if ($Show_all) {
+		#
+		# Give --all back. And add HEAD to include commits
+		# in the rev list that belong to a detached HEAD.
+		#
 		unshift(@ARGV, "--all", "HEAD");
 	}
 	&process();
@@ -131,6 +135,10 @@ sub get_refs ()
 	return $ret;
 }
 
+#
+# ref_print - print a ref with color
+# @s:	ref name
+#
 sub ref_print ($)
 {
 	foreach my $symbol (@{shift @_}) {
@@ -150,6 +158,13 @@ sub ref_print ($)
 	}
 }
 
+#
+# vine_branch -
+# @vine:	column array containing the expected parent IDs
+# @rev:		commit ID
+#
+# Draws the branching vine matrix between a commit K and K^ (@rev).
+#
 sub vine_branch ($$)
 {
 	my($vine, $rev) = @_;
@@ -159,6 +174,7 @@ sub vine_branch ($$)
 	my $matched = 0;
 	my $ret;
 
+	# Transform array into string
 	for ($idx = 0; $idx < scalar(@$vine); ++$idx) {
 		if (!defined($vine->[$idx])) {
 			$ret .= "═";
@@ -180,13 +196,16 @@ sub vine_branch ($$)
 		return;
 	}
 
-	while (!defined($vine->[$#$vine])) {
-		pop(@$vine);
-	}
-
+	&remove_trailing_blanks($vine);
 	print &vis_post(&vis_branch($ret)), "\n";
 }
 
+#
+# vine_commit -
+# @vine:	column array containing the expected IDs
+# @rev:		commit ID
+# @parents:	array of parent IDs
+#
 sub vine_commit ($$$)
 {
 	my($vine, $rev, $parents) = @_;
@@ -208,9 +227,7 @@ sub vine_commit ($$$)
 		push(@$vine, $rev);
 	}
 
-	while (scalar(@$vine) > 0 && !defined($vine->[$#$vine])) {
-		pop(@$vine);
-	}
+	&remove_trailing_blanks($vine);
 
 	if (scalar(@$parents) == 0) {
 		# tree root
@@ -221,7 +238,12 @@ sub vine_commit ($$$)
 }
 
 #
-#	Generate vine graphics for a merge
+# vine_merge -
+# @vine:	column array containing the expected parent IDs
+# @rev:		commit ID
+# @parents:	parent IDs of @rev
+#
+# Draws the merging vine matrix between a commit K (@rev) and K^ (@parents).
 #
 sub vine_merge ($$$)
 {
@@ -246,10 +268,7 @@ sub vine_merge ($$$)
 		# A single parent does not need a visual. Update and return.
 		#
 		$vine->[$orig_vine] = $parents->[0];
-
-		while (scalar(@$vine) > 0 && !defined($vine->[$#$vine])) {
-			pop(@$vine);
-		}
+		&remove_trailing_blanks($vine);
 		return;
 	}
 
@@ -301,6 +320,15 @@ sub vine_merge ($$$)
 	$ret =~ s/ +$//gs;
 	print &vis_post(&vis_merge($ret)), "\n";
 }
+
+#
+# vis_* - transform control string into usable graphic
+#
+# To cut down on code, the three vine_* functions produce only a dumb,
+# but already unambiguous, control string which needs some processing
+# before it is ready for public display.
+#
+
 
 sub vis_branch ($)
 {
@@ -399,7 +427,8 @@ sub vis_merge3 ($$)
 }
 
 #
-#	post-process vine graphic
+# vis_post - post-process/transform vine graphic
+# Apply user-specific style transformation.
 #
 sub vis_post ($)
 {
@@ -419,4 +448,13 @@ sub vis_post ($)
 		$s =~ s{\Q$Color{default}\E}{$&$Color{tree}}g;
 	}
 	return $Color{tree}, $s, $Color{default};
+}
+
+sub remove_trailing_blanks ($)
+{
+	my $a = shift @_;
+
+	while (scalar(@$a) > 0 && !defined($a->[$#$a])) {
+		pop(@$a);
+	}
 }
