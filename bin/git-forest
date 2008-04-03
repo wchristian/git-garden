@@ -292,7 +292,8 @@ sub vine_merge ($$$)
 	}
 
 	#
-	# Find some good spots to split out into.
+	# Find some good spots to split out into and record columns
+	# that will be used soon in the @slot list.
 	#
 	push(@slot, $orig_vine);
 	my $parent = 0;
@@ -306,6 +307,7 @@ sub vine_merge ($$$)
 
 		if ($idx >= 0 && $idx <= $#$vine && !defined($vine->[$idx])) {
 			push(@slot, $idx);
+			$vine->[$idx] = "0" x 40;
 			++$parent;
 		}
 	}
