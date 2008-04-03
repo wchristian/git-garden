@@ -33,11 +33,14 @@ my %Color    = (
 
 sub main ()
 {
+	my $reverse_order = 0;
+
 	&Getopt::Long::Configure(qw(bundling pass_through));
 	&GetOptions(
 		"all"      => \$Show_all,
 		"no-color" => sub { %Color = (); },
 		"no-rebase" => sub { $Show_rebase = 0; },
+		"reverse"  => \$reverse_order,
 		"style=i"  => \$Style,
 		"sha"      => \$With_sha,
 	);
@@ -48,7 +51,13 @@ sub main ()
 		#
 		unshift(@ARGV, "--all", "HEAD");
 	}
+	if ($reverse_order) {
+		tie(*STDOUT, "ReverseOutput");
+	}
 	&process();
+	if ($reverse_order) {
+		untie *STDOUT;
+	}
 }
 
 sub process ()
@@ -457,4 +466,38 @@ sub remove_trailing_blanks ($)
 	while (scalar(@$a) > 0 && !defined($a->[$#$a])) {
 		pop(@$a);
 	}
+}
+
+
+package ReverseOutput;
+require Tie::Handle;
+@ReverseOutput::ISA = qw(Tie::Handle);
+
+sub TIEHANDLE
+{
+	my $class = shift @_;
+	my $self  = {};
+
+	open($self->{fh}, ">&STDOUT");
+	binmode $self->{fh}, ":utf8";
+
+	return bless $self, $class;
+}
+
+sub PRINT
+{
+	my $self = shift @_;
+	my $fh   = $self->{fh};
+
+	$self->{saved} .= join($\, @_);
+}
+
+sub UNTIE
+{
+	my $self = shift @_;
+	my $fh   = $self->{fh};
+
+	$self->{saved} =~ tr/╔╦╗╒╤╕╓╥╖┌┬┐╚╩╝╘╧╛╙╨╜└┴┘╓╙/╚╩╝╘╧╛╙╨╜└┴┘╔╦╗╒╤╕╓╥╖┌┬┐╙╓/;
+	print $fh join($/, reverse split(/\n/s, $self->{saved}));
+	undef $self->{saved};
 }
