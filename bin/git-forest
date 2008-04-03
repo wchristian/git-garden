@@ -231,9 +231,19 @@ sub vine_commit ($$$)
 	}
 
 	if ($ret !~ /╟/) {
-		# Not having produced a ╟ before means this is a HEAD
-		$ret .= "╓";
-		push(@$vine, $rev);
+		# Not having produced a ╟ before means this is a tip
+		my $i;
+		for ($i = $#$vine; $i >= 0; --$i) {
+			if (substr($ret, $i, 1) eq " ") {
+				substr($ret, $i, 1) = "╓";
+				$vine->[$i] = $rev;
+				last;
+			}
+		}
+		if ($i < 0) {
+			$ret .= "╓";
+			push(@$vine, $rev);
+		}
 	}
 
 	&remove_trailing_blanks($vine);
