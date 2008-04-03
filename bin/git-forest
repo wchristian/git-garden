@@ -31,7 +31,7 @@ my %Color    = (
 
 &main();
 
-sub main ()
+sub main
 {
 	my $reverse_order = 0;
 
@@ -60,7 +60,7 @@ sub main ()
 	}
 }
 
-sub process ()
+sub process
 {
 	my(@vine);
 	my $refs = &get_refs();
@@ -95,7 +95,7 @@ sub process ()
 	$Repo->command_close_pipe($fh, $fhc);
 }
 
-sub get_refs ()
+sub get_refs
 {
 	my($fh, $c) = $Repo->command_output_pipe("show-ref");
 	my $ret = {};
@@ -148,7 +148,7 @@ sub get_refs ()
 # ref_print - print a ref with color
 # @s:	ref name
 #
-sub ref_print ($)
+sub ref_print
 {
 	foreach my $symbol (@{shift @_}) {
 		print $Color{at}, "[";
@@ -174,7 +174,7 @@ sub ref_print ($)
 #
 # Draws the branching vine matrix between a commit K and K^ (@rev).
 #
-sub vine_branch ($$)
+sub vine_branch
 {
 	my($vine, $rev) = @_;
 	my $idx;
@@ -215,7 +215,7 @@ sub vine_branch ($$)
 # @rev:		commit ID
 # @parents:	array of parent IDs
 #
-sub vine_commit ($$$)
+sub vine_commit
 {
 	my($vine, $rev, $parents) = @_;
 	my $ret;
@@ -264,7 +264,7 @@ sub vine_commit ($$$)
 #
 # Draws the merging vine matrix between a commit K (@rev) and K^ (@parents).
 #
-sub vine_merge ($$$)
+sub vine_merge
 {
 	my($vine, $rev, $parents) = @_;
 	my $orig_vine = -1;
@@ -351,7 +351,7 @@ sub vine_merge ($$$)
 #
 
 
-sub vis_branch ($)
+sub vis_branch
 {
 	# Sample input: ╬═╠╬╬╬╩╬═╬╬╬╬╬╬╩╬╩═╬╬
 	my $ra = shift @_;
@@ -377,7 +377,7 @@ sub vis_branch ($)
 	return $ra;
 }
 
-sub vis_commit ($$)
+sub vis_commit
 {
 	my($ra, $sep) = @_;
 	my($l, $r) = ($ra =~ /^(.*?)([╟╓╙].*)/);
@@ -387,7 +387,7 @@ sub vis_commit ($$)
 	return $l.$r;
 }
 
-sub vis_merge ($)
+sub vis_merge
 {
 	my $s = shift @_;
 
@@ -412,7 +412,7 @@ sub vis_merge ($)
 	return $s;
 }
 
-sub vis_merge1 ($)
+sub vis_merge1
 {
 	if ($_[0] eq "╔" || $_[0] eq "╦" || $_[0] eq "╠" || $_[0] eq "╪") {
 		return $_[0]."═";
@@ -421,7 +421,7 @@ sub vis_merge1 ($)
 	}
 }
 
-sub vis_merge2L ($)
+sub vis_merge2L
 {
 	my $l = shift @_;
 	$l =~ s/^s/╔/;
@@ -429,7 +429,7 @@ sub vis_merge2L ($)
 	return $l;
 }
 
-sub vis_merge2R ($)
+sub vis_merge2R
 {
 	my $r = shift @_;
 	$r =~ s/s$/╗/;
@@ -437,7 +437,7 @@ sub vis_merge2R ($)
 	return $r;
 }
 
-sub vis_merge3 ($$)
+sub vis_merge3
 {
 	my($l, $r) = shift @_;
 	$l =~ s/^s/╔/;
@@ -451,7 +451,7 @@ sub vis_merge3 ($$)
 # vis_post - post-process/transform vine graphic
 # Apply user-specific style transformation.
 #
-sub vis_post ($)
+sub vis_post
 {
 	my $s = shift @_;
 
@@ -471,7 +471,7 @@ sub vis_post ($)
 	return $Color{tree}, $s, $Color{default};
 }
 
-sub remove_trailing_blanks ($)
+sub remove_trailing_blanks
 {
 	my $a = shift @_;
 
