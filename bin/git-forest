@@ -13,6 +13,7 @@ use Git;
 use strict;
 use encoding "utf8";
 my $Repo     = Git->repository($ENV{"GIT_DIR"} || ".");
+my $Pretty_fmt  = "format:%s";
 my $Show_all = 0;
 my $Show_rebase = 1;
 my $Style    = 2;
@@ -40,10 +41,20 @@ sub main
 		"all"      => \$Show_all,
 		"no-color" => sub { %Color = (); },
 		"no-rebase" => sub { $Show_rebase = 0; },
+		"pretty=s"  => \$Pretty_fmt,
 		"reverse"  => \$reverse_order,
 		"style=i"  => \$Style,
 		"sha"      => \$With_sha,
 	);
+	if (substr($Pretty_fmt, 0, 7) ne "format:") {
+		die "If you use --pretty, it must be in the form of --pretty=format:";
+	}
+	$Pretty_fmt = substr($Pretty_fmt, 7);
+	while ($Pretty_fmt =~ /\%./g) {
+		if ($& eq "\%b" || $& eq "\%n") {
+			die "Cannot use \%b or \%n in --pretty=format:";
+		}
+	}
 	if ($Show_all) {
 		#
 		# Give --all back. And add HEAD to include commits
@@ -65,7 +76,7 @@ sub process
 	my(@vine);
 	my $refs = &get_refs();
 	my($fh, $fhc) = $Repo->command_output_pipe("log", "--topo-order",
-	                "--pretty=format:<%H><%h><%P>%s", @ARGV);
+	                "--pretty=format:<%H><%h><%P>$Pretty_fmt", @ARGV);
 
 	while (defined(my $line = <$fh>)) {
 		chomp $line;
