@@ -142,14 +142,14 @@ sub get_refs
 			my($curr) = (<$act_fh> =~ /^\S+\s+(\S+)/);
 			$curr = $Repo->command("rev-parse", $curr);
 			chomp $curr;
-			unshift(@{$ret->{$curr}}, "rebase/next");
+			unshift(@{$ret->{$curr}}, "rebase/current");
 			close $act_fh;
 		}
 
-		my $onto = $Repo->command("rev-parse", ".dotest-merge/upstream");
-		my $old  = $Repo->command("rev-parse", ".dotest-merge/head");
-		chomp $onto;
-		chomp $old;
+		chomp(my $up   = $Repo->command("rev-parse", ".dotest-merge/upstream"));
+		chomp(my $onto = $Repo->command("rev-parse", ".dotest-merge/onto"));
+		chomp(my $old  = $Repo->command("rev-parse", ".dotest-merge/head"));
+		unshift(@{$ret->{$up}}, "rebase/upstream");
 		unshift(@{$ret->{$onto}}, "rebase/onto");
 		unshift(@{$ret->{$old}}, "rebase/saved-HEAD");
 	}
