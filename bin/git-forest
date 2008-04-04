@@ -137,18 +137,27 @@ sub get_refs
 	my $rebase = -e $Repo->repo_path()."/.dotest-merge/git-rebase-todo" &&
 	             $Show_rebase;
 	if ($rebase) {
-		my $up  = $Repo->command("rev-parse", ".dotest-merge/upstream");
-		my $old = $Repo->command("rev-parse", ".dotest-merge/head");
-		chomp $up;
+		if (open(my $act_fh, $Repo->repo_path().
+		    "/.dotest-merge/git-rebase-todo")) {
+			my($curr) = (<$act_fh> =~ /^\S+\s+(\S+)/);
+			$curr = $Repo->command("rev-parse", $curr);
+			chomp $curr;
+			unshift(@{$ret->{$curr}}, "rebase/next");
+			close $act_fh;
+		}
+
+		my $onto = $Repo->command("rev-parse", ".dotest-merge/upstream");
+		my $old  = $Repo->command("rev-parse", ".dotest-merge/head");
+		chomp $onto;
 		chomp $old;
-		unshift(@{$ret->{$up}}, "rebase/upstream");
-		unshift(@{$ret->{$old}}, "rebase/old-HEAD");
+		unshift(@{$ret->{$onto}}, "rebase/onto");
+		unshift(@{$ret->{$old}}, "rebase/saved-HEAD");
 	}
 
 	my $head = $Repo->command("rev-parse", "HEAD");
 	chomp $head;
 	if ($rebase) {
-		unshift(@{$ret->{$head}}, "rebase/inprogress");
+		unshift(@{$ret->{$head}}, "rebase/new");
 	}
 	unshift(@{$ret->{$head}}, "HEAD");
 
