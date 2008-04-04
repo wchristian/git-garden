@@ -132,4 +132,5 @@ int main(int argc, const char **argv)
 		return xcp_splice(argv[1], argv[2]);
 	else if (xcp_mode == XCP_MMAP)
 		return xcp_mmap(argv[1], argv[2]);
+	return EXIT_FAILURE;
 }
