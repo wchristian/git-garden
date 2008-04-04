@@ -1,5 +1,5 @@
 
-AC_INIT(hxtools, SVN)
+AC_INIT(hxtools, 20080404)
 AC_CONFIG_HEADERS(config.h)
 AC_PROG_INSTALL
 AM_INIT_AUTOMAKE
@@ -7,13 +7,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 
 AC_HAVE_HEADERS([lastlog.h paths.h])
-AC_CHECK_HEADER([libHX.h], [],
-	AC_MSG_RESULT([Some programs need libHX 1.10 (or newer) but which is not installed. Use `make -k` to ignore build errors on these programs.]), [
-#include <libHX.h>
-#if !defined(_LIBHX_H) || _LIBHX_H < 20070701
-#	error libHX not found or too old
-#endif
-])
+PKG_CHECK_MODULES([libHX], [libHX >= 1.10])
 
 kbddir='${prefix}/kbd';
 suppdir='${exec_prefix}/supp';
