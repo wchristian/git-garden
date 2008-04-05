@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20080404
+Version:	20080405
 Release:	ccj0
 Group:		System/Base
 URL:		http://jengelh.hopto.org/
