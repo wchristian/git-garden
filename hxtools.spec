@@ -33,8 +33,6 @@ Architecture-indepent data for hxtools.
 %configure \
 	--prefix=/opt/hxtools \
 	--exec-prefix=/opt/hxtools \
-	--bindir=/opt/hxtools/bin \
-	--with-suppdir=/opt/hxtools/supp \
 	--with-keymapdir=%_datadir/kbd/keymaps \
 	--with-vgafontdir=%_datadir/kbd/consolefonts \
 	--with-x11fontdir=%_datadir/fonts
