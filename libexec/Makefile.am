@@ -2,7 +2,7 @@
 
 AM_CFLAGS     = $(regular_CFLAGS)
 
-libexec_PROGRAMS = bsvplay graph-fanout graph-lchain testdl pipe2pt \
+libexec_PROGRAMS = bsvplay fd0ssh graph-fanout graph-lchain testdl pipe2pt \
                 qplay testdl utmp_register xcp
 libexec_SCRIPTS  = diff2php extract_d3hog extract_d3pkg extract_f3pod \
                 extract_q2pak filenameconv findcont flv2avi fnt2bdf \
