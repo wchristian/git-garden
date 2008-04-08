@@ -7,7 +7,7 @@ bin_PROGRAMS     = declone newns omixer oplay orec tailhex truncate
 bin_SCRIPTS      = checkbrack fxterm git-author-stat git-export-patch \
                    git-forest git-lemon pesubst playmuch \
                    pmap_dirty qtar qtar2 recursive_lower rpmdep.pl stxdb \
-                   svn-pa svn-vup svntarsort sysinfo wktimer ytdl
+                   svn-pa svntarsort sysinfo wktimer ytdl
 longjumpcd_LDADD = -lHX
 oplay_LDADD      = -lHX
 tailhex_LDADD    = -lHX
