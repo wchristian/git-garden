@@ -1,5 +1,6 @@
 
 AC_INIT(hxtools, 20080405)
+AC_PREFIX_DEFAULT([/usr/local/hxtools])
 AC_CONFIG_HEADERS(config.h)
 AC_PROG_INSTALL
 AM_INIT_AUTOMAKE
@@ -9,7 +10,6 @@ AM_PROG_CC_C_O
 AC_HAVE_HEADERS([lastlog.h paths.h])
 PKG_CHECK_MODULES([libHX], [libHX >= 1.10])
 
-prefix="/usr/local/hxtools";
 kbddir='${prefix}/kbd';
 keymapdir='${kbddir}';
 vgafontdir='${kbddir}';
