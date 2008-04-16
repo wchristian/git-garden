@@ -14,6 +14,7 @@ bsvplay_SOURCES     = bsvplay.c pcspkr_pcm.c
 bsvplay_LDADD       = -lHX -lm
 graph_fanout_LDADD  = -lHX
 graph_lchain_LDADD  = -lHX
+longjumpcd_LDADD    = -lHX
 qplay_SOURCES       = qplay.c pcspkr_pcm.c
 qplay_LDADD         = -lHX -lm
 testdl_LDADD        = -lHX
