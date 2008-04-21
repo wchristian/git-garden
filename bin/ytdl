@@ -36,6 +36,7 @@ import socket
 import string
 import sys
 import time
+import urllib
 import urllib2
 
 # Global constants
@@ -66,10 +67,11 @@ def error_advice_exit(error_text):
 	sys.stderr.write('* Video requires age confirmation but you did not provide an account.\n')
 	sys.stderr.write('* You provided the account data, but it is not valid.\n')
 	sys.stderr.write('* The connection was cut suddenly for some reason.\n')
-	sys.stderr.write('* YouTube changed their system, and the program no longer works.\n')
+	sys.stderr.write('* YouTube changed their system, and this program version no longer works.\n')
 	sys.stderr.write('\nTry to confirm you are able to view the video using a web browser.\n')
 	sys.stderr.write('Use the same video URL and account information, if needed, with this program.\n')
 	sys.stderr.write('When using a proxy, make sure http_proxy has http://host:port format.\n')
+	sys.stderr.write('Make sure you are using the latest program version.\n')
 	sys.stderr.write('Try again several times and contact me if the problem persists.\n')
 	sys.exit('\n')
 
@@ -79,7 +81,7 @@ def request_create(url, extra_headers, post_data):
 	if post_data is not None:
 		retval.add_data(post_data)
 	# Try to mimic Firefox, at least a little bit
-	retval.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13')
+	retval.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
 	retval.add_header('Accept-Charset', 'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
 	retval.add_header('Accept', 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5')
 	retval.add_header('Accept-Language', 'en-us,en;q=0.5')
@@ -202,7 +204,7 @@ def title_string_touch(title):
 
 # Create the command line options parser and parse command line
 cmdl_usage = 'usage: %prog [options] video_url ...'
-cmdl_version = '2008.04.07'
+cmdl_version = '2008.04.20'
 cmdl_parser = optparse.OptionParser(usage=cmdl_usage, version=cmdl_version, conflict_handler='resolve')
 cmdl_parser.add_option('-h', '--help', action='help', help='print this help text and exit')
 cmdl_parser.add_option('-v', '--version', action='version', help='print program version and exit')
@@ -232,6 +234,8 @@ if len(cmdl_args) == 0:
 video_urls = []
 for video_url_cmdl in cmdl_args:
 	video_url_mo = const_video_url_re.match(video_url_cmdl)
+	if video_url_mo is None:
+		video_url_mo = const_video_url_re.match(urllib.unquote(video_url_cmdl))
 	if video_url_mo is None:
 		sys.exit('ERROR: URL does not seem to be a youtube video URL. If it is, report a bug.')
 	video_url_id = video_url_mo.group(2)
@@ -356,13 +360,13 @@ for (video_url, video_url_id) in video_urls:
 		cond_print('Requesting video file... ')
 		video_data = perform_request(video_url_real)
 		cond_print('done.\n')
-		cond_print('Video data found at %s\n' % video_data.geturl())
+		cond_print('Video data found at %s\n' % video_url_real)
 	
 		if cmdl_opts.get_title:
 			print video_title
 	
 		if cmdl_opts.get_url:
-			print video_data.geturl()
+			print video_url_real
 	
 		if cmdl_opts.simulate or cmdl_opts.get_url:
 			continue
