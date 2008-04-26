@@ -7,7 +7,8 @@ libexec_PROGRAMS = bsvplay fd0ssh graph-fanout graph-lchain longjumpcd \
 libexec_SCRIPTS  = diff2php extract_d3hog extract_d3pkg extract_f3pod \
                 extract_q2pak filenameconv flv2avi fnt2bdf \
                 logontime mailsplit mod2ogg mpg2ogg netload paddrspacesize \
-                png2wx.pl png2wx.py proc_stat_signal_decode raregetty \
+                png2wx.pl png2wx.py proc_iomem_count \
+                proc_stat_signal_decode raregetty \
                 sourcefuncsize vcsaview
 
 bsvplay_SOURCES     = bsvplay.c pcspkr_pcm.c
