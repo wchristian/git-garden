@@ -5,6 +5,7 @@
 /longjumpcd
 /pipe2pt
 /qplay
+/socketpty
 /testdl
 /utmp_register
 /wavdiff
