@@ -3,7 +3,7 @@
 /graph-fanout
 /graph-lchain
 /longjumpcd
-/pipe2pt
+/pipepty
 /qplay
 /socketpty
 /testdl
