@@ -16,7 +16,10 @@ struct fdstream {
 	struct stat sb;
 	void *area;
 	unsigned long offset;
-	const int16_t *ptr;
+	union {
+		const void *vptr;
+		const int16_t *ptr;
+	};
 };
 
 static struct fdstream gfile[3];
@@ -148,14 +151,14 @@ static void wavdiff_normal_process(struct fdstream *file)
 	bool a_stop = false, b_stop = false;
 
 	do {
-		if (file[0].ptr < file[0].area + file[0].sb.st_size) {
+		if (file[0].vptr < file[0].area + file[0].sb.st_size) {
 			a_sample = *file[0].ptr++;
 		} else {
 			a_sample = 0;
 			a_stop = true;
 		}
 
-		if (file[1].ptr < file[1].area + file[1].sb.st_size) {
+		if (file[1].vptr < file[1].area + file[1].sb.st_size) {
 			b_sample = *file[1].ptr++;
 		} else {
 			b_sample = 0;
