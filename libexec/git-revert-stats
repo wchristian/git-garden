@@ -1,0 +1,115 @@
+#!/usr/bin/perl
+#
+#	git log --pretty="format:<%an>%s" v2.6.25..HEAD | ./git-revert-stats
+#
+#	-n NUM    limit output to NUM developers
+#	-o        omit developers with only one revert/commit
+#	-v        debug debug debug output
+#
+
+use Getopt::Long;
+use Git;
+use strict;
+no strict "subs";
+use warnings;
+
+my $stats_limit = 100;
+my $verbose = 0;
+my $omit_one = 0;
+&Getopt::Long::Configure(qw(bundling));
+&GetOptions(
+	"n=i" => \$stats_limit,
+	"v+"  => \$verbose,
+	"o"   => \$omit_one,
+);
+&main();
+
+sub main
+{
+	my $repo = Git->repository();
+	my @note;
+	my(%praise, %blame);
+
+	foreach (<>) {
+		my($name, $message) = ($_ =~ /^<(.*?)>(.*)/);
+
+		if ($message =~ /^\s*revert\s*:?\s*(\"?)(.*)\1/i) {
+			push(@note, [$name, $2]);
+			++$praise{$name};
+			if ($verbose >= 1) {
+				print "\e[31m", "$name: $message", "\e[0m\n";
+			}
+			next;
+		}
+
+		my $idx;
+		if ($idx = &array_substr_ifind(\@note, $message)) {
+			++$blame{$name};
+			if ($verbose >= 1) {
+				print "\e[32m", "$name: $message", "\e[0m\n";
+			}
+			next;
+		}
+
+		if ($verbose >= 2) {
+			print "\e[34m", "$name: $message", "\e[0m\n";
+		}
+	}
+
+	&stats(\%praise, \%blame);
+}
+
+sub stats
+{
+	my($reverands, $developers) = @_; # pun
+	my $omits;
+	my $i;
+
+	print " P#  COMM#  NAME --- Top people doing the revert:\n";
+	$omits = 0;
+	$i = 0;
+	foreach my $name (sort { $reverands->{$b} <=> $reverands->{$a} } keys %$reverands) {
+		if ($omit_one && $reverands->{$name} == 1) {
+			++$omits;
+			next;
+		}
+		if ($i > $stats_limit) {
+			last;
+		}
+		printf "%3u  %5u  %s\n", ++$i, $reverands->{$name}, $name;
+	}
+	if ($omit_one && $omits > 0) {
+		printf "  *  %5u developers with only one revert are omitted\n", $omits;
+	}
+
+	print "\n";
+	print " P#  COMM#  NAME --- Top developers with reverted commits:\n";
+	$omits = 0;
+	$i = 0;
+	foreach my $name (sort { $developers->{$b} <=> $developers->{$a} } keys %$developers) {
+		if ($omit_one && $developers->{$name} == 1) {
+			++$omits;
+			next;
+		}
+		if ($i > $stats_limit) {
+			last;
+		}
+		printf "%3u  %5u  %s\n", ++$i, $developers->{$name}, $name;
+	}
+	if ($omit_one && $omits > 0) {
+		printf "  *  %5u developers with only one revert are omitted\n", $omits;
+	}
+}
+
+sub array_substr_ifind
+{
+	my($note, $msg) = @_;
+
+	foreach my $note_entry (@$note) {
+		if ($msg =~ /\Q$note_entry->[1]\E/i) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
