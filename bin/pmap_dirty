@@ -13,7 +13,13 @@
 #	 pmap_dirty $$
 #	 pmap_dirty `pidof init` `pidof java`
 #
+use Getopt::Long;
 use strict;
+
+my $Use_bytes;
+&Getopt::Long::Configure(qw(bundling));
+&GetOptions("b" => \$Use_bytes);
+
 my $total_dirty = 0;
 
 if (scalar(@ARGV) == 0) {
@@ -44,8 +50,16 @@ foreach my $pid (@ARGV) {
 		close $fh;
 	}
 
-	print "$pid($proc_name): ${proc_dirty}K\n";
+	if ($Use_bytes) {
+		print "$pid($proc_name): ", $proc_dirty * 1024, "\n";
+	} else {
+		print "$pid($proc_name): ${proc_dirty}K\n";
+	}
 	$total_dirty += $proc_dirty;
 }
 
-print "Total: ${total_dirty}K\n";
+if ($Use_bytes) {
+	print "Total: ", $total_dirty * 1024, "\n";
+} else {
+	print "Total: ${total_dirty}K\n";
+}
