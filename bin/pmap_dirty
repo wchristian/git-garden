@@ -17,8 +17,9 @@ use Getopt::Long;
 use strict;
 
 my $Use_bytes;
+my $Use_du_style;
 &Getopt::Long::Configure(qw(bundling));
-&GetOptions("b" => \$Use_bytes);
+&GetOptions("b" => \$Use_bytes, "s" => \$Use_du_style);
 
 my $total_dirty = 0;
 
@@ -50,16 +51,23 @@ foreach my $pid (@ARGV) {
 		close $fh;
 	}
 
-	if ($Use_bytes) {
-		print "$pid($proc_name): ", $proc_dirty * 1024, "\n";
-	} else {
-		print "$pid($proc_name): ${proc_dirty}K\n";
-	}
+	&print_one("$pid($proc_name)", $proc_dirty);
 	$total_dirty += $proc_dirty;
 }
 
-if ($Use_bytes) {
-	print "Total: ", $total_dirty * 1024, "\n";
-} else {
-	print "Total: ${total_dirty}K\n";
+&print_one("Total", $total_dirty);
+
+sub print_one
+{
+	my($text, $size) = @_;
+	if ($Use_bytes) {
+		$size *= 1024;
+	} else {
+		$size .= "K";
+	}
+	if ($Use_du_style) {
+		printf "%-10s\t%s\n", $size, $text;
+	} else {
+		print $text, ": ", $size, "\n";
+	}
 }
