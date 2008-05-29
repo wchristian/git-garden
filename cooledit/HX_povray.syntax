@@ -17,7 +17,9 @@ context default
 	keyword whole color_map brightgreen
 	keyword whole colour_map brightgreen
 	keyword whole cone brightgreen
+	keyword whole conic_sweep brightgreen
 	keyword whole contained_by brightgreen
+	keyword whole cubic_spline brightgreen
 	keyword whole cylinder brightgreen
 	keyword whole difference brightgreen
 	keyword whole disc brightgreen
@@ -31,6 +33,7 @@ context default
 	keyword whole isosurface brightgreen
 	keyword whole light_group brightgreen
 	keyword whole light_source brightgreen
+	keyword whole linear_sweep brightgreen
 	keyword whole looks_like brightgreen
 	keyword whole material brightgreen
 	keyword whole matrix brightgreen
@@ -49,13 +52,14 @@ context default
 	keyword whole sky_sphere brightgreen
 	keyword whole slope brightgreen
 	keyword whole sphere brightgreen
+	keyword whole sturm brightgreen
 	keyword whole superellipsoid brightgreen
 	keyword whole texture_map brightgreen
 	keyword whole texture brightgreen
 	keyword whole text brightgreen
 	keyword whole tiles brightgreen
-	keyword whole triangle brightgreen
 	keyword whole torus brightgreen
+	keyword whole triangle brightgreen
 	keyword whole union brightgreen
 	keyword whole warp brightgreen
 	keyword whole x brightgreen
@@ -168,6 +172,8 @@ context default
 	keyword whole ior brightgreen
 	keyword whole jitter brightgreen
 	keyword whole lambda brightgreen
+	keyword whole linear_spline brightgreen
+	keyword whole linear_sweep brightgreen
 	keyword whole location brightgreen
 	keyword whole look_at brightgreen
 	keyword whole low_error_factor brightgreen
@@ -196,6 +202,8 @@ context default
 	keyword whole pot brightgreen
 	keyword whole pretrace_end brightgreen
 	keyword whole pretrace_start brightgreen
+	keyword whole prism brightgreen
+	keyword whole quadratic_spline brightgreen
 	keyword whole quick_color brightgreen
 	keyword whole quick_colour brightgreen
 	keyword whole quilted brightgreen
