@@ -121,7 +121,6 @@ context default
 	keyword whole area_light brightgreen
 	keyword whole assumed_gamma brightgreen
 	keyword whole bezier_spline brightgreen
-	keyword whole blue brightgreen
 	keyword whole boxed brightgreen
 	keyword whole bozo brightgreen
 	keyword whole brick brightgreen
@@ -164,7 +163,6 @@ context default
 	keyword whole gradient brightgreen
 	keyword whole granite brightgreen
 	keyword whole gray_threshold brightgreen
-	keyword whole green brightgreen
 	keyword whole hollow brightgreen
 	keyword whole interpolate brightgreen
 	keyword whole intervals brightgreen
@@ -209,7 +207,6 @@ context default
 	keyword whole quilted brightgreen
 	keyword whole radius brightgreen
 	keyword whole recursion_limit brightgreen
-	keyword whole red brightgreen
 	keyword whole reflection brightgreen
 	keyword whole refraction brightgreen
 	keyword whole repeat brightgreen
