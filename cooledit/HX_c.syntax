@@ -27,6 +27,7 @@ context default
 	keyword whole dynamic_cast white
 	keyword whole else white
 	keyword whole enum white
+	keyword whole explicit white
 	keyword whole extern white
 	keyword whole flag_t white
 	keyword whole float white
@@ -102,6 +103,7 @@ context default
 	keyword '\\\\' brightgreen
 	keyword '\\0' brightgreen
 	keyword '\{\s!"#$%&()\*\+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~\}' brightgreen
+	keyword \\"
 
 	keyword ^ white
 	keyword ! white
