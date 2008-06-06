@@ -135,6 +135,9 @@ context linestart # \n yellow
 context #\s \n yellow
 	spellcheck
 
+context #\t \n yellow
+	spellcheck
+
 context ## \n yellow
 	spellcheck
 
