@@ -1,8 +1,8 @@
 #!/usr/bin/python
 #
 #	png2wx - embed png in C++
-#	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
-#	http://jengelh.hopto.org/
+#	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
+#	http://jengelh.medozas.de/
 #	released in the Public Domain
 #
 # Please use png2wx.pl over png2wx.py. Here's why:

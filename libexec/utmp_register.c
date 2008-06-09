@@ -1,7 +1,7 @@
 /*
  *	utmp_register.c - (de)register in U/WTMP
- *	http://jengelh.hopto.org/
- *	Copyright © Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
+ *	http://jengelh.medozas.de/
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License

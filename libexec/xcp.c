@@ -1,3 +1,9 @@
+/*
+ *	extended copy
+ *	written by Jan Engelhardt <jengelh [at] medozas de>, 2008
+ *	http://jengelh.medozas.de/
+ *	released in the Public Domain
+ */
 #define _GNU_SOURCE 1
 #include <sys/mman.h>
 #include <sys/stat.h>

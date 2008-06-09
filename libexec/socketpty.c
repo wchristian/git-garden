@@ -1,9 +1,11 @@
 /*
  *	socketpty - connect socket to pty master
+ *	released in the Public Domain
  *	Jan Engelhardt <jengelh [at] medozas de>, 2008
  *
  *	(for making a VMware serial socket available as a pty)
  *	See http://jengelh.medozas.de/2008/0425-vmware-serial.php
+ *	(There is also the "socat" utility.)
  */
 #define _XOPEN_SOURCE 1
 #define _GNU_SOURCE 1

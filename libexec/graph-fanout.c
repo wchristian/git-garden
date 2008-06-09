@@ -1,7 +1,7 @@
 /*
  *	graph-fanout.c - Fanout tree for Graphviz
  *	Copyright © CC Computer Consultants GmbH, 2007 - 2008
- *	Jan Engelhardt <jengelh@computergmbh.de>
+ *	Jan Engelhardt <jengelh@medozas.de>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by

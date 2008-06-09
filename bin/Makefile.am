@@ -5,9 +5,9 @@ CLEANFILES       = omixer orec
 
 bin_PROGRAMS     = declone newns omixer oplay orec tailhex truncate
 bin_SCRIPTS      = checkbrack fxterm git-author-stat git-export-patch \
-                   git-forest git-lemon pesubst playmuch \
+                   git-forest git-lemon pesubst playalot \
                    pmap_dirty qtar recursive_lower rpmdep.pl stxdb \
-                   sysinfo wktimer ytdl
+                   sysinfo wktimer
 oplay_LDADD      = -lHX
 tailhex_LDADD    = -lHX
 

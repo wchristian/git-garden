@@ -1,7 +1,7 @@
 /*
  *	pipe2pt - wrap pipe into a pty
- *	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
- *	http://jengelh.hopto.org/
+ *	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
+ *	http://jengelh.medozas.de/
  *	released in the Public Domain
  */
 #define _XOPEN_SOURCE 1

@@ -3,8 +3,8 @@
  *	x86 assembler demonstration program
  *	use with GNU AS
  *
- *	by Jan Engelhardt <jengelh [at] gmx de>, 2003 - 2006
- *	http://jengelh.hopto.org/
+ *	written by Jan Engelhardt <jengelh [at] medozas de>, 2003 - 2006
+ *	http://jengelh.medozas.de/
  *	released in the Public Domain
  */
 .intel_syntax noprefix;

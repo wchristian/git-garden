@@ -1,9 +1,9 @@
 
 Name:		hxtools
-Version:	20080405
-Release:	ccj0
+Version:	20080610
+Release:	0
 Group:		System/Base
-URL:		http://jengelh.hopto.org/
+URL:		http://jengelh.medozas.de/projects/hxtools/
 Summary:	Collection of day-to-day tools
 
 Source:		%name-%version.tar.bz2

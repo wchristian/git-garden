@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
 #	extract_d3hog - extract Descent3 HOG files
-#	by Jan Engelhardt <jengelh [at] gmx de>, 2003 - 2007
-#	http://jengelh.hopto.org/
+#	written by Jan Engelhardt <jengelh [at] medozas de>, 2003 - 2007
+#	http://jengelh.medozas.de/
 #	released in the Public Domain
 #
 use strict;

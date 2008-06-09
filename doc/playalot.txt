@@ -1,5 +1,5 @@
 
-Syntax: alplay [-aqz] FILE[...]
+Syntax: playalot [-aqz] FILE[...]
 
   -a    Display full instrumental sheet (only timidity)
   -q    Do not print time position while playing (only timidity)

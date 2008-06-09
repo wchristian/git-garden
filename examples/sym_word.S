@@ -3,8 +3,8 @@
  *	Check if a word is symmetric (oh, you call that palindrome...)
  *	x86 assembler demonstration program
  *
- *	by Jan Engelhardt <jengelh [at] gmx de>, 2003 - 2007
- *	http://jengelh.hopto.org/
+ *	written by Jan Engelhardt <jengelh [at] medozas de>, 2003 - 2007
+ *	http://jengelh.medozas.de/
  *	released in the Public Domain
  */
 

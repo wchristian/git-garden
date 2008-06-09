@@ -1,7 +1,7 @@
 /*
  *	truncate.c - truncate or expand a file
- *	by Jan Engelhardt <jengelh [at] gmx de>, 2004 - 2007
- *	http://jengelh.hopto.org/
+ *	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
+ *	http://jengelh.medozas.de/
  *	released in the Public Domain
  */
 #include <sys/stat.h>
