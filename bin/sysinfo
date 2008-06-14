@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 #	sysinfo - System information banner
-#	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2007
+#	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2008
 #
 #	This program is free software; you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -117,17 +117,15 @@ if (open(IN, "/sbin/lspci | grep 'VGA compatible controller:' |")) {
 	print " | Gfx: $dev";
 
 	if (open(IN, "xdpyinfo 2>/dev/null |")) {
-		my($scr_dep, $scr_res);
+		my($scr_res);
 		while (defined(my $l = <IN>)) {
 			if ($l =~ /\s+dimensions\s*:\s+(\S+)/i) {
 				$scr_res = $1;
-			} elsif ($l =~ /\s+depth\s*:\s+(\S+)/i) {
-				$scr_dep = $1;
 			}
 			chomp $l;
 		}
-		if ($scr_res ne "" && $scr_dep ne "") {
-			print " \@ ${scr_res}x${scr_dep}bpp";
+		if ($scr_res ne "") {
+			print " \@ ${scr_res}";
 		}
 		close IN;
 	}
