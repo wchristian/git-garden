@@ -317,6 +317,47 @@ sub vine_merge
 	}
 
 	#
+	# Put previously seen branches in the vine subcolumns
+	# Need to keep at least one parent for the slot algorithm below.
+	#
+	for (my $j = 0; $j <= $#$parents && $#$parents > 0; ++$j) {
+		for (my $idx = 0; $idx <= $#$vine; ++$idx) {
+			if ($vine->[$idx] ne $parents->[$j]) {
+				next;
+			}
+			if ($idx == $orig_vine) {
+				die "Should not really happen";
+			}
+			if ($idx < $orig_vine) {
+				my $p = $idx + 1;
+				if (defined($vine->[$p])) {
+					$p = $idx - 1;
+				}
+				if (defined($vine->[$p])) {
+					last;
+				}
+				$vine->[$p] = $parents->[$j];
+				str_expand(\$ret, $p + 1);
+				substr($ret, $p, 1) = "s";
+			} else {
+				my $p = $idx - 1;
+				if (defined($vine->[$p]) || $p < 0) {
+					$p = $idx + 1;
+				}
+				if (defined($vine->[$p])) {
+					last;
+				}
+				$vine->[$p] = $parents->[$j];
+				str_expand(\$ret, $p + 1);
+				substr($ret, $p, 1) = "s";
+			}
+			splice(@$parents, $j, 1);
+			--$j; # outer loop
+			last; # inner loop
+		}
+	}
+
+	#
 	# Find some good spots to split out into and record columns
 	# that will be used soon in the @slot list.
 	#
@@ -352,14 +393,17 @@ sub vine_merge
 	$max  = scalar(@$vine) + 2 * scalar(@slot);
 
 	for (my $i = 0; $i < $max; ++$i) {
+		str_expand(\$ret, $i + 1);
 		if ($#slot >= 0 && $i == $slot[0]) {
 			shift @slot;
 			$vine->[$i] = shift @$parents;
-			$ret .= ($i == $orig_vine) ? "S" : "s";
+			substr($ret, $i, 1) = ($i == $orig_vine) ? "S" : "s";
+		} elsif (substr($ret, $i, 1) eq "s") {
+			; # keep existing fanouts
 		} elsif (defined($vine->[$i])) {
-			$ret .= "║";
+			substr($ret, $i, 1) = "║";
 		} else {
-			$ret .= " ";
+			substr($ret, $i, 1) = " ";
 		}
 	}
 
@@ -505,6 +549,16 @@ sub round_down2
 		return $i;
 	}
 	return $i & ~1;
+}
+
+sub str_expand
+{
+	my $r = shift @_;
+	my $l = shift @_;
+
+	if (length($$r) < $l) {
+		$$r .= " " x ($l - length($$r));
+	}
 }
 
 package ReverseOutput;
