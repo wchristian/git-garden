@@ -1,0 +1,21 @@
+[core]
+	pager = less -MRSi
+
+[color]
+	status = auto
+	branch = auto
+	diff = auto
+
+[color "branch"]
+	current = bold white
+
+[color "diff"]
+	commit = bold white red
+	frag = magenta
+	meta = bold white blue
+[alias]
+	br = branch
+	ci = commit
+	co = checkout
+	st = status
+	re = rebase
