@@ -76,7 +76,7 @@ sub process
 {
 	my(@vine);
 	my $refs = &get_refs();
-	my($fh, $fhc) = $Repo->command_output_pipe("log", "--topo-order",
+	my($fh, $fhc) = $Repo->command_output_pipe("log", "--date-order",
 	                "--pretty=format:<%H><%h><%P>$Pretty_fmt", @ARGV);
 
 	while (defined(my $line = <$fh>)) {
