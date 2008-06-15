@@ -89,8 +89,8 @@ sub process
 		my $ra = &vine_commit(\@vine, $sha, \@parents);
 
 		if (exists($refs->{$sha})) {
-			print &vis_post(&vis_commit($ra,
-			      $Color{at}."─".$Color{default}));
+			print &vis_post(&vis_commit($ra),
+			      $Color{at}."─".$Color{default});
 			&ref_print($refs->{$sha});
 		} else {
 			print &vis_post(&vis_commit($ra, " "));
@@ -205,7 +205,7 @@ sub vine_branch
 	my $ret;
 
 	# Transform array into string
-	for ($idx = 0; $idx < scalar(@$vine); ++$idx) {
+	for ($idx = 0; $idx <= $#$vine; ++$idx) {
 		if (!defined($vine->[$idx])) {
 			$ret .= "═";
 			next;
@@ -254,7 +254,7 @@ sub vine_commit
 	if ($ret !~ /╟/) {
 		# Not having produced a ╟ before means this is a tip
 		my $i;
-		for ($i = $#$vine; $i >= 0; --$i) {
+		for ($i = &round_down2($#$vine); $i >= 0; $i -= 2) {
 			if (substr($ret, $i, 1) eq " ") {
 				substr($ret, $i, 1) = "╓";
 				$vine->[$i] = $rev;
@@ -262,6 +262,10 @@ sub vine_commit
 			}
 		}
 		if ($i < 0) {
+			if (scalar(@$vine) % 2 != 0) {
+				push(@$vine, undef);
+				$ret .= " ";
+			}
 			$ret .= "╓";
 			push(@$vine, $rev);
 		}
@@ -320,10 +324,11 @@ sub vine_merge
 	my $parent = 0;
 
 	for (my $seeker = 2; $parent < $#$parents &&
-	    $seeker < 2 + 2 * $#$vine; ++$seeker)
+	    $seeker < 2 + $#$vine; ++$seeker)
 	{
 		my $idx = ($seeker % 2 == 0) ? -1 : 1;
 		$idx   *= int($seeker / 2);
+		$idx   *= 2;
 		$idx   += $orig_vine;
 
 		if ($idx >= 0 && $idx <= $#$vine && !defined($vine->[$idx])) {
@@ -332,7 +337,7 @@ sub vine_merge
 			++$parent;
 		}
 	}
-	for (my $idx = $orig_vine + 1; $parent < $#$parents; ++$idx) {
+	for (my $idx = $orig_vine + 2; $parent < $#$parents; $idx += 2) {
 		if (!defined($vine->[$idx])) {
 			push(@slot, $idx);
 			++$parent;
@@ -344,7 +349,7 @@ sub vine_merge
 	}
 
 	@slot = sort { $a <=> $b } @slot;
-	$max  = scalar(@$vine) + scalar(@slot);
+	$max  = scalar(@$vine) + 2 * scalar(@slot);
 
 	for (my $i = 0; $i < $max; ++$i) {
 		if ($#slot >= 0 && $i == $slot[0]) {
@@ -356,10 +361,8 @@ sub vine_merge
 		} else {
 			$ret .= " ";
 		}
-
 	}
 
-	$ret =~ s/ +$//gs;
 	print &vis_post(&vis_merge($ret)), "\n";
 }
 
@@ -381,31 +384,29 @@ sub vis_branch
 	$ra =~ s{^(.+?)╠}{
 		$_ = $1;
 		$_ =~ tr/╪═/║ /;
-		$_ =~ s/(.)/$1 /gs;
 		$_ .= '╠';
 	}es;
 	$ra =~ s{(╠.*)╩}{
 		$_ = $1;
-		$_ =~ s/(.)/$1═/gs;
 		$_ .= '╝';
 	}es;
 	$ra =~ s{╝(.*)$}{
 		$_ = $1;
 		$_ =~ tr/╪═/║ /;
-		$_ =~ s/(.)/$1 /gs;
-		$_ = "╝ $_";
+		$_ = "╝$_";
 	}es;
 	return $ra;
 }
 
 sub vis_commit
 {
-	my($ra, $sep) = @_;
-	my($l, $r) = ($ra =~ /^(.*?)([╟╓╙].*)/);
-	$l =~ s/(.)/$1 /gs;
-	$r =~ s/(.)/$1 /gs;
-	$r =~ s/ /$sep/gs;
-	return $l.$r;
+	my $s = shift @_;
+	my $f = shift @_;
+	$s =~ s/ +$//gs;
+	if (defined $f) {
+		$s .= $f;
+	}
+	return $s;
 }
 
 sub vis_merge
@@ -423,23 +424,11 @@ sub vis_merge
 		while ($s =~ s/(S.*)║(.*s)/$1╪$2/s) {
 			;
 		}
-		$s =~ /S(.*s)/;
 		$s =~ s/S(.*s)/"╠".&vis_merge2R($1)/es;
 	} else {
-		# $s =~ s/S/║/s;
 		die "Should not come here";
 	}
-	$s =~ s{(.)}{&vis_merge1($1)}egs;
 	return $s;
-}
-
-sub vis_merge1
-{
-	if ($_[0] eq "╔" || $_[0] eq "╦" || $_[0] eq "╠" || $_[0] eq "╪") {
-		return $_[0]."═";
-	} else {
-		return $_[0]." ";
-	}
 }
 
 sub vis_merge2L
@@ -447,6 +436,7 @@ sub vis_merge2L
 	my $l = shift @_;
 	$l =~ s/^s/╔/;
 	$l =~ s/s/╦/g;
+	$l =~ s/ /═/g;
 	return $l;
 }
 
@@ -455,6 +445,7 @@ sub vis_merge2R
 	my $r = shift @_;
 	$r =~ s/s$/╗/;
 	$r =~ s/s/╦/g;
+	$r =~ s/ /═/g;
 	return $r;
 }
 
@@ -475,6 +466,15 @@ sub vis_merge3
 sub vis_post
 {
 	my $s = shift @_;
+	my $f = shift @_;
+
+	if (defined $f) {
+		while ($s =~ s/([╟╓╙].*) /$1$f/gs) {
+			;
+		}
+		$s =~ s{\Q$Color{default}\E}{$&.$Color{tree}}egs;
+		$s .= $f;
+	}
 
 	if ($Style == 1) {
 		$s =~ tr/╔╦╗╠╬╣╚╩╝║═╟╓╙╪/┌┬┐├┼┤└┴┘│─├┌└┼/;
@@ -486,9 +486,6 @@ sub vis_post
 		$s =~ tr/╔╦╗╠╬╣╚╩╝╪═/╓╥╖╟╫╢╙╨╜╫─/;
 	}
 
-	if ($Color{default} ne "") {
-		$s =~ s{\Q$Color{default}\E}{$&$Color{tree}}g;
-	}
 	return $Color{tree}, $s, $Color{default};
 }
 
@@ -501,6 +498,14 @@ sub remove_trailing_blanks
 	}
 }
 
+sub round_down2
+{
+	my $i = shift @_;
+	if ($i < 0) {
+		return $i;
+	}
+	return $i & ~1;
+}
 
 package ReverseOutput;
 require Tie::Handle;
