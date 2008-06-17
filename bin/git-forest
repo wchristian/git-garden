@@ -14,36 +14,35 @@ use strict;
 use encoding "utf8";
 my $Repo     = Git->repository($ENV{"GIT_DIR"} || ".");
 my $Pretty_fmt  = "format:%s";
+my $Reverse_order = 0;
 my $Show_all = 0;
 my $Show_rebase = 1;
 my $Style    = 2;
 my $With_sha = 0;
 my %Color    = (
-	"default" => "\e[0m",
-	"at"      => "\e[1;30m",
-	"hhead"   => "\e[1;31m",
-	"head"    => "\e[1;32m",
-	"ref"     => "\e[1;34m",
-	"remote"  => "\e[1;35m",
-	"sha"     => "\e[0;31m",
-	"tag"     => "\e[1;33m",
-	"tree"    => "\e[0;33m",
+	"default" => "\e[0m", # ]
+	"at"      => "\e[1;30m", # ]
+	"hhead"   => "\e[1;31m", # ]
+	"head"    => "\e[1;32m", # ]
+	"ref"     => "\e[1;34m", # ]
+	"remote"  => "\e[1;35m", # ]
+	"sha"     => "\e[0;31m", # ]
+	"tag"     => "\e[1;33m", # ]
+	"tree"    => "\e[0;33m", # ]
 );
 
 &main();
 
 sub main
 {
-	my $reverse_order = 0;
-
 	&Getopt::Long::Configure(qw(bundling pass_through));
 	&GetOptions(
 		"all"      => \$Show_all,
 		"no-color" => sub { %Color = (); },
 		"no-rebase" => sub { $Show_rebase = 0; },
-		"a"         => sub { $Pretty_fmt = "format:\e[1;30m(\e[0;32m%an\e[1;30m)\e[0m %s"; },
+		"a"         => sub { $Pretty_fmt = "format:\e[1;30m(\e[0;32m%an\e[1;30m)\e[0m %s"; }, # ]]]]
 		"pretty=s"  => \$Pretty_fmt,
-		"reverse"  => \$reverse_order,
+		"reverse"  => \$Reverse_order,
 		"style=i"  => \$Style,
 		"sha"      => \$With_sha,
 	);
@@ -63,11 +62,11 @@ sub main
 		#
 		unshift(@ARGV, "--all", "HEAD");
 	}
-	if ($reverse_order) {
+	if ($Reverse_order) {
 		tie(*STDOUT, "ReverseOutput");
 	}
 	&process();
-	if ($reverse_order) {
+	if ($Reverse_order) {
 		untie *STDOUT;
 	}
 }
@@ -90,7 +89,7 @@ sub process
 
 		if (exists($refs->{$sha})) {
 			print &vis_post(&vis_commit($ra),
-			      $Color{at}."─".$Color{default});
+			      $Color{at}."m".$Color{default});
 			&ref_print($refs->{$sha});
 		} else {
 			print &vis_post(&vis_commit($ra, " "));
@@ -200,23 +199,23 @@ sub vine_branch
 	my($vine, $rev) = @_;
 	my $idx;
 
-	my $left = "╠";
-	my $matched = 0;
+	my($matched, $master) = (0, 0);
 	my $ret;
 
 	# Transform array into string
 	for ($idx = 0; $idx <= $#$vine; ++$idx) {
 		if (!defined($vine->[$idx])) {
-			$ret .= "═";
+			$ret .= " ";
 			next;
 		} elsif ($vine->[$idx] ne $rev) {
-			$ret .= "╪";
+			$ret .= "I";
 			next;
 		}
-		if ($matched == 0) {
-			$ret .= "╠";
+		if (!$master && $idx % 2 == 0) {
+			$ret .= "S";
+			$master = 1;
 		} else {
-			$ret .= "╩";
+			$ret .= "s";
 			$vine->[$idx] = undef;
 		}
 		++$matched;
@@ -227,7 +226,7 @@ sub vine_branch
 	}
 
 	&remove_trailing_blanks($vine);
-	print &vis_post(&vis_branch($ret)), "\n";
+	print &vis_post(&vis_fan($ret, "branch")), "\n";
 }
 
 #
@@ -245,18 +244,18 @@ sub vine_commit
 		if (!defined($vine->[$i])) {
 			$ret .= " ";
 		} elsif ($vine->[$i] eq $rev) {
-			$ret .= "╟";
+			$ret .= "C";
 		} else {
-			$ret .= "║";
+			$ret .= "I";
 		}
 	}
 
-	if ($ret !~ /╟/) {
-		# Not having produced a ╟ before means this is a tip
+	if ($ret !~ /C/) {
+		# Not having produced a C before means this is a tip
 		my $i;
 		for ($i = &round_down2($#$vine); $i >= 0; $i -= 2) {
 			if (substr($ret, $i, 1) eq " ") {
-				substr($ret, $i, 1) = "╓";
+				substr($ret, $i, 1) = "t";
 				$vine->[$i] = $rev;
 				last;
 			}
@@ -266,7 +265,7 @@ sub vine_commit
 				push(@$vine, undef);
 				$ret .= " ";
 			}
-			$ret .= "╓";
+			$ret .= "t";
 			push(@$vine, $rev);
 		}
 	}
@@ -275,7 +274,7 @@ sub vine_commit
 
 	if (scalar(@$parents) == 0) {
 		# tree root
-		$ret =~ s/╟/╙/g;
+		$ret =~ tr/C/r/;
 	}
 
 	return $ret;
@@ -401,13 +400,13 @@ sub vine_merge
 		} elsif (substr($ret, $i, 1) eq "s") {
 			; # keep existing fanouts
 		} elsif (defined($vine->[$i])) {
-			substr($ret, $i, 1) = "║";
+			substr($ret, $i, 1) = "I";
 		} else {
 			substr($ret, $i, 1) = " ";
 		}
 	}
 
-	print &vis_post(&vis_merge($ret)), "\n";
+	print &vis_post(&vis_fan($ret, "merge")), "\n";
 }
 
 #
@@ -417,30 +416,6 @@ sub vine_merge
 # but already unambiguous, control string which needs some processing
 # before it is ready for public display.
 #
-
-
-sub vis_branch
-{
-	# Sample input: ╬═╠╬╬╬╩╬═╬╬╬╬╬╬╩╬╩═╬╬
-	my $ra = shift @_;
-	my $i;
-
-	$ra =~ s{^(.+?)╠}{
-		$_ = $1;
-		$_ =~ tr/╪═/║ /;
-		$_ .= '╠';
-	}es;
-	$ra =~ s{(╠.*)╩}{
-		$_ = $1;
-		$_ .= '╝';
-	}es;
-	$ra =~ s{╝(.*)$}{
-		$_ = $1;
-		$_ =~ tr/╪═/║ /;
-		$_ = "╝$_";
-	}es;
-	return $ra;
-}
 
 sub vis_commit
 {
@@ -453,54 +428,105 @@ sub vis_commit
 	return $s;
 }
 
-sub vis_merge
+sub vis_fan
 {
 	my $s = shift @_;
+	my $b = shift(@_) eq "branch";
 
-	if ($s =~ s/(s.*)S(.*s)/&vis_merge3($1, $2)/es) {
+	if ($s =~ s/(s.*)S(.*s)/&vis_fan3($1, $2)/es) {
 		;
 	} elsif ($s =~ /(?:s.*)S/s) {
-		while ($s =~ s/(s.*)║(.*S)/$1╪$2/s) {
+		while ($s =~ s/(s.*)I(.*S)/${1}K$2/s) {
 			;
 		}
-		$s =~ s/(s.*)S/&vis_merge2L($1)."╣"/es;
+		$s =~ s/(s.*)S/&vis_fan2L($1)."B"/es;
 	} elsif ($s =~ /S(?:.*s)/s) {
-		while ($s =~ s/(S.*)║(.*s)/$1╪$2/s) {
+		while ($s =~ s/(S.*)I(.*s)/${1}K$2/s) {
 			;
 		}
-		$s =~ s/S(.*s)/"╠".&vis_merge2R($1)/es;
+		$s =~ s/S(.*s)/"A".&vis_fan2R($1)/es;
 	} else {
 		die "Should not come here";
 	}
+
+	if ($b) {
+		$s =~ tr/efg/xyz/;
+	}
+
 	return $s;
 }
 
-sub vis_merge2L
+sub vis_fan2L
 {
 	my $l = shift @_;
-	$l =~ s/^s/╔/;
-	$l =~ s/s/╦/g;
-	$l =~ s/ /═/g;
+	$l =~ s/^s/e/;
+	$l =~ s/s/f/g;
+	$l =~ s/ /D/g;
 	return $l;
 }
 
-sub vis_merge2R
+sub vis_fan2R
 {
 	my $r = shift @_;
-	$r =~ s/s$/╗/;
-	$r =~ s/s/╦/g;
-	$r =~ s/ /═/g;
+	$r =~ s/s$/g/;
+	$r =~ s/s/f/g;
+	$r =~ s/ /D/g;
 	return $r;
 }
 
-sub vis_merge3
+sub vis_fan3
 {
 	my($l, $r) = shift @_;
-	$l =~ s/^s/╔/;
-	$l =~ s/s/╦/g;
-	$r =~ s/s$/╗/;
-	$r =~ s/s/╦/g;
-	return "$l╪$r";
+	$l =~ s/^s/e/;
+	$l =~ s/s/f/g;
+	$r =~ s/s$/g/;
+	$r =~ s/s/f/g;
+	return "${l}K$r";
+}
+
+sub vis_xfrm
+{
+	# A: branch to right
+	# B: branch to right
+	# C: commit
+	# D:
+	# e: merge visual left (╔)
+	# f: merge visual center (╦)
+	# g: merge visual right (╗)
+	# I: straight line (║)
+	# K: bridge (╬)
+	# m: single line (─)
+	# r: root (╙)
+	# t: tip (╓)
+	# x: branch visual left (╚)
+	# y: branch visual center (╩)
+	# z: branch visual right (╝)
+	# *: filler
+
+	my $s = shift @_;
+	my $spc = shift @_;
+	if ($spc) {
+		$s =~ s{[Ctr].*}{
+			$_ = $&;
+			$_ =~ s{ }{\*}g;
+			$_;
+		}esg;
+	}
+
+	if ($Reverse_order) {
+		$s =~ tr/efg.rt.xyz/xyz.tr.efg/;
+	}
+
+	if ($Style == 1) {
+		$s =~ tr/ABCD.efg.IK.mrt.xyz/├┤├─.┌┬┐.│┼.─└┌.└┴┘/;
+	} elsif ($Style == 2) {
+		$s =~ tr/ABCD.efg.IK.mrt.xyz/╠╣╟═.╔╦╗.║╬.─╙╓.╚╩╝/;
+	} elsif ($Style == 3) {
+		$s =~ tr/ABCD.efg.IK.mrt.xyz/╞╡├═.╒╤╕.│╪.─└┌.╘╧╛/;
+	} elsif ($Style == 4) {
+		$s =~ tr/ABCD.efg.IK.mrt.xyz/╟╢╟─.╓╥╖.║╫.─╙╓.╙╨╜/;
+	}
+	return $s;
 }
 
 #
@@ -512,22 +538,13 @@ sub vis_post
 	my $s = shift @_;
 	my $f = shift @_;
 
+	$s = vis_xfrm($s, defined $f);
+	$f =~ s/^([^\x1b]+)/vis_xfrm($1)/e;
+	$f =~ s/(\x1b.*?m)([^\x1b]+)/$1.vis_xfrm($2)/eg;
 	if (defined $f) {
-		while ($s =~ s/([╟╓╙].*) /$1$f/gs) {
-			;
-		}
+		$s =~ s/\*/$f/g;
 		$s =~ s{\Q$Color{default}\E}{$&.$Color{tree}}egs;
 		$s .= $f;
-	}
-
-	if ($Style == 1) {
-		$s =~ tr/╔╦╗╠╬╣╚╩╝║═╟╓╙╪/┌┬┐├┼┤└┴┘│─├┌└┼/;
-	} elsif ($Style == 2) {
-		$s =~ tr/╪/╬/;
-	} elsif ($Style == 3) {
-		$s =~ tr/╔╦╗╠╬╣╚╩╝║╟╓╙/╒╤╕╞╪╡╘╧╛│├┌└/;
-	} elsif ($Style == 4) {
-		$s =~ tr/╔╦╗╠╬╣╚╩╝╪═/╓╥╖╟╫╢╙╨╜╫─/;
 	}
 
 	return $Color{tree}, $s, $Color{default};
@@ -589,7 +606,6 @@ sub UNTIE
 	my $self = shift @_;
 	my $fh   = $self->{fh};
 
-	$self->{saved} =~ tr/╔╦╗╒╤╕╓╥╖┌┬┐╚╩╝╘╧╛╙╨╜└┴┘╓╙/╚╩╝╘╧╛╙╨╜└┴┘╔╦╗╒╤╕╓╥╖┌┬┐╙╓/;
 	print $fh join($/, reverse split(/\n/s, $self->{saved}));
 	undef $self->{saved};
 }
