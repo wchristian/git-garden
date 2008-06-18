@@ -486,6 +486,8 @@ sub vis_fan
 		die "Should not come here";
 	}
 
+	$s =~ s{O[DO]+O}{"O" x length($&)}eg;
+
 	if ($b) {
 		$s =~ tr/efg/xyz/;
 	}
