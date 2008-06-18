@@ -17,7 +17,7 @@ my $Pretty_fmt    = "format:%s";
 my $Reverse_order = 0;
 my $Show_all      = 0;
 my $Show_rebase   = 1;
-my $Style         = 2;
+my $Style         = 1;
 my $Subvine_depth = 2;
 my $With_sha      = 0;
 my %Color         = (
@@ -233,7 +233,7 @@ sub vine_branch
 	# Transform array into string
 	for ($idx = 0; $idx <= $#$vine; ++$idx) {
 		if (!defined($vine->[$idx])) {
-			$ret .= " ";
+			$ret .= "D";
 			next;
 		} elsif ($vine->[$idx] ne $rev) {
 			$ret .= "I";
@@ -464,15 +464,21 @@ sub vis_fan
 	my $s = shift @_;
 	my $b = shift(@_) eq "branch";
 
+	$s =~ s{^[^Ss]+|[^Ss]+$}{
+		$_ = $&;
+		$_ =~ s/D/ /g;
+		$_;
+	}eg;
+
 	if ($s =~ s/(s.*)S(.*s)/&vis_fan3($1, $2)/es) {
 		;
 	} elsif ($s =~ /(?:s.*)S/s) {
-		while ($s =~ s/(s.*)I(.*S)/${1}K$2/s) {
+		while ($s =~ s/(s.*)I(.*S)/${1}O$2/s) {
 			;
 		}
 		$s =~ s/(s.*)S/&vis_fan2L($1)."B"/es;
 	} elsif ($s =~ /S(?:.*s)/s) {
-		while ($s =~ s/(S.*)I(.*s)/${1}K$2/s) {
+		while ($s =~ s/(S.*)I(.*s)/${1}O$2/s) {
 			;
 		}
 		$s =~ s/S(.*s)/"A".&vis_fan2R($1)/es;
@@ -507,7 +513,7 @@ sub vis_fan2R
 
 sub vis_fan3
 {
-	my($l, $r) = shift @_;
+	my($l, $r) = @_;
 	$l =~ s/^s/e/;
 	$l =~ s/s/f/g;
 	$r =~ s/s$/g/;
@@ -525,8 +531,9 @@ sub vis_xfrm
 	# f: merge visual center (╦)
 	# g: merge visual right (╗)
 	# I: straight line (║)
-	# K: bridge (╬)
+	# K: branch visual split (╬)
 	# m: single line (─)
+	# O: overpass (↔)
 	# r: root (╙)
 	# t: tip (╓)
 	# x: branch visual left (╚)
@@ -549,13 +556,9 @@ sub vis_xfrm
 	}
 
 	if ($Style == 1) {
-		$s =~ tr/ABCD.efg.IK.mrt.xyz/├┤├─.┌┬┐.│┼.─└┌.└┴┘/;
+		$s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.┌┬┐.│┼≡.─└┌.└┴┘/;
 	} elsif ($Style == 2) {
-		$s =~ tr/ABCD.efg.IK.mrt.xyz/╠╣╟═.╔╦╗.║╬.─╙╓.╚╩╝/;
-	} elsif ($Style == 3) {
-		$s =~ tr/ABCD.efg.IK.mrt.xyz/╞╡├═.╒╤╕.│╪.─└┌.╘╧╛/;
-	} elsif ($Style == 4) {
-		$s =~ tr/ABCD.efg.IK.mrt.xyz/╟╢╟─.╓╥╖.║╫.─╙╓.╙╨╜/;
+		$s =~ tr/ABCD.efg.IKO.mrt.xyz/╠╣╟═.╔╦╗.║╬═.─╙╓.╚╩╝/;
 	}
 	return $s;
 }

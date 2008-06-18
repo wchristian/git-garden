@@ -4,15 +4,9 @@ Usage: git-forest [OPTIONS...] [REVLISTOPTIONS] [REFSPEC...]
 --no-rebase
 	Do not show rebase/ pseudo-refs
 --style=1
-	Use single-line visuals
+	Use single-line visuals (default)
 --style=2
-	Use double-line visuals (default)
---style=3
-	Use single-line visuals in vertical direction,
-	and double-line ones in horizontal direction.
---style=4
-	Use double-line visuals in vertical direction,
-	and single-line ones in horizontal direction.
+	Use double-line visuals
 --sha
 	Display SHAs for each commit
 --svdepth=N
@@ -28,29 +22,3 @@ Example:
 
 This tool does not try to minimize the empty space between branches
 like gitk does. Take it as a feature.
-
-Notes on interpretation:
-
-Connections with four "legs" ('╬' or variants thereof, like '╪') are
-meant to be interpreted as being connected only in the horizontal and
-vertical direction, NOT around-the-corner.
-
-Connections with three or less "legs" ('╠', '╩', '╦', etc.) imply
-a connection to all connected directions.
-
-Consider the following example history. The merge at 070 has merged
-together the branches with commits f21, 886 and 8f8, but NOT d3e.
-
-	╓─[HEAD]──[master]──-──(0c6)
-	╠═╗ 
-	║ ╟ -──(710)
-	╟ ║ -──(070)
-	╠═╬═╦═╗
-	║ ╟ ║ ║ -──(d3e)
-	║ ║ ╟ ║ -──(886)
-	║ ║ ║ ╟ -──(8f8)
-	║ ╠═╝ ║
-	║ ╟   ║ -──(199)
-	╟ ║   ║ -──(f21)
-	╠═╩═══╝ 
-	╙ -──(15f)
