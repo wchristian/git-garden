@@ -12,15 +12,15 @@ use Getopt::Long;
 use Git;
 use strict;
 use encoding "utf8";
-my $Repo     = Git->repository($ENV{"GIT_DIR"} || ".");
-my $Pretty_fmt  = "format:%s";
+my $Repo          = Git->repository($ENV{"GIT_DIR"} || ".");
+my $Pretty_fmt    = "format:%s";
 my $Reverse_order = 0;
-my $Show_all = 0;
-my $Show_rebase = 1;
-my $Style    = 2;
+my $Show_all      = 0;
+my $Show_rebase   = 1;
+my $Style         = 2;
 my $Subvine_depth = 2;
-my $With_sha = 0;
-my %Color    = (
+my $With_sha      = 0;
+my %Color         = (
 	"default" => "\e[0m", # ]
 	"at"      => "\e[1;30m", # ]
 	"hhead"   => "\e[1;31m", # ]
@@ -38,15 +38,15 @@ sub main
 {
 	&Getopt::Long::Configure(qw(bundling pass_through));
 	&GetOptions(
-		"all"      => \$Show_all,
-		"no-color" => sub { %Color = (); },
+		"all"       => \$Show_all,
+		"no-color"  => sub { %Color = (); },
 		"no-rebase" => sub { $Show_rebase = 0; },
 		"a"         => sub { $Pretty_fmt = "format:\e[1;30m(\e[0;32m%an\e[1;30m)\e[0m %s"; }, # ]]]]
 		"pretty=s"  => \$Pretty_fmt,
-		"reverse"  => \$Reverse_order,
+		"reverse"   => \$Reverse_order,
 		"svdepth=i" => \$Subvine_depth,
-		"style=i"  => \$Style,
-		"sha"      => \$With_sha,
+		"style=i"   => \$Style,
+		"sha"       => \$With_sha,
 	);
 	++$Subvine_depth;
 	if (substr($Pretty_fmt, 0, 7) ne "format:") {
