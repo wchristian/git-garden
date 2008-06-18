@@ -15,6 +15,9 @@ Usage: git-forest [OPTIONS...] [REVLISTOPTIONS] [REFSPEC...]
 	and single-line ones in horizontal direction.
 --sha
 	Display SHAs for each commit
+--svdepth=N
+	This option controls the maximum length of merge subvines.
+	It defaults to 2.
 
 All other options and arguments are passed down to git-log.
 Commonly useful options are --all and --topo-order.

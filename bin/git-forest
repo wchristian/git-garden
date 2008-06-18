@@ -18,6 +18,7 @@ my $Reverse_order = 0;
 my $Show_all = 0;
 my $Show_rebase = 1;
 my $Style    = 2;
+my $Subvine_depth = 2;
 my $With_sha = 0;
 my %Color    = (
 	"default" => "\e[0m", # ]
@@ -43,9 +44,11 @@ sub main
 		"a"         => sub { $Pretty_fmt = "format:\e[1;30m(\e[0;32m%an\e[1;30m)\e[0m %s"; }, # ]]]]
 		"pretty=s"  => \$Pretty_fmt,
 		"reverse"  => \$Reverse_order,
+		"svdepth=i" => \$Subvine_depth,
 		"style=i"  => \$Style,
 		"sha"      => \$With_sha,
 	);
+	++$Subvine_depth;
 	if (substr($Pretty_fmt, 0, 7) ne "format:") {
 		die "If you use --pretty, it must be in the form of --pretty=format:";
 	}
@@ -71,6 +74,27 @@ sub main
 	}
 }
 
+sub get_line_block
+{
+	my($fh, $max) = @_;
+
+	while (scalar(@h::ist) < $max) {
+		my $x;
+
+		$x = <$fh>;
+		if (!defined($x)) {
+			last;
+		}
+		push(@h::ist, $x);
+	}
+
+	my @ret = (shift @h::ist);
+	foreach (2..$max) {
+		push(@ret, $h::ist[$_-2]);
+	}
+	return @ret;
+}
+
 sub process
 {
 	my(@vine);
@@ -78,10 +102,14 @@ sub process
 	my($fh, $fhc) = $Repo->command_output_pipe("log", "--date-order",
 	                "--pretty=format:<%H><%h><%P>$Pretty_fmt", @ARGV);
 
-	while (defined(my $line = <$fh>)) {
+	while (my($line, @next_sha) = get_line_block($fh, $Subvine_depth)) {
+		if (!defined($line)) {
+			last;
+		}
 		chomp $line;
 		my($sha, $mini_sha, $parents, $msg) =
 			($line =~ /^<(.*?)><(.*?)><(.*?)>(.*)/s);
+		my @next_sha = map { ($_) = /^<(.*?)>/ } @next_sha;
 		my @parents = split(" ", $parents);
 
 		&vine_branch(\@vine, $sha);
@@ -101,7 +129,7 @@ sub process
 			print $msg, "\n";
 		}
 
-		&vine_merge(\@vine, $sha, \@parents);
+		&vine_merge(\@vine, $sha, \@next_sha, \@parents);
 	}
 	$Repo->command_close_pipe($fh, $fhc);
 }
@@ -284,13 +312,14 @@ sub vine_commit
 # vine_merge -
 # @vine:	column array containing the expected parent IDs
 # @rev:		commit ID
+# @next_rev:	next commit ID in the revision list
 # @parents:	parent IDs of @rev
 #
 # Draws the merging vine matrix between a commit K (@rev) and K^ (@parents).
 #
 sub vine_merge
 {
-	my($vine, $rev, $parents) = @_;
+	my($vine, $rev, $next_rev, $parents) = @_;
 	my $orig_vine = -1;
 	my @slot;
 	my($ret, $max);
@@ -321,7 +350,9 @@ sub vine_merge
 	#
 	for (my $j = 0; $j <= $#$parents && $#$parents > 0; ++$j) {
 		for (my $idx = 0; $idx <= $#$vine; ++$idx) {
-			if ($vine->[$idx] ne $parents->[$j]) {
+			if ($vine->[$idx] ne $parents->[$j] ||
+			    !grep { my $z = $vine->[$idx]; /^\Q$z\E$/ }
+			    @$next_rev) {
 				next;
 			}
 			if ($idx == $orig_vine) {
