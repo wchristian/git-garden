@@ -233,7 +233,7 @@ sub vine_branch
 	# Transform array into string
 	for ($idx = 0; $idx <= $#$vine; ++$idx) {
 		if (!defined($vine->[$idx])) {
-			$ret .= "D";
+			$ret .= " ";
 			next;
 		} elsif ($vine->[$idx] ne $rev) {
 			$ret .= "I";
@@ -464,29 +464,20 @@ sub vis_fan
 	my $s = shift @_;
 	my $b = shift(@_) eq "branch";
 
-	$s =~ s{^[^Ss]+|[^Ss]+$}{
+	$s =~ s{s.*s}{
 		$_ = $&;
-		$_ =~ s/D/ /g;
+		$_ =~ tr/ I/DO/;
 		$_;
-	}eg;
+	}ei;
 
-	if ($s =~ s/(s.*)S(.*s)/&vis_fan3($1, $2)/es) {
-		;
-	} elsif ($s =~ /(?:s.*)S/s) {
-		while ($s =~ s/(s.*)I(.*S)/${1}O$2/s) {
-			;
-		}
-		$s =~ s/(s.*)S/&vis_fan2L($1)."B"/es;
-	} elsif ($s =~ /S(?:.*s)/s) {
-		while ($s =~ s/(S.*)I(.*s)/${1}O$2/s) {
-			;
-		}
-		$s =~ s/S(.*s)/"A".&vis_fan2R($1)/es;
-	} else {
-		die "Should not come here";
-	}
-
+	# Transform an ODODO.. sequence into a contiguous overpass.
 	$s =~ s{O[DO]+O}{"O" x length($&)}eg;
+
+	# Do left/right edge transformation
+	$s =~ s{(s.*)S(.*s)}{&vis_fan3($1, $2)}es ||
+	$s =~ s{(s.*)S}{&vis_fan2L($1)."B"}es ||
+	$s =~ s{S(.*s)}{"A".&vis_fan2R($1)}es ||
+	die "Should not come here";
 
 	if ($b) {
 		$s =~ tr/efg/xyz/;
@@ -500,7 +491,6 @@ sub vis_fan2L
 	my $l = shift @_;
 	$l =~ s/^s/e/;
 	$l =~ s/s/f/g;
-	$l =~ s/ /D/g;
 	return $l;
 }
 
@@ -509,7 +499,6 @@ sub vis_fan2R
 	my $r = shift @_;
 	$r =~ s/s$/g/;
 	$r =~ s/s/f/g;
-	$r =~ s/ /D/g;
 	return $r;
 }
 
@@ -535,7 +524,7 @@ sub vis_xfrm
 	# I: straight line (║)
 	# K: branch visual split (╬)
 	# m: single line (─)
-	# O: overpass (↔)
+	# O: overpass (≡)
 	# r: root (╙)
 	# t: tip (╓)
 	# x: branch visual left (╚)
