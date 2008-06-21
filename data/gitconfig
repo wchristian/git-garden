@@ -1,5 +1,5 @@
 [core]
-	pager = less -MRSi
+	pager = less -FMRSi
 
 [color]
 	status = auto
