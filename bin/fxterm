@@ -4,12 +4,31 @@
 #	Requires that the same font is available with and without _b suffix.
 #
 #	Common usage:
-#		fxterm ^tosh [other xterm options]
+#		fxterm -f tosh -j -- [other xterm options]
 #
-font=${1:1};
-if [ "${1:0:1}" == "^" ]; then
-    opts="-fn $font -fb ${font}_b";
-    shift;
+
+while [[ "$#" -gt 0 ]]; do
+	case "$1" in
+	(-f)
+		font="$2";
+		shift 2;
+		;;
+	(-j)
+		export XMODIFIERS="@im=SCIM";
+		shift 1;
+		;;
+	(--)
+		shift 1;
+		break;
+		;;
+	(*)
+		break;
+		;;
+	esac;
+done;
+
+if [[ -n "$font" ]]; then
+	opts="-fn $font -fb ${font}_b";
 fi;
 
 exec xterm -ls -fg gray -bg "#001020" -geometry 80x25 -vb +bdc +fbx \
