@@ -54,8 +54,8 @@ sub main
 	}
 	$Pretty_fmt = substr($Pretty_fmt, 7);
 	while ($Pretty_fmt =~ /\%./g) {
-		if ($& eq "\%b" || $& eq "\%n") {
-			die "Cannot use \%b or \%n in --pretty=format:";
+		if ($& eq "\%b" || $& eq "\%n" || ($&.$') =~ /^\%x0a/i) {
+			die "Cannot use \%b, \%n or \%x0a in --pretty=format:";
 		}
 	}
 	if ($Show_all) {
