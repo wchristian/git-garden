@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo -en "\e]P1AA0060";
+echo -en "\e]P260AA00";
+echo -en "\e]P4000080";
+echo -en "\e]P58000AA";
+echo -en "\e]P9FF0080";
+echo -en "\e]PAA0FF00";
+echo -en "\e]PBFFE000";
+echo -en "\e]PC0060FF";
+echo -en "\e]PDB000FF";
+echo -en "\e]PE00D0FF";
