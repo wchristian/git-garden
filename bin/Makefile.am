@@ -12,7 +12,7 @@ oplay_LDADD      = -lHX
 tailhex_LDADD    = -lHX
 
 omixer: oplay
-	[ ! -e omixer ] && ln -s oplay omixer;
+	if [ ! -e omixer ]; then ln -s oplay omixer; fi;
 
 orec: oplay
-	[ ! -e orec ] && ln -s oplay orec;
+	if [ ! -e orec ]; then ln -s oplay orec; fi;
