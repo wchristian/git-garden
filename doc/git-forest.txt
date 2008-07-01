@@ -1,6 +1,34 @@
 
-Usage: git-forest [OPTIONS...] [REVLISTOPTIONS] [REFSPEC...]
+	Description
 
+git-forest is a command-line zero-lookahead git repository history
+visualizer with Unicode output with a bit of gitk resemblance.
+
+
+	Why another program?
+
+The tree visualization of gitk is very useful, but there were
+(git 1.5.4 timeframe) no decent visualizers that can run in a
+console window, without the need to have X around (which gitk
+depends on). tig has numerous limitations, it cannot display
+octopus merges or octopus branching. As of git 1.5.6, there
+are still no other Unicode-output programs known to me.
+
+
+	A bit of internals
+
+git-forest originally was a zero-lookahead visualizer, i.e. branches
+were accomodated when they have first been seen. Since mid-June 2008,
+git-forest has a lookahead tunable that controls how long an inter-merge
+vine can be.
+
+
+	Usage
+
+  git-forest [OPTIONS...] [REVLISTOPTIONS] [REFSPEC...]
+
+-a
+	Display author for each commit
 --no-rebase
 	Do not show rebase/ pseudo-refs
 --style=1
