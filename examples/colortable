@@ -1,5 +1,31 @@
 #!/usr/bin/perl
 # Display the ANSI color table
-for$+(0..7){for$-(0,1,7){print"\e[0;$-;$_;4$+mAZ"for 30..37,39}print"\e[0m\n"}
-print"\e[1mbold\e[0m \e[2mdim\e[0m \e[3mitalic\e[0m \e[4munderscore\e[0m ",
-"\e[5mblink\e[0m \e[6mrapidblink\e[0m \e[7mreverse\e[0m\ndefault \e[37mgray\e[0m\n";
+
+if ($ENV{TERM} eq "xterm") {
+	for (my $c = 0x0; $c <= 0xE7; ++$c) {
+		printf "\e[38;5;${c}m-%02x-", $c;
+		if (($c - 3) % 6 == 0) {
+			print "\e[0m\n";
+		}
+	}
+}
+
+for (my $bg = 0; $bg < 8; ++$bg) {
+	for my $bit (0,1,7) {
+		for $fg (30..37, 39) {
+			my $lo_fg = $fg - 30;
+			my $lo_bg = $bg;
+			if ($bit == 1) {
+				$lo_fg |= 8;
+			} elsif ($bit == 7) {
+				$lo_bg |= 8;
+			}
+			printf"\e[0;$bit;$fg;4${bg}m%x%x", $lo_bg, $lo_fg;
+		}
+	}
+	print"\e[0m\n";
+}
+print "\e[1mbold\e[0m \e[2mdim\e[0m \e[3mitalic\e[0m \e[4munderscore\e[0m ",
+      "\e[5mblink\e[0m \e[6mrapidblink\e[0m \e[7mreverse\e[0m\ndefault ",
+      "\e[37mgray\e[0m\n";
+
