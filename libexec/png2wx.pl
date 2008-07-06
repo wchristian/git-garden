@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 #	png2wx - embed png in C++
-#	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
+#	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2008
 #	http://jengelh.medozas.de/
 #	released in the Public Domain
 #
@@ -9,13 +9,13 @@
 use Getopt::Long;
 use strict;
 
-&main(\@ARGV);
+exit(main(\@ARGV));
 
 sub main
 {
 	my($cpp_file, $hpp_file, $hpp_include, $Marker, $main, $tmp);
-	&Getopt::Long::Configure(qw(bundling));
-	&GetOptions(
+	Getopt::Long::Configure(qw(bundling));
+	GetOptions(
 		"C=s" => \$cpp_file,
 		"H=s" => \$hpp_file,
 		"M=s" => \$Marker,
@@ -78,7 +78,7 @@ extern void initialize_images(void);
 		print CPP "wxBitmap *_img_$base;\n";
 
 		$main .= "	{\n".
-		         "		wxMemoryInputStream sm(\"".&encoded($file)."\", ".(-s $file).");\n".
+		         "		wxMemoryInputStream sm(\"".encoded($file)."\", ".(-s $file).");\n".
 		         "		_img_$base = new wxBitmap(wxImage(sm));\n".
 		         "	}\n";
 	}
