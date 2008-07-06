@@ -4,7 +4,8 @@ AM_CFLAGS     = $(regular_CFLAGS)
 
 libexec_PROGRAMS = bsvplay fd0ssh graph-fanout graph-lchain longjumpcd \
 	testdl pipepty qplay socketpty testdl utmp_register wavdiff xcp
-libexec_SCRIPTS  = diff2php extract_d3hog extract_d3pkg extract_f3pod \
+libexec_SCRIPTS  = diff2php doxygen-kerneldoc-filter extract_d3hog \
+	extract_d3pkg extract_f3pod \
                 extract_q2pak filenameconv flv2avi fnt2bdf git-revert-stats \
                 logontime mailsplit mod2ogg mpg2ogg netload paddrspacesize \
                 png2wx.pl png2wx.py proc_iomem_count \
