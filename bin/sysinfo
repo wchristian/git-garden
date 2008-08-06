@@ -26,6 +26,7 @@ if (open(IN, "</proc/cpuinfo")) {
 	my($cpu_mhz, $cpu_model, $cpu_vendor, $cpu_arch, $cpu_num);
 	while (defined(my $l = <IN>)) {
 		chomp $l;
+		$l =~ s/ +/ /g;
 		if ($l =~ /^processor\s+:/i) {
 			++$cpu_num;
 		} elsif ($l =~ /^vendor\s+:\s+(.*)/i) {
