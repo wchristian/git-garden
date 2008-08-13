@@ -1,5 +1,5 @@
 
-AC_INIT([hxtools], [20080621])
+AC_INIT([hxtools], [20080813])
 AC_PREFIX_DEFAULT([/usr/local/hxtools])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_INSTALL
