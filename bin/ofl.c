@@ -15,11 +15,18 @@
 #include <libHX.h>
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
 
+/**
+ * @sb:		just space
+ * @pid:	pid for current process
+ * @signal:	signal to send
+ * @check:	check for symlink
+ * @found:	found something (used for exit value)
+ */
 struct ofl_compound {
 	struct stat sb;
 	pid_t pid;
 	unsigned char signal;
-	bool check;
+	bool check, found;
 };
 
 /**
@@ -55,6 +62,7 @@ static bool ofl_one(const char *mnt, const char *entry,
 	if (tmp[mnt_len] != '\0' && tmp[mnt_len] != '/')
 		return false;
 
+	data->found = true;
 	if (data->signal == 0) {
 		printf("%u: %s -> %s\n", data->pid, entry, tmp);
 		return false; /* so that more FDs will be inspected */
@@ -125,7 +133,7 @@ static void ofl_task(const char *mnt, const char *path,
  * @mnt:	mountpoint to search for
  * @action:	action to take
  */
-static void ofl(const char *mnt, unsigned int signum)
+static bool ofl(const char *mnt, unsigned int signum)
 {
 	struct ofl_compound data = {.signal = signum};
 	const char *de;
@@ -134,7 +142,7 @@ static void ofl(const char *mnt, unsigned int signum)
 
 	dir = HXdir_open("/proc");
 	if (dir == NULL)
-		return;
+		return false;
 	while ((de = HXdir_read(dir)) != NULL) {
 		if (*de == '.')
 			continue;
@@ -162,6 +170,8 @@ static void ofl(const char *mnt, unsigned int signum)
 		snprintf(tmp, sizeof(tmp), "/proc/%s/task", de);
 		ofl_task(mnt, tmp, &data);
 	}
+
+	return data.found;
 }
 
 static unsigned int parse_signal(const char *str)
@@ -197,17 +207,18 @@ int main(int argc, const char **argv)
 		HXOPT_AUTOHELP,
 		HXOPT_TABLEEND,
 	};
+	bool ret = false;
 
 	if (HX_getopt(options_table, &argc, &argv, HXOPT_USAGEONERR) < 0)
-		return EXIT_FAILURE;
+		return EXIT_FAILURE + 1;
 	if (argc == 1) {
 		fprintf(stderr, "You need to supply at least a path\n");
-		return EXIT_FAILURE;
+		return EXIT_FAILURE + 1;
 	}
 
 	if (signum_str != NULL)
 		signum = parse_signal(signum_str);
 	while (*++argv != NULL)
-		ofl(*argv, signum);
-	return EXIT_SUCCESS;
+		ret |= ofl(*argv, signum);
+	return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
