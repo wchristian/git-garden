@@ -33,6 +33,24 @@ struct ofl_compound {
 	bool check, found;
 };
 
+static const char *ofl_comm(pid_t pid, char *buf, size_t size)
+{
+	char src[64], dst[512];
+	const char *p;
+	ssize_t ret;
+
+	snprintf(src, sizeof(src), "/proc/%u/exe", (unsigned int)pid);
+	ret = readlink(src, dst, sizeof(dst) - 1);
+	if (ret < 0) {
+		*buf = '\0';
+		return buf;
+	}
+	dst[ret] = '\0';
+	p = HX_basename(dst);
+	strncpy(buf, p, size);
+	return buf;
+}
+
 /**
  * ofl_file - check if file is within directory
  * @mnt:	mountpoint
@@ -63,7 +81,9 @@ static bool ofl_file(const char *mnt, const char *file, const char *ll_entry,
 
 	data->found = true;
 	if (data->signal == 0) {
-		printf("%u: %s -> %s\n", data->pid, ll_entry, file);
+		char buf[24];
+		printf("%u(%s): %s -> %s\n", data->pid,
+		       ofl_comm(data->pid, buf, sizeof(buf)), ll_entry, file);
 		return false; /* so that more FDs will be inspected */
 	}
 
@@ -139,7 +159,7 @@ static bool ofl_one(const char *mnt, const char *entry,
 }
 
 /**
- * ofl_fd - iterate through /proc/<pid>/task/<tid>/fd/
+ * ofl_taskfd - iterate through /proc/<pid>/task/<tid>/fd/
  */
 static bool ofl_taskfd(const char *mnt, const char *path,
     struct ofl_compound *data)
