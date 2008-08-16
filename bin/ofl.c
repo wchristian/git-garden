@@ -1,5 +1,9 @@
 /*
  *	Show processes using directories/files/mountpoints
+ *
+ *	(While it says mountpoint in the source, any directory is acceptable,
+ *	as are files.)
+ *
  *	written by Jan Engelhardt, 2008
  *	Released in the Public Domain.
  */
@@ -30,6 +34,86 @@ struct ofl_compound {
 };
 
 /**
+ * ofl_file - check if file is within directory
+ * @mnt:	mountpoint
+ * @file:	file that is supposed to be within @mnt
+ *
+ * Returns true if that seems so.
+ * We do not check for the existence of @file using lstat() or so - it is
+ * assumed this exists if it is found through procfs. In fact,
+ * /proc/<pid>/task/<tid>/fd/<n> might point to the ominous
+ * "/foo/bar (deleted)" which almost never exists, but it shows us anyway that
+ * the file is still in use.
+ */
+static bool ofl_file(const char *mnt, const char *file, const char *ll_entry,
+    struct ofl_compound *data)
+{
+	ssize_t mnt_len;
+	const char *p;
+
+	/* Strip extra slashes at the end */
+	mnt_len = strlen(mnt);
+	for (p = mnt + mnt_len - 1; p >= mnt && *p == '/'; --p)
+		--mnt_len;
+
+	if (strncmp(file, mnt, mnt_len) != 0)
+		return false;
+	if (file[mnt_len] != '\0' && file[mnt_len] != '/')
+		return false;
+
+	data->found = true;
+	if (data->signal == 0) {
+		printf("%u: %s -> %s\n", data->pid, ll_entry, file);
+		return false; /* so that more FDs will be inspected */
+	}
+
+	if (kill(data->pid, data->signal) < 0) {
+		if (errno == ESRCH)
+			return true;
+		return false;
+	}
+	return true;
+}
+
+/**
+ * ofl_pmap - read process mappings
+ * @mnt:	mountpoint
+ * @map_file:	/proc/<pid>/maps
+ */
+static bool ofl_pmap(const char *mnt, const char *map_file,
+    struct ofl_compound *data)
+{
+	hmc_t *line = NULL;
+	bool ret = false;
+	unsigned int i;
+	const char *p;
+	FILE *fp;
+
+	if ((fp = fopen(map_file, "r")) == NULL)
+		return false;
+
+	while (HX_getl(&line, fp) != NULL) {
+		HX_chomp(line);
+		p = line;
+		for (i = 0; i < 5; ++i) {
+			while (!isspace(*p))
+				++p;
+			while (isspace(*p))
+				++p;
+		}
+		if (*p == '\0')
+			continue;
+		ret = ofl_file(mnt, p, map_file, data);
+		if (ret)
+			break;
+	}
+
+	hmc_free(line);
+	fclose(fp);
+	return ret;
+}
+
+/**
  * ofl_one - check a symlink
  * @mnt:	Mountpoint that is to be removed.
  * @entry:	Path to a symlink.
@@ -39,8 +123,7 @@ struct ofl_compound {
 static bool ofl_one(const char *mnt, const char *entry,
     struct ofl_compound *data)
 {
-	ssize_t mnt_len, lnk_len;
-	const char *p;
+	ssize_t lnk_len;
 	char tmp[512];
 
 	if (data->check)
@@ -52,32 +135,11 @@ static bool ofl_one(const char *mnt, const char *entry,
 		return false;
 	tmp[lnk_len] = '\0';
 
-	/* Strip extra slashes at the end */
-	mnt_len = strlen(mnt);
-	for (p = mnt + mnt_len - 1; p >= mnt && *p == '/'; --p)
-		--mnt_len;
-
-	if (strncmp(tmp, mnt, mnt_len) != 0)
-		return false;
-	if (tmp[mnt_len] != '\0' && tmp[mnt_len] != '/')
-		return false;
-
-	data->found = true;
-	if (data->signal == 0) {
-		printf("%u: %s -> %s\n", data->pid, entry, tmp);
-		return false; /* so that more FDs will be inspected */
-	} else {
-		if (kill(data->pid, data->signal) < 0) {
-			if (errno == ESRCH)
-				return true;
-			return false;
-		}
-		return true;
-	}
+	return ofl_file(mnt, tmp, entry, data);
 }
 
 /**
- * ofl_fd - iterate through /proc/<process>/task/<task>/fd/
+ * ofl_fd - iterate through /proc/<pid>/task/<tid>/fd/
  */
 static bool ofl_taskfd(const char *mnt, const char *path,
     struct ofl_compound *data)
@@ -105,7 +167,7 @@ static bool ofl_taskfd(const char *mnt, const char *path,
 }
 
 /**
- * ofl_task - iterate through /proc/<process>/task/
+ * ofl_task - iterate through /proc/<pid>/task/
  */
 static void ofl_task(const char *mnt, const char *path,
     struct ofl_compound *data)
@@ -151,6 +213,11 @@ static bool ofl(const char *mnt, unsigned int signum)
 			continue;
 		snprintf(tmp, sizeof(tmp), "/proc/%s", de);
 		if (lstat(tmp, &data.sb) < 0 || !S_ISDIR(data.sb.st_mode))
+			continue;
+
+		/* Program map */
+		snprintf(tmp, sizeof(tmp), "/proc/%s/maps", de);
+		if (ofl_pmap(mnt, tmp, &data))
 			continue;
 
 		/* Basic links */
