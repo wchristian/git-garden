@@ -111,7 +111,7 @@ if (open(IN, "</proc/uptime")) {
 	close IN;
 }
 
-if (open(IN, "/sbin/lspci | grep 'VGA compatible controller:' |")) {
+if (open(IN, "(lspci || /sbin/lspci) 2>/dev/null | grep 'VGA compatible controller:' |")) {
 	my $dev;
 	chomp($dev = <IN>);
 	$dev =~ s/^.*VGA compatible controller:\s+//;
