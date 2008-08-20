@@ -1,15 +1,15 @@
 
 Name:		hxtools
-Version:	20080813
+Version:	20080820
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
 Summary:	Collection of day-to-day tools
 
-Source:		%name-%version.tar.bz2
+Source:		%name-%version.tar.lzma
 License:	GPL,PD
 # freetype2, xorg-x11 for "bdftopcf"
-BuildRequires:	libHX-devel >= 1.10, freetype2, libcap-devel
+BuildRequires:	libHX-devel >= 1.10, lzma, freetype2, libcap-devel
 BuildRequires:	xorg-x11, pkg-config
 BuildRoot:	%_tmppath/%name-%version-build
 Recommends:	hxtools-data
