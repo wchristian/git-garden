@@ -10,20 +10,26 @@
 use POSIX;
 use strict;
 
-if (open(IN, "hostname --fqdn 2>/dev/null |")) {
-	chomp(my $l = <IN>);
-	print "[$l] ";
-	close IN;
-}
+do_hostname();
+do_version();
+do_cpuinfo();
+do_loadavg();
+do_meminfo();
+do_disk();
+do_gfx();
 
-if (open(IN, "< /proc/version")) {
-	my ($os, $ver) = (<IN> =~ /^(\w+)\s+\w+\s+(\S+)/i);
-	print "$os $ver";
-	close IN;
-}
+print "\n";
 
-if (open(IN, "</proc/cpuinfo")) {
+
+sub do_cpuinfo
+{
 	my($cpu_mhz, $cpu_model, $cpu_vendor, $cpu_arch, $cpu_num);
+	local *IN;
+
+	if (!open(IN, "</proc/cpuinfo")) {
+		return;
+	}
+
 	while (defined(my $l = <IN>)) {
 		chomp $l;
 		if ($l =~ /^processor\s+:/i) {
@@ -50,7 +56,76 @@ if (open(IN, "</proc/cpuinfo")) {
 	close IN;
 }
 
-if (open(IN, "</proc/loadavg")) {
+sub do_disk
+{
+	if (!open(IN, "df 2>/dev/null |")) {
+		return;
+	}
+
+	my($disk_total, $disk_used);
+	while (defined(my $l = <IN>)) {
+		chomp $l;
+		if ($l =~ m{^/dev/\S+\s+(\d+)\s+(\d+)}) {
+			$disk_total += $1;
+			$disk_used += $2;
+		}
+	}
+	close IN;
+	printf " | DiskUse: %u/%uGB", $disk_used / 1048576,
+	       $disk_total / 1048576;
+}
+
+sub do_gfx
+{
+	local *IN;
+
+	if (!open(IN, "/sbin/lspci | grep 'VGA compatible controller:' |")) {
+		return;
+	}
+
+	my $dev;
+	chomp($dev = <IN>);
+	$dev =~ s/^.*VGA compatible controller:\s+//;
+	print " | Gfx: $dev";
+	close IN;
+
+	if (!open(IN, "xdpyinfo 2>/dev/null |")) {
+		return;
+	}
+
+	my($scr_res);
+	while (defined(my $l = <IN>)) {
+		if ($l =~ /\s+dimensions\s*:\s+(\S+)/i) {
+			$scr_res = $1;
+		}
+		chomp $l;
+	}
+	if ($scr_res ne "") {
+		print " \@ ${scr_res}";
+	}
+	close IN;
+}
+
+sub do_hostname
+{
+	local *IN;
+
+	if (!open(IN, "hostname --fqdn 2>/dev/null |")) {
+		return;
+	}
+	chomp(my $l = <IN>);
+	print "[$l] ";
+	close IN;
+}
+
+sub do_loadavg
+{
+	local *IN;
+
+	if (!open(IN, "</proc/loadavg")) {
+		return;
+	}
+
 	my($load1, $load5, $load15, $rtask, $stask) =
 		(<IN> =~ /^(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\/(.+?)\s/);
 	my $total = $rtask + $stask;
@@ -58,7 +133,12 @@ if (open(IN, "</proc/loadavg")) {
 	close IN;
 }
 
-if (open(IN, "</proc/meminfo")) {
+sub do_meminfo
+{
+	if (!open(IN, "</proc/meminfo")) {
+		return;
+	}
+
 	my($mem_total, $mem_free, $mem_buf, $mem_cac, $mem_used);
 	while (defined(my $l = <IN>)) {
 		chomp $l;
@@ -77,21 +157,14 @@ if (open(IN, "</proc/meminfo")) {
 	close IN;
 }
 
-if (open(IN, "df 2>/dev/null |")) {
-	my($disk_total, $disk_used);
-	while (defined(my $l = <IN>)) {
-		chomp $l;
-		if ($l =~ m{^/dev/\S+\s+(\d+)\s+(\d+)}) {
-			$disk_total += $1;
-			$disk_used += $2;
-		}
-	}
-	close IN;
-	printf " | DiskUse: %u/%uGB", $disk_used / 1048576,
-	       $disk_total / 1048576;
-}
+sub do_uptime
+{
+	local *IN;
 
-if (open(IN, "</proc/uptime")) {
+	if (!open(IN, "</proc/uptime")) {
+		return;
+	}
+
 	my($up) = (<IN> =~ /^(\d+\.\d+)/);
 	my $days = floor($up / 86400);
 	my $hours = floor($up / 3600 % 24);
@@ -110,25 +183,15 @@ if (open(IN, "</proc/uptime")) {
 	close IN;
 }
 
-if (open(IN, "/sbin/lspci | grep 'VGA compatible controller:' |")) {
-	my $dev;
-	chomp($dev = <IN>);
-	$dev =~ s/^.*VGA compatible controller:\s+//;
-	print " | Gfx: $dev";
+sub do_version
+{
+	local *IN;
 
-	if (open(IN, "xdpyinfo 2>/dev/null |")) {
-		my($scr_res);
-		while (defined(my $l = <IN>)) {
-			if ($l =~ /\s+dimensions\s*:\s+(\S+)/i) {
-				$scr_res = $1;
-			}
-			chomp $l;
-		}
-		if ($scr_res ne "") {
-			print " \@ ${scr_res}";
-		}
-		close IN;
+	if (!open(IN, "< /proc/version")) {
+		return;
 	}
-}
 
-print "\n";
+	my ($os, $ver) = (<IN> =~ /^(\w+)\s+\w+\s+(\S+)/i);
+	print "$os $ver";
+	close IN;
+}
