@@ -23,7 +23,7 @@ print "\n";
 
 sub do_cpuinfo
 {
-	my($cpu_mhz, $cpu_model, $cpu_vendor, $cpu_arch, $cpu_num);
+	my($cpu_mhz, $cpu_max_mhz, $cpu_model, $cpu_vendor, $cpu_arch, $cpu_num);
 	local *IN;
 
 	if (!open(IN, "</proc/cpuinfo")) {
@@ -39,7 +39,8 @@ sub do_cpuinfo
 		} elsif ($l =~ /^arch\s+:\s+(.*)/i) {
 			$cpu_arch = $1;
 		} elsif ($l =~ /^model name\s+:\s+(.*)/i) {
-	                $cpu_model = $1;
+			$cpu_model = $1;
+			$cpu_model =~ s/\d+\.\d+[GM]Hz//s;
 		} elsif ($l =~ /^cpu mhz\s+:\s+(.*)/i) {
 			$cpu_mhz = $1;
 		}
@@ -52,8 +53,27 @@ sub do_cpuinfo
 	if ($cpu_num > 1) {
 		print "${cpu_num}x ";
 	}
-	print "$cpu_model $cpu_mhz MHz";
 	close IN;
+
+	if (open(IN, "cpufreq-info -f 2>/dev/null |")) {
+		chomp(my $l = <IN>);
+		if ($l != 0) {
+			$cpu_mhz = int($l / 1000);
+		}
+		close IN;
+	}
+
+	if (open(IN, "cpufreq-info -l 2>/dev/null |")) {
+		(undef, $cpu_max_mhz) = split(/\s+/, <IN>);
+		$cpu_max_mhz = int($cpu_max_mhz / 1000);
+		close IN;
+	}
+
+	print "$cpu_model $cpu_mhz";
+	if ($cpu_max_mhz != 0) {
+		print "/$cpu_max_mhz";
+	}
+	print " MHz";
 }
 
 sub do_disk
