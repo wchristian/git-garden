@@ -58,7 +58,6 @@ context default
 	keyword whole restrict white
 	keyword whole return white
 	keyword whole short white
-	keyword whole signed_cast white
 	keyword whole signed white
 	keyword whole size_t white
 	keyword whole sizeof white
