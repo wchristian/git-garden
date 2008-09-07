@@ -18,7 +18,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <libHX.h>
+#include <libHX/deque.h>
+#include <libHX/option.h>
+#include <libHX/string.h>
 #define VERBOSITY_MIN 0
 #define VERBOSITY_MAX 4
 #define VERBOSITY_DEFAULT 3

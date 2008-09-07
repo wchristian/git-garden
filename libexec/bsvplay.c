@@ -13,8 +13,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <libHX.h>
+#include <libHX/option.h>
 #include "pcspkr.h"
 
 struct bsv_insn {

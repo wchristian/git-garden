@@ -9,7 +9,7 @@ Summary:	Collection of day-to-day tools
 Source:		%name-%version.tar.lzma
 License:	GPL,PD
 # freetype2, xorg-x11 for "bdftopcf"
-BuildRequires:	libHX-devel >= 1.10, lzma, freetype2, libcap-devel
+BuildRequires:	libHX-devel >= 1.25, lzma, freetype2, libcap-devel
 BuildRequires:	xorg-x11, pkg-config
 BuildRoot:	%_tmppath/%name-%version-build
 Recommends:	hxtools-data

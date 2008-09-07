@@ -1,7 +1,6 @@
 /*
  *	graph-lchain.c - Longest-chain tree nodes
- *	Copyright © CC Computer Consultants GmbH, 2007 - 2008
- *	Jan Engelhardt <jengelh@medozas.de>
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2007 - 2008
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -12,7 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libHX.h>
+#include <libHX/arbtree.h>
+#include <libHX/string.h>
 
 /* Definitions */
 struct node {
@@ -68,7 +68,7 @@ int main(int argc, const char **argv)
 
 static void lchain_process(FILE *fp)
 {
-	hmc_t *source_name = NULL, *target_name = NULL;
+	hxmc_t *source_name = NULL, *target_name = NULL;
 
 	while (HX_getl(&source_name, fp) != NULL) {
 		if (HX_getl(&target_name, fp) == NULL)
@@ -79,8 +79,8 @@ static void lchain_process(FILE *fp)
 		lchain_link(source_name, target_name);
 	}
 
-	hmc_free(source_name);
-	hmc_free(target_name);
+	HXmc_free(source_name);
+	HXmc_free(target_name);
 }
 
 static inline bool lchain_contains(const struct node *start,

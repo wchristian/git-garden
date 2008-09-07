@@ -14,7 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libHX.h>
+#include <libHX/deque.h>
+#include <libHX/misc.h>
+#include <libHX/string.h>
 #define PREFIX "longjumpcd: "
 #define MAX_DOWN_DEPTH 5
 #define MAXFNLEN 256

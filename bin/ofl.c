@@ -14,9 +14,12 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <libHX.h>
+#include <libHX/misc.h>
+#include <libHX/option.h>
+#include <libHX/string.h>
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
 
 /**
@@ -103,7 +106,7 @@ static bool ofl_file(const char *mnt, const char *file, const char *ll_entry,
 static bool ofl_pmap(const char *mnt, const char *map_file,
     struct ofl_compound *data)
 {
-	hmc_t *line = NULL;
+	hxmc_t *line = NULL;
 	bool ret = false;
 	unsigned int i;
 	const char *p;
@@ -128,7 +131,7 @@ static bool ofl_pmap(const char *mnt, const char *map_file,
 			break;
 	}
 
-	hmc_free(line);
+	HXmc_free(line);
 	fclose(fp);
 	return ret;
 }

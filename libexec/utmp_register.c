@@ -21,7 +21,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <utmp.h>
-#include <libHX.h>
+#include <libHX/option.h>
+#include <libHX/string.h>
 #include "config.h"
 #ifdef HAVE_LASTLOG_H
 #	include <lastlog.h>
