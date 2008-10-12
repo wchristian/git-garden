@@ -12,6 +12,7 @@ context default
 	keyword $\{!\"%&/()[]=?\\\`'@\+\*~#<|>,;.:-\} white
 	keyword \\"
 	keyword \\'
+	keyword \\`
 
 	keyword $^ white
 	keyword wholeright $_ white
