@@ -16,7 +16,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <libHX.h>
+#include <libHX/arbtree.h>
+#include <libHX/option.h>
+#include <libHX/string.h>
 #include "pcspkr.h"
 
 enum {
@@ -154,7 +156,7 @@ static void parse_file(const char *fn)
 		parse_str(ln);
 	}
 
-	hmc_free(ln);
+	HXmc_free(ln);
 	return;
 }
 
@@ -437,7 +439,7 @@ static void parse_str(const char *ptr)
  */
 static void parse_var(FILE *fp, char *line)
 {
-	char *ws = hmc_dup(line), *key = ws + 1, *val = key;
+	char *ws = HXmc_dup(line), *key = ws + 1, *val = key;
 
 	while (!isspace(*val))
 		++val;

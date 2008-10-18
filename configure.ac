@@ -1,5 +1,5 @@
 
-AC_INIT([hxtools], [20080621])
+AC_INIT([hxtools], [20080907])
 AC_PREFIX_DEFAULT([/usr/local/hxtools])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_INSTALL
@@ -8,7 +8,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 
 AC_HAVE_HEADERS([lastlog.h paths.h])
-PKG_CHECK_MODULES([libHX], [libHX >= 1.10])
+PKG_CHECK_MODULES([libHX], [libHX >= 1.25])
 AC_CHECK_LIB([cap], [cap_get_flag], [have_libcap="yes"])
 AM_CONDITIONAL([HAVE_LIBCAP], [test "$have_libcap" = "yes"])
 

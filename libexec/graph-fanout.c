@@ -35,7 +35,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libHX.h>
+#include <libHX/arbtree.h>
+#include <libHX/deque.h>
+#include <libHX/option.h>
+#include <libHX/string.h>
 
 /* Definitions */
 struct node {
@@ -117,7 +120,7 @@ static bool fanout_get_options(int *argc, const char ***argv)
 
 static void fanout_process(FILE *fp)
 {
-	hmc_t *source_name = NULL, *target_name = NULL;
+	hxmc_t *source_name = NULL, *target_name = NULL;
 
 	while (HX_getl(&source_name, fp) != NULL) {
 		if (HX_getl(&target_name, fp) == NULL)
@@ -128,8 +131,8 @@ static void fanout_process(FILE *fp)
 		fanout_build(source_name, target_name);
 	}
 
-	hmc_free(source_name);
-	hmc_free(target_name);
+	HXmc_free(source_name);
+	HXmc_free(target_name);
 }
 
 static void fanout_build(const char *child_name, const char *parent_name)
@@ -224,7 +227,7 @@ static void fanout_process_roots(struct HXbtree *root_map)
 static void fanout_one_node(struct node *current)
 {
 	struct HXdeque *new_children;
-	struct node *rt_node, *child;
+	struct node *rt_node = NULL, *child;
 	struct HXdeque_node *k;
 	unsigned int i = 0;
 	char buf[32];

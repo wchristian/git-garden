@@ -32,6 +32,7 @@ sub do_cpuinfo
 
 	while (defined(my $l = <IN>)) {
 		chomp $l;
+		$l =~ s/ +/ /g;
 		if ($l =~ /^processor\s+:/i) {
 			++$cpu_num;
 		} elsif ($l =~ /^vendor\s+:\s+(.*)/i) {

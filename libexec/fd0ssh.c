@@ -150,10 +150,11 @@ static int zerossh_askpass(int in_fd, int out_fd)
 
 	close(in_fd);
 	p = memchr(buf, '\n', ret);
+	/* ignore return values of write() */
 	if (p == NULL)
-		write(out_fd, buf, ret);
+		ret = write(out_fd, buf, ret);
 	else
-		write(out_fd, buf, p - buf + 1);
+		ret = write(out_fd, buf, p - buf + 1);
 
 	close(out_fd);
 	return EXIT_SUCCESS;
