@@ -125,7 +125,6 @@ static void init_maps(void)
 	ADD("b", 11);
 	ADD("b#", 12);
 	ADD("b+", 12);
-	return;
 #undef ADD
 }
 
@@ -157,7 +156,6 @@ static void parse_file(const char *fn)
 	}
 
 	HXmc_free(ln);
-	return;
 }
 
 /*
@@ -431,7 +429,6 @@ static void parse_str(const char *ptr)
 				break;
 		}
 	}
-	return;
 }
 
 /*
@@ -448,5 +445,4 @@ static void parse_var(FILE *fp, char *line)
 		++val;
 
 	HXbtree_add(varmap, key, val);
-	return;
 }

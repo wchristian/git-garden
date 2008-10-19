@@ -45,7 +45,6 @@ static void pcm_u8(const struct pcspkr *pcsp, long frequency,
 	value = 0;
 	for (sample = 0; sample < af_pause; ++sample)
 		fwrite(&value, sizeof(value), 1, pcsp->file_ptr);
-	return;
 }
 
 static void pcm_s16(const struct pcspkr *pcsp, long frequency,
@@ -62,7 +61,6 @@ static void pcm_s16(const struct pcspkr *pcsp, long frequency,
 	value = 0;
 	for (sample = 0; sample < af_pause; ++sample)
 		fwrite(&value, sizeof(value), 1, pcsp->file_ptr);
-	return;
 }
 
 /*
@@ -82,10 +80,9 @@ void pcspkr_output(const struct pcspkr *pcsp, long frequency,
 	switch (pcsp->format) {
 		case PCSPKR_8:
 			pcm_u8(pcsp, frequency, duration, af_pause);
-			return;
+			break;
 		case PCSPKR_16:
 			pcm_s16(pcsp, frequency, duration, af_pause);
-			return;
+			break;
 	}
-	return;
 }

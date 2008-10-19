@@ -128,7 +128,6 @@ static void update_lastlog(const char *file, const struct utmp *utmp)
 	        imax(sizeof(entry.ll_host), sizeof(utmp->ut_host)));
 	write(fd, &entry, sizeof(entry));
 	close(fd);
-	return;
 #endif
 }
 

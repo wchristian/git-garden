@@ -138,7 +138,6 @@ static void mixer(int argc, const char **argv)
 		mixer_inst_dev(cdevp, argv[1], MAXFNLEN - 1);
 		mixer_proc(argv[2], argv[3]);
 	}
-	return;
 }
 
 static int mixer_inst_dev(char *ptr, const char *dev, size_t ln)
@@ -186,7 +185,6 @@ static void mixer_proc(const char *ctl, const char *vol)
 	}
 
 	close(mixer_fd);
-	return;
 }
 
 static int mixer_read_recsrc(int mixer_fd, int recsrc)
@@ -339,8 +337,6 @@ static void mixer_proc_ctl(int mixer_fd, const char *ctl, const char *vol)
 		}
 		printf("%s: L=%d%% R=%d%%\n", mixer_ctlname[i], vol_l, vol_r);
 	}
-
-	return;
 }
 
 static int mixer_display_all(int mixer_fd)
@@ -383,7 +379,6 @@ static void sighandler(int s)
 		playrec_setopt(reinterpret_cast(long, travp->ptr));
 		travp = travp->next;
 	}
-	return;
 }
 
 static void play(int argc, const char **argv)
@@ -503,7 +498,6 @@ static void play(int argc, const char **argv)
 		travp = travp->next;
 	}
 	HXdeque_free(dv);
-	return;
 }
 
 static int playrec_getopt(int *argc, const char ***argv,
@@ -563,7 +557,6 @@ static int playrec_getopt(int *argc, const char ***argv,
 static void getopt_op_K(const struct HXoptcb *cbi)
 {
 	pri.seekto = strtoll(cbi->data, NULL, 0);
-	return;
 }
 
 static void getopt_op_kjump(const struct HXoptcb *cbi)
@@ -586,7 +579,6 @@ static void getopt_op_kjump(const struct HXoptcb *cbi)
 
 	pri.seekto = s * pri.smpsize * pri.channels / 8 * pri.smprate;
 	free(timespec);
-	return;
 }
 
 static void playrec_setopt(int fd)
@@ -649,8 +641,6 @@ static void playrec_setopt(int fd)
 		if (!pri.jwarn)
 			exit(EXIT_FAILURE);
 	}
-
-	return;
 }
 
 static void record(int argc, const char **argv)
@@ -748,5 +738,4 @@ static void record(int argc, const char **argv)
 	        static_cast(const char *, dv->first->ptr));
 	close(dsp_fd);
 	HXdeque_free(dv);
-	return;
 }
