@@ -18,6 +18,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <libHX/defs.h>
 #include <libHX/deque.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
@@ -379,7 +380,7 @@ static void sighandler(int s)
 		pri.smprate += 1000;
 
 	while (travp != NULL) {
-		playrec_setopt((long)travp->ptr);
+		playrec_setopt(reinterpret_cast(long, travp->ptr));
 		travp = travp->next;
 	}
 	return;
@@ -400,10 +401,12 @@ static void play(int argc, const char **argv)
 		int dsp_fd;
 		if ((dsp_fd = open(travp->ptr, O_WRONLY)) < 0) {
 			fprintf(stderr, "Could not open %s: %s\n",
-			        cdevp, strerror(errno));
+			        static_cast(const char *, travp->ptr),
+			        strerror(errno));
 			exit(EXIT_FAILURE);
 		}
-		travp->ptr = (void *)(long)dsp_fd;
+		travp->ptr = reinterpret_cast(void *,
+		             static_cast(long, dsp_fd));
 		playrec_setopt(dsp_fd);
 		travp = travp->next;
 	}
@@ -438,9 +441,9 @@ static void play(int argc, const char **argv)
 		while (run) {
 			int have_read;
 			if ((pri.timelimit != 0 &&
-			    (signed long)rel_pos >= pri.timelimit) ||
+			    static_cast(signed long, rel_pos) >= pri.timelimit) ||
 			    (pri.bytelimit != 0 &&
-			    (signed long)rel_bytes >= pri.bytelimit))
+			    static_cast(signed long, rel_bytes) >= pri.bytelimit))
 				break;
 
 			have_read = read(ffd, pri.buf, pri.blksize);
@@ -456,7 +459,8 @@ static void play(int argc, const char **argv)
 
 			travp = dv->first;
 			while (travp != NULL) {
-				if (write((long)travp->ptr, pri.buf, have_read) < 0) {
+				if (write(reinterpret_cast(long, travp->ptr),
+				    pri.buf, have_read) < 0) {
 					fprintf(stderr, "\r%s: Error while "
 					        "writing to DSP: %s\e[K\n",
 					        *argv, strerror(errno));
@@ -495,7 +499,7 @@ static void play(int argc, const char **argv)
 
 	travp = dv->first;
 	while (travp != NULL) {
-		close((long)travp->ptr);
+		close(reinterpret_cast(long, travp->ptr));
 		travp = travp->next;
 	}
 	HXdeque_free(dv);
@@ -740,7 +744,8 @@ static void record(int argc, const char **argv)
 	/* block */
 	}
 
-	fprintf(stderr, "EOF on %s\n", (const char *)dv->first->ptr);
+	fprintf(stderr, "EOF on %s\n",
+	        static_cast(const char *, dv->first->ptr));
 	close(dsp_fd);
 	HXdeque_free(dv);
 	return;
