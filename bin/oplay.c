@@ -18,6 +18,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <libHX/defs.h>
 #include <libHX/deque.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
@@ -137,7 +138,6 @@ static void mixer(int argc, const char **argv)
 		mixer_inst_dev(cdevp, argv[1], MAXFNLEN - 1);
 		mixer_proc(argv[2], argv[3]);
 	}
-	return;
 }
 
 static int mixer_inst_dev(char *ptr, const char *dev, size_t ln)
@@ -185,7 +185,6 @@ static void mixer_proc(const char *ctl, const char *vol)
 	}
 
 	close(mixer_fd);
-	return;
 }
 
 static int mixer_read_recsrc(int mixer_fd, int recsrc)
@@ -338,8 +337,6 @@ static void mixer_proc_ctl(int mixer_fd, const char *ctl, const char *vol)
 		}
 		printf("%s: L=%d%% R=%d%%\n", mixer_ctlname[i], vol_l, vol_r);
 	}
-
-	return;
 }
 
 static int mixer_display_all(int mixer_fd)
@@ -379,10 +376,9 @@ static void sighandler(int s)
 		pri.smprate += 1000;
 
 	while (travp != NULL) {
-		playrec_setopt((long)travp->ptr);
+		playrec_setopt(reinterpret_cast(long, travp->ptr));
 		travp = travp->next;
 	}
-	return;
 }
 
 static void play(int argc, const char **argv)
@@ -400,10 +396,12 @@ static void play(int argc, const char **argv)
 		int dsp_fd;
 		if ((dsp_fd = open(travp->ptr, O_WRONLY)) < 0) {
 			fprintf(stderr, "Could not open %s: %s\n",
-			        cdevp, strerror(errno));
+			        static_cast(const char *, travp->ptr),
+			        strerror(errno));
 			exit(EXIT_FAILURE);
 		}
-		travp->ptr = (void *)(long)dsp_fd;
+		travp->ptr = reinterpret_cast(void *,
+		             static_cast(long, dsp_fd));
 		playrec_setopt(dsp_fd);
 		travp = travp->next;
 	}
@@ -438,9 +436,9 @@ static void play(int argc, const char **argv)
 		while (run) {
 			int have_read;
 			if ((pri.timelimit != 0 &&
-			    (signed long)rel_pos >= pri.timelimit) ||
+			    static_cast(signed long, rel_pos) >= pri.timelimit) ||
 			    (pri.bytelimit != 0 &&
-			    (signed long)rel_bytes >= pri.bytelimit))
+			    static_cast(signed long, rel_bytes) >= pri.bytelimit))
 				break;
 
 			have_read = read(ffd, pri.buf, pri.blksize);
@@ -456,7 +454,8 @@ static void play(int argc, const char **argv)
 
 			travp = dv->first;
 			while (travp != NULL) {
-				if (write((long)travp->ptr, pri.buf, have_read) < 0) {
+				if (write(reinterpret_cast(long, travp->ptr),
+				    pri.buf, have_read) < 0) {
 					fprintf(stderr, "\r%s: Error while "
 					        "writing to DSP: %s\e[K\n",
 					        *argv, strerror(errno));
@@ -495,11 +494,10 @@ static void play(int argc, const char **argv)
 
 	travp = dv->first;
 	while (travp != NULL) {
-		close((long)travp->ptr);
+		close(reinterpret_cast(long, travp->ptr));
 		travp = travp->next;
 	}
 	HXdeque_free(dv);
-	return;
 }
 
 static int playrec_getopt(int *argc, const char ***argv,
@@ -559,7 +557,6 @@ static int playrec_getopt(int *argc, const char ***argv,
 static void getopt_op_K(const struct HXoptcb *cbi)
 {
 	pri.seekto = strtoll(cbi->data, NULL, 0);
-	return;
 }
 
 static void getopt_op_kjump(const struct HXoptcb *cbi)
@@ -582,7 +579,6 @@ static void getopt_op_kjump(const struct HXoptcb *cbi)
 
 	pri.seekto = s * pri.smpsize * pri.channels / 8 * pri.smprate;
 	free(timespec);
-	return;
 }
 
 static void playrec_setopt(int fd)
@@ -645,8 +641,6 @@ static void playrec_setopt(int fd)
 		if (!pri.jwarn)
 			exit(EXIT_FAILURE);
 	}
-
-	return;
 }
 
 static void record(int argc, const char **argv)
@@ -740,8 +734,8 @@ static void record(int argc, const char **argv)
 	/* block */
 	}
 
-	fprintf(stderr, "EOF on %s\n", (const char *)dv->first->ptr);
+	fprintf(stderr, "EOF on %s\n",
+	        static_cast(const char *, dv->first->ptr));
 	close(dsp_fd);
 	HXdeque_free(dv);
-	return;
 }

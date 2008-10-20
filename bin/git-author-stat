@@ -2,7 +2,7 @@
 
 git log "$@" | \
 git shortlog | \
-grep -P '^\S+' | \
+perl -ne 'print if/^\S+/' | \
 perl -pe 's/(.*)\((\d+)\).*/$2: $1/' | \
 sort -gr | \
 less -MSi;

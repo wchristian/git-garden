@@ -69,7 +69,6 @@ static void parse_file(const char *file)
 	}
 
 	fprintf(stderr, "Total ticks: %u\n", ticks);
-	return;
 }
 
 int main(int argc, const char **argv)

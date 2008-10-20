@@ -42,7 +42,7 @@ foreach my $file (@list) {
 			system "timidity -Or1sl -id$t \"$file\" -o- | ".
 			       "oplay /dev/stdin -qq";
 		} else {
-			system "timidity", "-id$t", $file;
+			system "timidity", "-Os", "-id$t", $file;
 		}
 	} elsif ($file =~ /\.umx$/io) {
 		&play_umx($file);
@@ -72,7 +72,7 @@ sub play_umx($)
 	close IN;
 	close OUT;
 
-	system "timidity", "-id".($Quiet ? "" : "t"), "-Od", $of;
+	system "timidity", "-Os", "-id".($Quiet ? "" : "t"), $of;
 	unlink $of;
 	return;
 }

@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+#
+#	pesubst - search for strings in files using regex
+#	written by Jan Engelhardt <jengelh [at] medozas de>, 1999 - 2007
+#	http://jengelh.medozas.de/
+#	released in the Public Domain
+#
+# wrapper because stupid debian still does not know grep -P
+#
+use Getopt::Long;
+use strict;
+
+my $color  = 2;
+my $invert = 0;
+my $flags  = "";
+
+Getopt::Long::Configure(qw(bundling));
+GetOptions(
+	"color=s" => sub {
+		if ($_[1] eq "never") {
+			$color = 0;
+		} elsif ($_[1] eq "always") {
+			$color = 1;
+		} elsif ($_[2] eq "auto") {
+			$color = 2;
+		}
+	},
+	"i" => sub { $flags .= "i"; },
+	"v" => \$invert,
+	"P" => sub {},
+);
+
+my $pattern = shift @ARGV;
+my $regex   = eval 'qr/$pattern/o'.$flags;
+
+if (scalar(@ARGV) == 0) {
+	@ARGV = ("-");
+}
+
+foreach my $file (@ARGV) {
+	local *FH;
+
+	if (!open(FH, "< $file")) {
+		print STDERR "Cannot open $file: $!\n";
+		next;
+	}
+
+	if ($color == 1 || ($color == 2 && -t 1)) {
+		if ($ENV{GREP_COLOR} eq "") {
+			$ENV{GREP_COLOR} = "1;31";
+		}
+		while (<FH>) {
+			if (/$regex/ && !$invert) {
+				s/$regex/\e\[$ENV{GREP_COLOR}m$&\e\[0m/g;
+				print "\e[35m$file\e[36m:\e[32m$.\e[36m:\e[0m$_";
+			}
+		}
+	} else {
+		while (<FH>) {
+			print "$file:$.:$_" if (/$regex/ && !$invert);
+		}
+	}
+
+	close FH;
+}
