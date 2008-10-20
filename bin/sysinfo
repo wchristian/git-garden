@@ -110,19 +110,23 @@ sub do_gfx
 	print " | Gfx: $dev";
 	close IN;
 
-	if (!open(IN, "xdpyinfo 2>/dev/null |")) {
-		return;
+	my($scr_res, $scr_virt);
+
+	if (open(IN, "xdpyinfo 2>/dev/null |")) {
+		while (defined(my $l = <IN>)) {
+			if ($l =~ /\s+dimensions\s*:\s+(\S+)/i) {
+				$scr_virt = $1;
+			}
+			chomp $l;
+		}
+		close IN;
 	}
 
-	my($scr_res);
-	while (defined(my $l = <IN>)) {
-		if ($l =~ /\s+dimensions\s*:\s+(\S+)/i) {
-			$scr_res = $1;
-		}
-		chomp $l;
+	if ($scr_virt ne "") {
+		print " \@ $scr_virt";
 	}
 	if ($scr_res ne "") {
-		print " \@ ${scr_res}";
+		print " \@ $scr_res";
 	}
 	close IN;
 }
