@@ -10,6 +10,8 @@
 use Getopt::Long;
 use strict;
 
+my $show_linenumbers = 0;
+my $show_filenames   = 1;
 my $color  = 2;
 my $invert = 0;
 my $flags  = "";
@@ -25,9 +27,12 @@ GetOptions(
 			$color = 2;
 		}
 	},
+	"H" => sub { $show_filenames = 1; },
+	"h" => sub { $show_filenames = 0; },
 	"i" => sub { $flags .= "i"; },
+	"n" => sub { $show_linenumbers = 1; },
 	"v" => \$invert,
-	"P" => sub {},
+	"P" => sub {}, # we are already perl
 );
 
 my $pattern = shift @ARGV;
@@ -50,14 +55,30 @@ foreach my $file (@ARGV) {
 			$ENV{GREP_COLOR} = "1;31";
 		}
 		while (<FH>) {
-			if (/$regex/ && !$invert) {
-				s/$regex/\e\[$ENV{GREP_COLOR}m$&\e\[0m/g;
-				print "\e[35m$file\e[36m:\e[32m$.\e[36m:\e[0m$_";
+			if (!/$regex/ || $invert) {
+				next;
 			}
+			s/$regex/\e\[$ENV{GREP_COLOR}m$&\e\[0m/g;
+			if ($show_filenames) {
+				print "\e[35m$file\e[36m:";
+			}
+			if ($show_linenumbers) {
+				print "\e[32m$.\e[36m:";
+			}
+			print "\e[0m$_";
 		}
 	} else {
 		while (<FH>) {
-			print "$file:$.:$_" if (/$regex/ && !$invert);
+			if (!/$regex/ || $invert) {
+				next;
+			}
+			if ($show_filenames) {
+				print "$file:";
+			}
+			if ($show_linenumbers) {
+				print "$.:";
+			}
+			print "$_";
 		}
 	}
 
