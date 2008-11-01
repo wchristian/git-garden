@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 AUTOMAKE_OPTIONS = foreign subdir-objects
-SUBDIRS          = bin kbd libexec
+SUBDIRS          = bin data kbd libexec
 
 .PHONY: tarball
 tarball:
