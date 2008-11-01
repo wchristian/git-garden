@@ -1,5 +1,8 @@
+*.la
+*.lo
 *.o
 .deps
+.libs
 GNUmakefile
 GNUmakefile.in
 Makefile
@@ -8,11 +11,11 @@ Makefile.in
 /aclocal.m4
 /autom4te*.cache
 /compile
-/config.h*
-/config.log
-/config.status
+/config.*
 /configure
 /depcomp
+/libtool
+/ltmain.sh
 /install-sh
 /missing
 /stamp-h1
