@@ -1,5 +1,5 @@
 
-AC_INIT([hxtools], [20080907])
+AC_INIT([hxtools], [20081101])
 AC_PREFIX_DEFAULT([/usr/local/hxtools])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_INSTALL
@@ -28,15 +28,15 @@ AC_ARG_WITH([x11fontdir], AS_HELP_STRING([--with-x11fontdir=PATH],
 	[Path to the X11 font directory [[PREFIX/kbd]].
 	Most likely /usr/share/fonts.]),
 	[x11fontdir="$withval"])
-AC_SUBST(kbddir)
-AC_SUBST(keymapdir)
-AC_SUBST(vgafontdir)
-AC_SUBST(x11fontdir)
+AC_SUBST([kbddir])
+AC_SUBST([keymapdir])
+AC_SUBST([vgafontdir])
+AC_SUBST([x11fontdir])
 
 regular_CFLAGS="-D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 \
 	-D_REENTRANT -Wall -Waggregate-return -Wmissing-declarations \
 	-Wmissing-prototypes -Wredundant-decls -Wshadow -Wstrict-prototypes \
 	-Winline -pipe"
-AC_SUBST(regular_CFLAGS)
+AC_SUBST([regular_CFLAGS])
 AC_OUTPUT([Makefile bin/Makefile data/Makefile
 	kbd/GNUmakefile libexec/Makefile])

@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20080907
+Version:	20081101
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
@@ -12,18 +12,19 @@ License:	GPL,PD
 BuildRequires:	libHX-devel >= 1.25, lzma, freetype2, libcap-devel
 BuildRequires:	xorg-x11, pkg-config
 BuildRoot:	%_tmppath/%name-%version-build
-Recommends:	hxtools-data
+Recommends:	hxtools-noarch = %version
 Prefix:		/opt/hxtools
 
 %description
 A big tool collection.
 
-%package data
+%package noarch
 Group:		System/Base
 Summary:	Collection day-to-day tools (data)
-Recommends:	hxtools
+Requires:	hxtools = %version
+Obsoletes:	hxtools-data
 
-%description data
+%description noarch
 Architecture-indepent data for hxtools.
 
 %debug_package
@@ -32,14 +33,17 @@ Architecture-indepent data for hxtools.
 
 %build
 %configure \
-	--prefix=/opt/hxtools \
-	--exec-prefix=/opt/hxtools \
+	--prefix=%prefix \
+	--exec-prefix=%prefix \
+	--bindir=%prefix/bin \
+	--libexecdir=%prefix/libexec \
 	--with-keymapdir=%_datadir/kbd/keymaps \
 	--with-vgafontdir=%_datadir/kbd/consolefonts \
 	--with-x11fontdir=%_datadir/fonts
 make %{?jobs:-j%jobs};
 
 %install
+o="$PWD";
 b="%buildroot";
 rm -Rf "$b";
 mkdir "$b";
@@ -47,16 +51,22 @@ make install DESTDIR="$b";
 install -dm0755 "$b/%_sysconfdir/openldap/schema" "$b/%_datadir/mc/syntax";
 install -pm0644 cooledit/*.syntax "$b/%_datadir/mc/syntax/";
 install -pm0644 data/rfc2307bis-utf8.schema "$b/%_sysconfdir/openldap/schema/";
+cd "$b";
+find opt/hxtools -type f -print0 | \
+	xargs -0 grep -l ELF | perl -ne 'print"/$_"' >"$o/binary.lst";
+find opt/hxtools -type f -print0 | \
+	xargs -0 grep -L ELF | perl -ne 'print"/$_"' >"$o/noarch.lst";
 
 %clean
 rm -Rf "%buildroot";
 
-%files
+%files -f binary.lst
 %defattr(-,root,root)
-/opt/hxtools
 
-%files data
+%files noarch -f noarch.lst
 %defattr(-,root,root)
+%dir %prefix
+%_sysconfdir/hx*
 %_sysconfdir/openldap/schema/*
 %_datadir/kbd/consolefonts/*
 %_datadir/kbd/keymaps/i386/*/*
