@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec wdiff -w "[31m" -x "[0m" -y "[32m" -z "[0m" "$@";
