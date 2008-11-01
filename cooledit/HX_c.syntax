@@ -135,6 +135,7 @@ context exclusive /\* \*/ yellow
 	spellcheck
 
 context linestart # \n brightred
+	keyword includE white red
 	keyword \\\n yellow
 	keyword /\**\*/ yellow
 	keyword //\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+ yellow
