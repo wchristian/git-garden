@@ -2,14 +2,14 @@
 
 . /etc/hxloginpref.conf &>/dev/null || :;
 
-if [ "$AAA_HXTOOLS" == "yes" ]; then
+if [ "$HXPREF_ENABLE" == "yes" ]; then
 
 # --- main big block ---
 
 isroot=0;
 [ "$UID" -eq 0 ] && isroot=1;
 
-function extended_pushd()
+function hxpref_pushd()
 {
 	local path;
 	if [ $# -eq 0 ]; then
@@ -21,7 +21,7 @@ function extended_pushd()
 	fi;
 }
 
-function beautify_path()
+function hxpref_beautify_path()
 {
 	# Show at most the last two path components, if the whole depth of a
 	# normalized $PATH is more than 3 levels, e.g.
@@ -48,8 +48,8 @@ function beautify_path()
 	wd=${pw2/#$HOME\//~\/};
 	wd=${wd%/};
 	set $wd;
-	if [ \( -z "$1" -a $# -le "$[$BEAUTIFY_PATH_LEVEL+1]" \) -o $# -le \
-	    "$BEAUTIFY_PATH_LEVEL" ]; then
+	if [ \( -z "$1" -a $# -le "$[$HXPREF_BEAUTIFY_PATH_LEVEL+1]" \) -o $# -le \
+	    "$HXPREF_BEAUTIFY_PATH_LEVEL" ]; then
 		echo "$wd";
 	else
 		eval "echo -en \"../\${$[$#-1]}/\${$#}\"";
@@ -76,10 +76,10 @@ function xd()
 # Allow truncation via > operator
 set +C;
 
-export PS1_ROOT="\A \h:\$(beautify_path) # ";
-export PS1_USER="\A \h:\$(beautify_path) > ";
-export PS1_XROOT="\[\e[1;30m\]\A \[\e[0;31m\]\h:\$(beautify_path) \[\e[1m\]#\[\e[0m\] ";
-export PS1_XUSER="\[\e[1;30m\]\A \[\e[0;32m\]\h:\$(beautify_path) \[\e[1;37m\]>\[\e[0m\] ";
+export PS1_ROOT="\A \h:\$(hxpref_beautify_path) # ";
+export PS1_USER="\A \h:\$(hxpref_beautify_path) > ";
+export PS1_XROOT="\[\e[1;30m\]\A \[\e[0;31m\]\h:\$(hxpref_beautify_path) \[\e[1m\]#\[\e[0m\] ";
+export PS1_XUSER="\[\e[1;30m\]\A \[\e[0;32m\]\h:\$(hxpref_beautify_path) \[\e[1;37m\]>\[\e[0m\] ";
 
 # Find out what options this machine's "ls" supports
 # Same option finding for "less"
@@ -104,7 +104,7 @@ fi;
 export LESS;
 export LS_OPTIONS;
 
-if [ "$COLORS" == yes ]; then
+if [ "$HXPREF_COLORS" == yes ]; then
 	if [ "$isroot" -eq 1 ]; then
 		export PS1="$PS1_XROOT";
 	else
@@ -120,7 +120,7 @@ else
 fi;
 
 unalias cd.. dir la ll ls-l you 2>/dev/null;
-alias -- +="extended_pushd";
+alias -- +="hxpref_pushd";
 alias -- -="popd";
 alias ..="cd ../";
 alias ...="cd ../../";
@@ -137,4 +137,4 @@ alias rm="command rm -i";
 
 # --- end big main block ---
 
-fi; # if [ "$AAA_HXTOOLS" == "yes" ];
+fi; # if [ "$HXPREF_ENABLE" == "yes" ];

@@ -2,7 +2,7 @@
 
 . /etc/hxloginpref.conf >/dev/null 2>/dev/null || :;
 
-if [ "$AAA_HXTOOLS" == "yes" ]; then
+if [ "$HXPREF_ENABLE" == "yes" ]; then
 
 # --- main big block ---
 
@@ -25,7 +25,7 @@ for i in gnome2 gnome kde3; do
 done;
 export PATH;
 
-if [ "$COLORS" == yes ]; then
+if [ "$HXPREF_COLORS" == yes ]; then
 	#
 	# See if grep knows about --color, and set inverse-cyan
 	#
@@ -46,4 +46,4 @@ fi;
 
 # --- end big main block ---
 
-fi; # if [ "$AAA_HXTOOLS" == "yes" ];
+fi; # if [ "$HXPREF_ENABLE" == "yes" ];
