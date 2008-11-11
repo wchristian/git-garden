@@ -26,7 +26,7 @@ for (my $i = 0; $i < $num_entries; ++$i) {
 	local *OUT;
 	my $dir_len       = unpack("V", &getcf(\*IN, 4));
 	my $dir_name      = unpack("Z*", &getcf(\*IN, $dir_len));
-	$dir_name         =~ s/\\/\//go;
+	$dir_name         =~ s{\\}{/}go;
 	my $file_name_len = unpack("V", &getcf(\*IN, 4));
 	my $file_name     = unpack("Z*", &getcf(\*IN, $file_name_len));
 	my $file_size     = unpack("V", &getcf(\*IN, 4));
@@ -34,10 +34,11 @@ for (my $i = 0; $i < $num_entries; ++$i) {
 	my $u2            = unpack("V", &getcf(\*IN, 4));
 	print "$dir_name$file_name ($file_size bytes)\n";
 
-	&mkdir_p("$out_dir/$dir_name");
+	my $abs_file = "$out_dir/$dir_name/$file_name";
+	&mkdir_p_stripbase($abs_file);
 #	seek(IN, $filesize, 1);
-	open(OUT, "> $out_dir/$dir_name/$file_name") ||
-		warn "Could not write to $out_dir/$dir_name/$file_name: $!\n";
+	open(OUT, "> $abs_file") ||
+		warn "Could not write to $abs_file: $!\n";
 	binmode OUT;
 	&transfer(\*OUT, \*IN, $file_size);
 	close OUT;

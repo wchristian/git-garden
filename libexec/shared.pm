@@ -16,6 +16,10 @@ sub mkdir_p ()
 	my $fullpath = shift @_;
 	my @list;
 
+	if (-d $fullpath) {
+		return;
+	}
+
 	$fullpath =~ s/\/+$//go;
 	$fullpath =~ s/^~(?!\w)/$ENV{HOME}/so;
 	$fullpath =~ s/\/$//so;
@@ -32,6 +36,14 @@ sub mkdir_p ()
 	}
 
 	return 1;
+}
+
+sub mkdir_p_stripbase ()
+{
+	my $s = shift @_;
+
+	$s =~ s{^(.*)/.*}{$1}is;
+	return &mkdir_p($s);
 }
 
 sub transfer ()

@@ -34,9 +34,10 @@ for (my $i = 0; $i < $num_entries; ++$i) {
 	print STDERR "$file_name ($file_size bytes, offset=$offset)\n";
 	$offset += $file_size;
 
-	&mkdir_p($out_dir);
-	open(OUT, "> $out_dir/$file_name") ||
-		warn "Could not write to $out_dir/$file_name: $!\n";
+	my $abs_file = "$out_dir/$file_name";
+	&mkdir_p_stripbase($abs_file);
+	open(OUT, "> $abs_file") ||
+		warn "Could not write to $abs_file: $!\n";
 	binmode OUT;
 	&transfer(\*OUT, \*IN, $file_size, $offset);
 	close OUT;

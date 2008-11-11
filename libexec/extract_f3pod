@@ -20,7 +20,9 @@ read(IN, $dir, $num_files * 40);
 for (my $i = 0; $i < $num_files; ++$i) {
 	my $dentry = substr($dir, 40 * $i, 40);
 	my($nam, $len, $ofs) = unpack("Z32VV", $dentry);
-	$nam =~ s{/}{__}giso;
+
+	$nam =~ s{\\}{/}giso;
+	&mkdir_p_stripbase($nam);
 	open(OUT, "> $nam");
 	binmode OUT;
 	seek(IN, $ofs, 0);

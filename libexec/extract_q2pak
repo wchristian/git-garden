@@ -24,7 +24,7 @@ read(IN, $dir, $dirlen);
 for (my $i = 0; $i < $dirlen; $i += 64) {
 	my $dentry = substr($dir, $i, 64);
 	my($nam, $ofs, $len) = unpack("Z56VV", $dentry);
-	$nam =~ s{/}{__}giso;
+
 	open(OUT, "> $nam");
 	binmode OUT;
 	seek(IN, $ofs, 0);
