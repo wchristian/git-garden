@@ -12,11 +12,13 @@ do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
 
 my $ex_out_dir      = ".";
 my $ex_archive_file = "-";
+my $ex_auto_lower   = 0;
 my $ex_verbose      = 0;
 
 Getopt::Long::Configure(qw(bundling));
 GetOptions(
 	"C=s" => \$ex_out_dir,
+	"L"   => \$ex_auto_lower,
 	"f=s" => \$ex_archive_file,
 	"v"   => \$ex_verbose,
 );
@@ -44,6 +46,9 @@ sub main ()
 		my($nam, $len, $ofs) = unpack("Z32VV", $dentry);
 
 		$nam =~ s{\\}{/}giso;
+		if ($ex_auto_lower && $nam !~ /[a-z]/) {
+			$nam =~ tr/A-Z/a-z/;
+		}
 		if ($ex_verbose) {
 			print "\@$ofs: $nam ($len bytes)\n";
 		}

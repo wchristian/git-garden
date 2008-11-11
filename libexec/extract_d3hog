@@ -12,11 +12,13 @@ do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
 
 my $ex_out_dir      = ".";
 my $ex_archive_file = "-";
+my $ex_auto_lower   = 0;
 my $ex_verbose      = 0;
 
 Getopt::Long::Configure(qw(bundling));
 GetOptions(
 	"C=s" => \$ex_out_dir,
+	"L"   => \$ex_auto_lower,
 	"f=s" => \$ex_archive_file,
 	"v"   => \$ex_verbose,
 );
@@ -48,9 +50,11 @@ sub main ()
 		my $file_size  = unpack("V", &getcf(\*IN, 4));
 		my $time_stamp = unpack("V", &getcf(\*IN, 4));
 
+		if ($ex_auto_lower && $file_name !~ /[a-z]/) {
+			$file_name =~ tr/A-Z/a-z/;
+		}
 		if ($ex_verbose) {
-			print STDERR "$file_name ($file_size bytes, ".
-				"offset=$offset)\n";
+			print "\@$offset: $file_name ($file_size bytes)\n";
 		}
 		$offset += $file_size;
 
