@@ -5,8 +5,6 @@
 #	http://jengelh.medozas.de/
 #	released in the Public Domain
 #
-#	Usage: vcsaview </dev/vcsa1
-#
 use strict;
 
 undef $/;

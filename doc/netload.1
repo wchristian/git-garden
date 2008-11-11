@@ -1,0 +1,19 @@
+.TH netload 1 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+netload - show load of network interface
+.SH Syntax
+.PP
+\fBnetload\fP \fIdevice\fP [\fIinterval\fP]
+.SH Description
+.PP
+Shows the current bandwidth utilization of \fIdevice\fP using an average over
+\fIinterval\fP seconds.
+.SH Options
+.TP
+\fIdevice\fP
+Device to look at.
+.TP
+\fIinterval\fP
+Intervals to collect data over, in seconds. If greater than 50000, the value
+is interpreted as microseconds instead. Defaults to 1 second.

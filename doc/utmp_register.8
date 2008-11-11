@@ -1,0 +1,53 @@
+.TH utmp_register 8 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+utmp_register - make entries in the utmp/wtmp database
+.SH Syntax
+.PP
+\fButmp_register\fP [\fB\-ADUWe\fP] [\fB\-h\fP \fIhost\fP] [\fB\-l\fP
+\fIuser\fP] [\fB\-p\fP \fIid1\fP] [\fB\-s\fP \fIid2\fP] [\fB\-t\fP \fItty\fP]
+[\fB\-u\fP \fIutmpfile\fP] [\fB\-w\fP \fIwtmpfile\fP]
+.SH Description
+.PP
+utmp_register is a helper program for programs which do not want to do the
+UTMP/WTMP handling within themselves.
+.SH Options
+.TP
+\fB\-A\fP
+Add entry.
+.TP
+\fB\-D\fP
+Delete entry.
+.TP
+\fB\-U\fP
+Perform operation on the utmp file.
+.TP
+\fB\-W\fP
+Perform operation on the wtmp file.
+.TP
+\fB\-e\fP
+Encode PID into the "ut_id" field.
+.TP
+\fB\-h\fP \fIhost\fP
+Host field.
+.TP
+\fB\-l\fP \fIuser\fP
+User field.
+.TP
+\fB\-t\fP \fItty\fP
+TTY field.
+.TP
+\fB\-p\fP \fIpid\fP
+Unique ID 1
+.TP
+\fB\-s\fP \fIsession\fP
+Unique ID 2.
+.TP
+\fB\-u\fP \fIfile\fP
+Path to the utmp file, defaults to /var/run/utmp.
+.TP
+\fB\-w\fP \fIfile\fP
+Path to wtmp file, defaults to /var/log/wtmp.
+.PP
+\-A and \-D can be specified together, in which case an entry is added and
+instantly removed again (utmp), or a login of duration zero is recorded (wtmp).

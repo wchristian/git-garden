@@ -1,0 +1,47 @@
+.TH bsvplay 1 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+bsvplay - convert BASICA music files to PCM
+.SH Syntax
+.PP
+\fBbsvplay\fP [\fB\-i\fP \fIpart\fP] [\fB\-q\fP \fIpart\fP] [\fB\-r\fP
+\fIrate\fP] [\fIfile\fP...] \fB| oplay \-Ms48000 \-\fP
+.SH Description
+.PP
+bsvplay will convert BASICA binary music files to linear 16\-bit raw PCM. 
+Normally, you will be wanting to pipe it into a raw PCM player like
+\fBoplay\fP(1) to actually output it to a sound device. Be sure to lower the
+volume beforehand to avoid nasty surprises that come with square waves. By
+default, bsvplay will mix 1:1 square:sine waves to give a medium tone hardness.
+.SH Options
+.TP
+\fB\-q\fP \fIpart\fP
+Part to mix square waves in (default: 1.0)
+.TP
+\fB\-i\fP \fIpart\fP
+Part to mix sine waves in (default: 1.0). If -q2 -i1 is specified for example,
+the final PCM output will consist of 2/3*squarepcm + 1/3*sinpcm.
+.TP
+\fB\-r\fP \fIrate\fP
+PCM sample rate (default: 48000 Hz)
+.SH File format
+.PP
+The BASICA format is defined 6-byte tuples of divisor, duration and pause.
+.PP
+.nf
+	struct bsv_insn {
+		uint16_t divisor;
+		uint16_t duration; /* in ticks */
+		uint16_t af_pause; /* in ticks */
+	};
+.fi
+.PP
+where divisor specifies the divisor value that it directly handed to the x86 PC
+speaker. The following formula holds:
+.PP
+.nf
+	frequency = 1193181 / divisor;
+.fi
+.SH "See also"
+.PP
+\fBoplay\fP(1), \fBqplay\fP(1)

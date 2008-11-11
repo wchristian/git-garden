@@ -1,0 +1,69 @@
+.TH longjumpcd 1 "2008\-02\-06" "hxtools" "hxtools".
+.SH Name
+.PP
+longjumpcd - helper for parallel directory jump (extended cd)
+.SH Syntax
+.PP
+\fBlongjumpcd\fP \fIdirectory\fP
+.SH Description
+.PP
+The german magazine "Linux USER" 06/2003, p. 76 shows a way to implement a
+faster cd, but since the hxtools author rarely has trees that are /that/
+parallel like shown in the article (i.e. 
+/usr/src/stable/projectname/src/main.c and
+/usr/src/unstable/projectname/src/main.c), so I decided to write his own cd AI.
+.IP "" 4
+UP   => en direction to the root directory
+.IP "" 4
+DOWN => en direction to the current directory's childs
+.PP
+The algorithm can be summarized as: try each directory depth level interleaved
+in downwards and upwards order and change to a directory if a match is found.
+.PP
+In detail: Let's say we are in /usr/src/linux\-2.6 and want to cd to "sbin".
+longjumpcd will try these paths in that order:
+.PP
+.nf
+	Directory                                       Depth change
+	/usr/src/linux\-2.6/sbin                         (+0)
+	/usr/src/sbin                                   (\-1)
+	/usr/src/linux\-2.6/Documentation/sbin           (+1)
+	/usr/src/linux\-2.6/arch/sbin                    (+1)
+	/usr/src/linux\-2.6/crypto/sbin                  (+1)
+	...
+	/usr/src/linux\-2.6/usr/sbin                     (+1)
+	/usr/sbin                                       (\-2)
+	/usr/src/linux\-2.6/Documentation/BK-usage/sbin  (+2)
+	/usr/src/linux\-2.6/Documentation/DocBook/sbin   (+2)
+	...
+	/usr/src/linux\-2.6/arch/alpha/sbin              (+2)
+	/usr/src/linux\-2.6/arch/arm/sbin                (+2)
+	...
+	/sbin                                           (-3)
+.fi
+.PP
+and so forth. That is, it tries to find a match with the least depth change
+possible. Note that you can not reach e.g. /usr/local/sbin from
+/usr/src/linux\-2.6, because it would require a direction change from up to
+down somewhere in between.  This is not part of my idea nor the algorithm.
+.PP
+The current directory is not taken into consideration (verified by inode
+number), e.g.:
+.PP
+.nf
+	/usr/src/linux\-2.6$ \fBlongjumpcd linux\-2.6\fP;
+.fi
+.PP
+will fail (in fact, _shall_ fail) unless there is a directory above linux\-2.6
+that is called linux-2.6.
+.PP
+The longjumpcd binary only prints the directory on stdout, because the shell
+which called us will have to change its working directory. This leaves room
+for more extensions.
+.PP
+.nf
+function xd()
+{
+	pushd `longjumpcd "$1"`;
+}
+.fi

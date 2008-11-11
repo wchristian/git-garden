@@ -1,0 +1,14 @@
+.TH logontime 8 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+logontime - show cumulative logon time from wtmp
+.SH Syntax
+.PP
+\fBlogontime\fP [\fB-t\fP]
+.SH Description
+Examines the output of `last -ax` (depends on /var/log/wtmp) and calculates the
+cumulative logon time for each user.
+.SH Options
+.TP
+\fB-t\fP
+Sort by logon time rather than alphabetically.

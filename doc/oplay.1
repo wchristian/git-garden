@@ -1,0 +1,128 @@
+.TH octl 1 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+octl - raw PCM playback/record and volume control using the OSS API
+.SH Syntax
+.PP
+\fBoplay\fP, \fBorec\fP [\fB\-MQqvw\fP] [\fB\-B\fP \fIbytes\fP] [\fB\-K\fP
+\fIpos\fP] [\fB\-T\fP \fIbytes\fP] [\fB\-V\fP \fIlevel\fP]
+[\fB\-b\fP \fIbits\fP] [\fB\-c\fP \fIchannels\fP] [\fB\-d\fP \fIfile\fP]
+[\fB\-f\fP \fIbytes\fP] [\fB\-k\fP \fIpos\fP] [\fB\-s\fP \fIbytes\fP]
+[\fB\-t\fP \fIseconds\fP]
+.PP
+\fBorec\fP has the same syntax.
+.PP
+\fBomixer\fP [\fIdevice\fP] [\fIcontrol\fP
+[\fIvolume\fP|\fIleftvol\fP\fB:\fP\fIrightvol\fP]]
+.SH Description
+.PP
+octl allows you to do simple raw PCM playback and recording via the OSS API.
+Volume can also be set.
+.SH Options (oplay, orec)
+.TP
+\fB\-B\fP \fIbytes\fP
+Sets the block size (bytes to r/w at once).
+.TP
+\fB\-K\fP \fIpos\fP
+Jump to byte position.
+.TP
+\fB\-M\fP
+Sets the mono flag; equivalent to specifying \-c1.
+.TP
+\fB\-Q\fP
+Sets 4-channel output; equivalent to \-c4.
+.TP
+\fB\-T\fP \fIbytes\fP
+Maximum amount of bytes to record/play.
+.TP
+\fB\-V\fP \fIlevel\fP
+Set verbosity level (default: 3). Valid levels are 0-4.
+.TP
+\fB\-b\fP \fIbits\fP
+Sets the sample size (8/16 bit) (default: 16).
+.TP
+\fB\-c\fP \fIchannels\fP
+Sets the number of channels (default: 2).
+.TP
+\fB\-d\fP \fIdevice\fP
+Uses this DSP device (default: /dev/dsp). Multiple \-d options can be specified
+to copy output to multiple soundcards (oplay only).
+.TP
+\fB\-f\fP \fIbytes\fP
+Sets the fragment size. (This is an OSS internal.)
+.TP
+\fB\-k\fP [\fIminutes\fP\fB:\fP]\fIseconds\fP
+Jump to position (minutes:seconds or seconds from the start).
+.TP
+\fB\-q\fP
+Lower verbosity level
+.TP
+\fB\-s\fP \fIrate\fP
+Set the samplerate (default: 44100).
+.TP
+\fB\-t\fP [\fIminutes\fP\fB:\fP]\fIseconds\fP
+Maximum amount of time to record/play.
+.TP
+\fB\-v\fP
+Increase verbosity level.
+.PP
+If no \-K/\-k option is specified, orec will truncate the output file during
+open.
+.SH Options (omixer)
+.TP
+\fIdevice\fP
+A mixer specification. The first character must either be a colon (:) or an
+equals sign (=) to make omixer recognize it as a device. If the prefix is a
+colon, it will be replaced by "/dev/mixer", making "\fB:1\fP" equal to "\fB/dev/mixer1\fP"
+and "\fB:\fP" is "\fB/dev/mixer\fP" itself. An equals sign instead indicates that the path
+is complete, i.e. "\fB=/devices/audio/mixer1\fP" will use that specific device
+(\fB/devices/audio/mixer1\fP).
+.TP
+\fIcontrol\fP
+Control to examine. The available controls can be printed leaving this
+parameter empty. The recording source can be queried using "\fB?r\fP" as
+control. (De)selecting the recording source is done using "+r" / "\-r".
+.TP
+\fIvolume\fP
+The volume level (0-100) to set the control to. If a number is specified, both
+channels will be set to the given level. "\fIleftvol\fP\fB:\fP\fIrightvol\fP"
+can be used to specify each channel's level.
+.SH oplay verbosity levels
+.TP
+0
+no output at all
+.TP
+1
+just print the filename
+.TP
+2
+filename + a dot for each block that was written to the DSP device
+.TP
+3 (default)
+filename + time position
+.TP
+4
+filename + time position + byte position
+.SH Examples
+.PP
+omixer definitely warrants examples.
+.TP
+Show all controls:
+omixer
+.TP
+Show all controls of /dev/mixer1:
+omixer =/dev/mixer1
+.br
+(or) omixer :1
+.TP
+Show PCM control of mixer0:
+omixer pcm
+.TP
+Set PCM to 50% left, 70% right:
+omixer pcm 50:70
+.TP
+Set PCM on /dev/mixer2 to 50% both
+omixer :2 pcm 50
+.SH Notes
+oplay \-Q/\-c4 might yield weird results if the underlying device does not
+support it.

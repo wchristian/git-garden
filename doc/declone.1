@@ -1,0 +1,26 @@
+.TH declone 1 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+declone - break hardlinks
+.SH Syntax
+.PP
+\fBdeclone\fP \fIfile\fP...
+.SH Description
+.PP
+Breaks a hard link as created by \fBln\fP(1). The operation may take a while.
+.SH Example
+.PP
+.nf
+$ ln GNUmakefile new1
+$ ln GNUmakefile new2
+$ ls -li GNUmakefile new1 new2
+-rw-r--r--  3 jengelh users 2687 May 27 23:11 GNUmakefile
+-rw-r--r--  3 jengelh users 2687 May 27 23:11 new1
+-rw-r--r--  3 jengelh users 2687 May 27 23:11 new2
+$ declone new2
+* new2
+$ ls -li GNUmakefile new1 new2
+-rw-r--r--  2 jengelh users 2687 May 27 23:11 GNUmakefile
+-rw-r--r--  2 jengelh users 2687 May 27 23:11 new1
+-rw-r--r--  1 jengelh users 2687 May 28 09:10 new2
+.fi

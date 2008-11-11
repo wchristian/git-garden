@@ -1,0 +1,17 @@
+.TH "git\-author\-stat" 1 "2008\-11\-11" "hxtools" "hxtools"
+.SH Name
+.PP
+git\-author\-stat - show commit author statistics of a git repository
+.SH Syntax
+.PP
+\fBgit\-author\-stat\fP [\fIcommit_range\fP]
+.SH Description
+.PP
+Calls git log and analyzes who has the most commits.
+.SH Examples
+.PP
+.nf
+	git\-author\-stat v2.6.25..v2.6.26
+.fi
+.PP
+Will show the authoring tally for the v2.6.26 release.

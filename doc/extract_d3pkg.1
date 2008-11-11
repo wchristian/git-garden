@@ -1,0 +1,29 @@
+.TH extract_d3pkg 1 "2008\-11\-11" "hxtools" "hxtools"
+.SH Name
+.PP
+extract_d3pkg - extract Descent3 PKG files
+.SH Syntax
+.PP
+\fBextract_d3pkg\fP [\fB\-Lv\fP] [\fB\-C\fP \fIdir\fP] [\fB\-f\fP \fIfile\fP]
+.SH Description
+.PP
+Extracts all files in an Outrage Entertainment PKG archive file.
+.SH Options
+.PP
+Most of the options have been borrowed from \fBtar\fP(1).
+.TP
+\fB\-C\fP \fIdir\fP
+Extract files into the directory \fIdir\fP. The default is into the current
+directory.
+.TP
+\fB\-L\fP
+Automatically lowercase filenames during extraction if they are all uppercase.
+.TP
+\fB\-f\fP \fIfile\fP
+Extract from \fIfile\fP. Defaults to stdin.
+.TP
+\fB\-v\fP
+Be verbose - print file info and filenames.
+.SH Supported Games
+.IP "\(bu" 4
+Descent 3

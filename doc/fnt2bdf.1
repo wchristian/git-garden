@@ -1,0 +1,37 @@
+.TH fnt2bdf 1 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+fnt2bdf - convert VGA raw fonts to X11 BDF
+.SH Syntax
+.PP
+\fBfnt2bdf\fP [\fB\-x\fP] [\fB\-n\fP \fIfontname\fP] [\fB\-w\fP
+\fIfontwidth\fP] \fIfile\fP
+.SH Description
+.PP
+Converts a raw font FNT file (4096 bytes) to a BDF file, suitable for bdf2pcf,
+which can then serve as an X11 font.
+.PP
+For best results, fontname should be the same as the later filename (w/o .bdf).
+Output is always standard output. The default for "fontname" is "defaultXXXX"
+otherwise, default for \-w is 9.
+.SH Options
+.TP
+\fB\-n\fP \fIfontname\fP
+The X11 font name that will be embedded into the BDF output.
+.TP
+\fB\-w\fP \fIfontwidth\fP
+The width of the font in pixels. VGA fonts are always(?) 8 pixels wide and are
+displayed as such, but if you happen to have glyphs only 7 pixels wide, you can
+use this option to crop the glyphs for X11.
+.TP
+\fB\-x\fP
+Do not do the CP437 to ANSI glyph position translation. This option is
+generally useful for VGA font files that have been converted from PSF.
+.SH Example
+.PP
+To actually use fonts in e.g. xterm, they need to be present as PCF files.
+.PP
+.nf
+fnt2bdf \-n roman roman.fnt | bdftopcf |
+gzip \-9c >/usr/X11R6/lib/X11/fonts/misc/roman.pcf.gz
+.fi

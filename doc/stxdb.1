@@ -1,0 +1,68 @@
+.TH stxdb 1 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+stxdb - A/V file database
+.SH Syntax
+.PP
+\fBstxdb\fP [\fB\-MSWal\fP] [\fB\-A\fP \fIdir\fP] [\fB\-V\fP \fIvolid\fP]
+[\fB\-f\fP \fIfile\fP] [\fB\-o\fP \fIopt\fP]
+.SH Options
+.PP
+The options may seem weird, because they are flags, not commands. This means
+that the order of execution is always "Load database", "Add directory", "Save
+database", "Show database". You just specify _which_ of these you want to run,
+and if it's all four.
+.TP
+\fB\-A\fP \fIdir\fP
+Directory which should be added to the database.
+.TP
+\fB\-M\fP
+Mount the directory given by \-A before adding.
+.TP
+\fB\-S\fP
+Save the database. (Not specifying this would make for a dry run.)
+.TP
+\fB\-V\fP \fIvolid\fP
+Tag the directory with volid in the database.
+.TP
+\fB\-W\fP
+Show database.
+.TP
+\fB\-a\fP
+Show only artists.
+.TP
+\fB\-f\fP \fIfile\fP
+Use specified file as database.
+.TP
+\fB\-l\fP
+Show only albums.
+.TP
+\fB\-o\fP \fIopt\fP
+Set arbitrary option.
+.SH Examples
+.PP
+Examples for common operations:
+.PP
+Adding a CD to the database, using \-M to make stxdb mount it:
+.PP
+.nf
+	stxdb \-A /mnt \-MSV "Private Collection CD #34"
+.fi
+.PP
+Adding a directory (w/o mount!):
+.PP
+.nf
+	stxdb \-A /bla/dir \-SV "Private Collection CD #35"
+.fi
+.PP
+Show database:
+.PP
+.nf
+	stxdb \-W
+.fi
+.PP
+Rebuild database:
+.PP
+.nf
+	stxdb \-S
+.fi

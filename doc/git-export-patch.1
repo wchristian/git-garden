@@ -1,0 +1,20 @@
+.TH "git\-export\-patch" 1 "2008\-11\-11" "hxtools" "hxtools"
+.SH Name
+.PP
+git\-export\-patch - produce perfect patch from git comits for mail submission
+.SH Syntax
+.PP
+\fBgit\-export\-patch\fP \fIcommit_range\fP
+.SH Description
+.PP
+Exports the given commit-range as files which can then be sent using your
+favorita MUA.
+.SH Examples
+.PP
+.nf
+	git\-export\-patch HEAD~10..HEAD
+.fi
+.PP
+will export the last ten commits. As usual with git, a commit range a..b
+does NOT include a, so you will be wanting to specify a^..b to get the
+"inclusive" behavior.

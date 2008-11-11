@@ -1,0 +1,16 @@
+.TH ofl 1 "2008\-11\-01" "hxtools" "hxtools"
+.SH Name
+.PP
+ofl - open file lister
+.SH Syntax
+.PP
+\fBofl\fP [\fB-k\fP \fIsignalspec\fP] \fIpath\fP[...]
+.SH Description
+.PP
+Lists all processes that have directories or files open or in use within
+\fIpath\fP. Additionally it can send a signal to these processes to free up
+a mountpoint for example.
+.SH Options
+.TP
+\fB-k\fP \fIsignalspec\fP
+Send the given signal to all processes that match.

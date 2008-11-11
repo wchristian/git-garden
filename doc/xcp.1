@@ -1,0 +1,20 @@
+.TH xcp 1 "2008\-11\-11" "hxtools" "hxtools"
+.SH Name
+.PP
+xcp - proof\-of\-concept copying mechanisms
+.SH Syntax
+.PP
+\fBxcp\fP [\fB-m\fP|\fB--mmap\fP] [\fB-s\fP|\fB--splice\fP] \fIfromfile\fP
+\fItofile\fP
+.SH Description
+.PP
+Copies the file from \fIsrc\fP to \fIdst\fP using \fBmmap\fP(2) or
+\fBsplice\fP(2) instead of the \fBread\fP(2)-\fBwrite\fP(2) cycle that is
+normally used. mmap may actually be faster than the r/w cycle.
+.SH Options
+.TP
+\fB-m\fP, \fB--mmap\fP
+Select mmap copying mode. This is the default.
+.TP
+\fB-s\fP, \fB--splice\fP
+Select splice copying mode.

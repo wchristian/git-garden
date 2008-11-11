@@ -1,0 +1,14 @@
+.TH truncate 1 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+truncate - truncate files to specific size
+.SH Syntax
+.PP
+\fBtruncate\fP \fIsize\fP \fIfile\fP...
+.SH Description
+.PP
+Truncates the specified files to \fIsize\fP bytes. This may actually enlarge
+them (sparse, though) if their current filesize is less than \fIsize\fP.
+.PP
+Coreutils, starting with version 7.0 (released October 2008), also has a
+truncate(1) utility.

@@ -1,2 +1,0 @@
-
-A shortcut for my favorite xterm parameters.

@@ -170,9 +170,9 @@ int main(int argc, const char **argv)
 		 * reachable through $PATH -- warn on everything else.
 		 */
 		fprintf(stderr, "You used a relative path -- ssh might not "
-		        "locate the zerossh binary.\n");
+		        "locate the fd0ssh binary.\n");
 
-	s = getenv("SSH_ASKPASS_FD");	
+	s = getenv("SSH_ASKPASS_FD");
 	if (s != NULL)
 		return zerossh_askpass(strtoul(s, NULL, 0), STDOUT_FILENO);
 

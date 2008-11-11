@@ -1,0 +1,55 @@
+.TH mpg2ogg 1 "2008\-02\-06" "hxtools" "hxtools"
+.SH Name
+.PP
+mpg2ogg - wrapper for mass mp3 to OggVorbis transcoding
+.SH Syntax
+.PP
+\fBmpg2ogg\fP [\fB\-w] [\fB\-G\fP \fIgenre\fP] [\fB\-N\fP \fItrack\fP] 
+\fB\-X\fP \fIregex\fP [\fB\-a\fP \fIartist\fP] [\fB\-d\fP \fIdate\fP]
+[\fB\-l\fP \fIalbum\fP] [\fB\-o\fP \fIoutput_regex\fP] [\fB\-t\fP \fItitle\fP]
+\fIfile\fP...
+.SH Description
+.PP
+Converts WAV/MP3 en masse to OggVorbis.
+.SH Syntax
+.TP
+\fB\-G\fP \fIgenre\fP
+Sets the genre in the output metadata.
+.TP
+\fB\-N\fP \fItrack\fP
+Sets the track number in the output metadata. Note that leading zeros are
+stripped.
+.TP
+\fB\-X\fP \fIregex\fP
+The regex specified by \-X defines fields to capture, which can be referenced
+in \-t, \-a, \-l, \-G, \-d, \-N and \-o as $\fBn\fP, where \fIn\fP is the
+positional index of the particular capture.
+.TP
+\fB\-a\fP \fIartist\fP
+Sets the artist in the output metadata.
+.TP
+\fB\-d\fP \fIdate\fP
+Sets the date in the output metadata.
+.TP
+\fB\-l\fP \fIalbum\fP
+Sets the album in the output metadata.
+.TP
+\fB\-o\fP \fIfile\fP
+Defines the name of output files.
+.TP
+\fB\-t\fP \fItitle\fP
+Sets the title in the metadata.
+.TP
+\fB\-w\fP
+Assume source files are in WAV format.
+.SH Examples
+.PP
+.nf
+	mpg2ogg -X '(\d+)\. (.*)\.mp3' -t '[$1] $2' -a 'Artist Name'
+	-N '$1' -d 2004 -o '$2.ogg' *.mp3
+.fi
+.PP
+.nf
+	mpg2ogg -X '(.*?) - (.*?) - (.*)\.mp3' -t '$3' -a '$1' -l '$2'
+        -o '$1/$2/$3.ogg' *.mp3
+.fi

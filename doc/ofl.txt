@@ -1,6 +1,0 @@
-
-Syntax: ofl [-k SIGNAL] PATH[...]
-
-Lists all processes that have directories or files open within PATH, or
-send the given signal to those processes without outputting anything if
--k is given.

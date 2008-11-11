@@ -1,5 +1,0 @@
-
-Syntax: truncate SIZE FILE[...]
-
-Truncates the specified files to SIZE. This may actually enlarge them (sparse,
-though) if their current filesize is less than SIZE.

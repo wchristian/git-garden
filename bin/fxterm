@@ -32,4 +32,4 @@ if [[ -n "$font" ]]; then
 fi;
 
 exec xterm -ls -fg gray -bg "#001020" -geometry 80x25 -vb +bdc +fbx \
-	+sb +vb $opts "$@";
+	+sb $opts "$@";

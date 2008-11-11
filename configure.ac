@@ -38,5 +38,5 @@ regular_CFLAGS="-D_LARGEFILE_SOURCE=1 -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 \
 	-Wmissing-prototypes -Wredundant-decls -Wshadow -Wstrict-prototypes \
 	-Winline -pipe"
 AC_SUBST([regular_CFLAGS])
-AC_OUTPUT([Makefile bin/Makefile data/Makefile
+AC_OUTPUT([Makefile bin/Makefile data/Makefile doc/Makefile
 	kbd/GNUmakefile libexec/Makefile])

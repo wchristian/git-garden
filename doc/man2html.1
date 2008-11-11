@@ -1,0 +1,17 @@
+.TH man2html 1 "2008\-11\-11" "hxtools" "hxtools"
+.SH Name
+.PP
+man2html - convert nroff manpages to HTML
+.SH Syntax
+.PP
+\fBman2html\fP [\fIfile\fP...]
+.SH Description
+.PP
+man2html is a simple stateless nroff parser that converts the manpage to HTML
+format. If no file is given, man2html will read from standard input. Output
+always goes to standard output.
+.SH Examples
+.PP
+.nf
+	man2html man2html.1 >man2html.html;
+.fi

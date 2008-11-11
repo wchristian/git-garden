@@ -1,6 +1,0 @@
-
-Syntax: logontime [-t]
-
-  -t    Sort by logon time rather than alphabetically
-
-Examines /var/log/wtmp and calculates the cumulative logon time for each user.
