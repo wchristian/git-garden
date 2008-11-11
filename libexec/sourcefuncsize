@@ -68,14 +68,14 @@ my $FUNC_RX = qr/^
 &main();
 
 #------------------------------------------------------------------------------
-sub main()
+sub main ()
 {
 	my($func, $total) = &analyze_data(<STDIN>);
 	&print_results($func, $total);
 	return;
 }
 
-sub analyze_data(@)
+sub analyze_data ()
 {
 	my %cnt_func;           # lines/bytes usage per function
 	my %cnt_total;          # simple total of lines/bytes
@@ -198,7 +198,7 @@ sub analyze_data(@)
 	return(\%cnt_func, \%cnt_total);
 }
 
-sub print_results($$)
+sub print_results ()
 {
 	my %func  = %{shift @_};
 	my %total = %{shift @_};

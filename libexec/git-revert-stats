@@ -24,7 +24,7 @@ my $omit_one = 0;
 );
 &main();
 
-sub main
+sub main ()
 {
 	my $repo = Git->repository();
 	my @note;
@@ -59,7 +59,7 @@ sub main
 	&stats(\%praise, \%blame);
 }
 
-sub stats
+sub stats ()
 {
 	my($reverands, $developers) = @_; # pun
 	my $omits;
@@ -101,7 +101,7 @@ sub stats
 	}
 }
 
-sub array_substr_ifind
+sub array_substr_ifind ()
 {
 	my($note, $msg) = @_;
 

@@ -2,7 +2,7 @@
 
 use strict;
 
-sub getcf($$)
+sub getcf ()
 {
 	local *FH = shift @_;
 	my $size  = shift @_;
@@ -11,7 +11,7 @@ sub getcf($$)
 	return $buf;
 }
 
-sub mkdir_p($)
+sub mkdir_p ()
 {
 	my $fullpath = shift @_;
 	my @list;
@@ -34,7 +34,7 @@ sub mkdir_p($)
 	return 1;
 }
 
-sub transfer($$$$)
+sub transfer ()
 {
 	local *OUT = shift @_;
 	local *IN  = shift @_;

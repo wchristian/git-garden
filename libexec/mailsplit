@@ -67,7 +67,7 @@ $itable
 	close INDEX;
 }
 
-sub htmlize($)
+sub htmlize ()
 {
 	my $a = shift @_;
 	$a =~ s/&/&amp;/g;
@@ -76,7 +76,7 @@ sub htmlize($)
 	return $a;
 }
 
-sub dequote($)
+sub dequote ()
 {
 	my $a = shift @_;
 	if ($a =~ s/=\?ISO.*?\?Q\?//) {

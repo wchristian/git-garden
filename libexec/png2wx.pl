@@ -11,7 +11,7 @@ use strict;
 
 exit(main(\@ARGV));
 
-sub main
+sub main ()
 {
 	my($cpp_file, $hpp_file, $hpp_include, $Marker, $main, $tmp);
 	Getopt::Long::Configure(qw(bundling));
@@ -99,7 +99,7 @@ extern void initialize_images(void);
 	return;
 }
 
-sub encoded
+sub encoded ()
 {
 	my $file = shift @_;
 	my $data;

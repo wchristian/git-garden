@@ -26,7 +26,7 @@ my $Host        = "*";
 my $Tty = pop @ARGV;
 &query4ssh();
 
-sub query4ssh()
+sub query4ssh ()
 {
 	my $login;
 
@@ -52,7 +52,7 @@ sub query4ssh()
 	exit(exec "ssh", $login."\@".$Host);
 }
 
-sub reopen_ttys()
+sub reopen_ttys ()
 {
 	if (!$Noreopen) {
 		open(STDIN, "< /dev/$Tty");

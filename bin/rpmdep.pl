@@ -16,7 +16,7 @@ use strict;
 our $FOLEVEL = 4;
 &main();
 
-sub main()
+sub main ()
 {
 	local *FH;
 	my($start_file, $start_level) = (undef, 1);
@@ -55,14 +55,14 @@ sub main()
 	return;
 }
 
-sub strip_vra($)
+sub strip_vra ()
 {
 	my $pkg = shift @_;
 	$pkg =~ s/-[\w\.]+-[\w\.]+\.\w+$//; # version-release-arch
 	return $pkg
 }
 
-sub stage1($)
+sub stage1 ()
 {
 	print STDERR "# Stage 1: Finding dependencies\n";
 
@@ -100,7 +100,7 @@ sub stage1($)
 	return $pkghash;
 }
 
-sub count_deps($)
+sub count_deps ()
 {
 	my $pkghash = shift @_;
 	my $ret = 0;
@@ -112,7 +112,7 @@ sub count_deps($)
 	return $ret;
 }
 
-sub stage2($$)
+sub stage2 ()
 {
 	print STDERR "# Stage 2: Reduce visible links\n";
 
@@ -149,14 +149,14 @@ sub stage2($$)
 	return $pkghash;
 }
 
-sub alphanumeric($$)
+sub alphanumeric ()
 {
 	my($a_alpha, $a_num) = ($_[0] =~ /^(.*?)(?:<(\d+)>)?$/);
 	my($b_alpha, $b_num) = ($_[1] =~ /^(.*?)(?:<(\d+)>)?$/);
 	return $a_alpha cmp $b_alpha || $a_num <=> $b_num;
 }
 
-sub stage3($$)
+sub stage3 ()
 {
 	print STDERR "# Stage 3: Link simplexer\n";
 
@@ -207,7 +207,7 @@ sub stage3($$)
 	return;
 }
 
-sub merge_hash($@)
+sub merge_hash ()
 {
 	my $target = shift @_;
 	foreach my $source (@_) {
@@ -218,7 +218,7 @@ sub merge_hash($@)
 	return;
 }
 
-sub printout($)
+sub printout ()
 {
 	my $stage4_out = shift @_;
 	my $pkghash    = shift @_;
@@ -242,7 +242,7 @@ sub printout($)
 	return;
 }
 
-sub help()
+sub help ()
 {
 	print <<"--EOF";
 

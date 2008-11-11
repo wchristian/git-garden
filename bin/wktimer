@@ -87,7 +87,7 @@ if ($do_show) {
 }
 &save_timers($g_flags);
 
-sub start_timer($$)
+sub start_timer ()
 {
 	my $name  = lc shift @_;
 	my $flags = shift @_;
@@ -123,7 +123,7 @@ sub start_timer($$)
 	return 1;
 }
 
-sub stop_timer($$)
+sub stop_timer ()
 {
 	my $name  = lc shift @_;
 	my $flags = shift @_;
@@ -153,7 +153,7 @@ sub stop_timer($$)
 	return;
 }
 
-sub switch_timer($$)
+sub switch_timer ()
 {
 	my $name  = lc shift @_;
 	my $flags = shift @_;
@@ -179,7 +179,7 @@ sub switch_timer($$)
 	return;
 }
 
-sub delete_timer($$)
+sub delete_timer ()
 {
 	my $name  = lc shift @_;
 	my $flags = shift @_;
@@ -197,7 +197,7 @@ sub delete_timer($$)
 	return;
 }
 
-sub flush_timers($)
+sub flush_timers ()
 {
 	my $flags = shift @_;
 	undef %TIMER;
@@ -237,7 +237,7 @@ sub read_timers()
 	return;
 }
 
-sub show_timers(@)
+sub show_timers ()
 {
 	if ($flag_hdr) {
 		printf "%-10s", "Name";
@@ -263,7 +263,7 @@ sub show_timers(@)
 	return;
 }
 
-sub print_timer($)
+sub print_timer ()
 {
 	my $name = shift @_;
 	my $t    = $TIMER{$name};
@@ -288,7 +288,7 @@ sub print_timer($)
 	return;
 }
 
-sub save_timers()
+sub save_timers ()
 {
 	local *OUT;
 
@@ -308,7 +308,7 @@ sub save_timers()
 	return;
 }
 
-sub is_running($)
+sub is_running ()
 {
 	my $name = lc shift @_;
 	if ($TIMER{$name}{Stop} < 0) {
@@ -317,7 +317,7 @@ sub is_running($)
 	return 0;
 }
 
-sub sec2date($)
+sub sec2date ()
 {
 	my $in = shift @_;
 	if ($in < 0) {
@@ -327,7 +327,7 @@ sub sec2date($)
 	return sprintf "%02d%02d-%02d%02d%02d", $d[3], $d[4] + 1, @d[2,1,0];
 }
 
-sub sec2dur($)
+sub sec2dur ()
 {
 	my($S_hr, $S_min, $S_sec) = (0, 0, 0);
 	my $in   = shift @_;

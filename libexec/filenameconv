@@ -23,14 +23,14 @@ if ($FROM eq "" || $TO eq "") {
 $SIG{CHLD} = \&REAPER;
 &convert(@ARGV);
 
-sub REAPER
+sub REAPER ()
 {
 	wait();
 	$SIG{CHLD} = \&REAPER;
 	return;
 }
 
-sub convert(@)
+sub convert ()
 {
 	local(*RD, *WD);
 
@@ -59,7 +59,7 @@ sub convert(@)
 	return;
 }
 
-sub dive($)
+sub dive ()
 {
 	my $dir = shift @_;
 	my $prev = getcwd();

@@ -51,7 +51,7 @@ foreach my $file (@list) {
 	}
 }
 
-sub play_umx($)
+sub play_umx ()
 {
 	my $name = shift @_;
 	my $buffer;
@@ -77,7 +77,7 @@ sub play_umx($)
 	return;
 }
 
-sub s_random
+sub s_random ()
 {
 	return int(rand 2) ? 1 - (int(rand(256 ** 4)) % 3) :
 	       ((time() ^ $$ ^ int(rand(256 ** 4))) % 3) - 1;

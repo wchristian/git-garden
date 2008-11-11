@@ -52,7 +52,7 @@ if($Do_save_db) { &save_db(); }
 if($Do_show_db) { &show_db(); }
 
 #------------------------------------------------------------------------------
-sub add_target($$)
+sub add_target ()
 {
 	my $count = 0; # added this many files
 	my($vol_id, $dir) = @_;
@@ -126,7 +126,7 @@ sub add_target($$)
 #
 # Process -f option: Load database
 #
-sub load_db()
+sub load_db ()
 {
 	if ($Db_file eq "") {
 		my $name = getpwuid($>);
@@ -146,7 +146,7 @@ sub load_db()
 #
 # Process -A targets, if any.
 #
-sub process_add()
+sub process_add ()
 {
 	foreach my $pt (@Addpt) {
 		if($Do_mount) {
@@ -163,7 +163,7 @@ sub process_add()
 #
 # Process -S
 #
-sub save_db()
+sub save_db ()
 {
 	my $db = Dumper($::DB);
 	$db =~ s[^\$VAR1 = \{][\$::DB = \{]s; # }}
@@ -174,7 +174,7 @@ sub save_db()
 	return 1;
 }
 
-sub convert_db()
+sub convert_db ()
 {
 	my $ND = {};
 
@@ -208,7 +208,7 @@ sub convert_db()
 # show_db() is always executed after save_db(), so that bytes-per-artist
 # are not stored in the database.
 #
-sub show_db()
+sub show_db ()
 {
 	my($total_files, $total_size) = (0, 0);
 
@@ -259,7 +259,7 @@ sub show_db()
 	return;
 }
 
-sub show_albums($$$$)
+sub show_albums ()
 {
 	my($artist, $album_hash, $stat, $indent) = @_;
 
@@ -291,7 +291,7 @@ sub show_albums($$$$)
 	return;
 }
 
-sub commify($$)
+sub commify ()
 {
 	# from perl manuals
 	my $v = shift @_;

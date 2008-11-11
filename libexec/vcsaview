@@ -23,13 +23,13 @@ for (my $y = 0; $y < $height; ++$y) {
 	print "\n";
 }
 
-sub asc2ans($)
+sub asc2ans ()
 {
 	my $i = shift @_;
 	return ($i &~ 5) | (($i & 1) ? 4 : 0) |	(($i & 4) ? 1 : 0);
 }
 
-sub attr2color($)
+sub attr2color ()
 {
 	my $char = ord shift @_;
 
