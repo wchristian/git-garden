@@ -5,29 +5,56 @@
 #	http://jengelh.medozas.de/
 #	released in the Public Domain
 #
+use Getopt::Long;
 use strict;
 do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
 	die "Could not load shared.pm: $!\n";
 
-my($buf, $dir, $num_files);
+my $ex_out_dir      = ".";
+my $ex_archive_file = "-";
+my $ex_verbose      = 0;
 
-open(IN, "< ".$ARGV[0]);
-binmode IN;
-$num_files = unpack("V", &getcf(\*IN, 4));
-read(IN, $buf, 5 * 16);
-read(IN, $dir, $num_files * 40);
+Getopt::Long::Configure(qw(bundling));
+GetOptions(
+	"C=s" => \$ex_out_dir,
+	"f=s" => \$ex_archive_file,
+	"v"   => \$ex_verbose,
+);
 
-for (my $i = 0; $i < $num_files; ++$i) {
-	my $dentry = substr($dir, 40 * $i, 40);
-	my($nam, $len, $ofs) = unpack("Z32VV", $dentry);
+&main();
 
-	$nam =~ s{\\}{/}giso;
-	&mkdir_p_stripbase($nam);
-	open(OUT, "> $nam");
-	binmode OUT;
-	seek(IN, $ofs, 0);
-	read(IN, $buf, $len);
-	print OUT $buf;
-	close OUT;
-	print "$nam\n";
+sub main ()
+{
+	local(*IN, *OUT);
+	my($buf, $dir, $num_files);
+
+	open(IN, "< $ex_archive_file") ||
+		die "Could not open $ex_archive_file: $!\n";
+	binmode IN;
+
+	$num_files = unpack("V", &getcf(\*IN, 4));
+	read(IN, $buf, 5 * 16);
+	read(IN, $dir, $num_files * 40);
+	if ($ex_verbose) {
+		print "$num_files files in archive\n";
+	}
+
+	for (my $i = 0; $i < $num_files; ++$i) {
+		my $dentry = substr($dir, 40 * $i, 40);
+		my($nam, $len, $ofs) = unpack("Z32VV", $dentry);
+
+		$nam =~ s{\\}{/}giso;
+		if ($ex_verbose) {
+			print "\@$ofs: $nam ($len bytes)\n";
+		}
+
+		my $abs_file = "$ex_out_dir/$nam";
+		&mkdir_p_stripbase($abs_file);
+		open(OUT, "> $abs_file") || 
+			warn "Could not write to $abs_file: $!\n";
+		binmode OUT;
+		seek(IN, $ofs, 0);
+		&transfer(\*OUT, \*IN, $len);
+		close OUT;
+	}
 }

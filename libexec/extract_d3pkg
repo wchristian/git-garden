@@ -5,41 +5,63 @@
 #	http://jengelh.medozas.de/
 #	released in the Public Domain
 #
+use Getopt::Long;
 use strict;
 do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
 	die "Could not load shared.pm: $!\n";
 
-my $inputf  = $ARGV[0];
-my $out_dir = $ARGV[1] || ".";
+my $ex_out_dir      = ".";
+my $ex_archive_file = "-";
+my $ex_verbose      = 0;
 
-local *IN;
-open(IN, "< $inputf") || die "Could not open $inputf: $!\n";
-binmode IN;
-if (&getcf(\*IN, 4) ne "GKPO") {
-	die "Not a GKPO file\n";
-}
+Getopt::Long::Configure(qw(bundling));
+GetOptions(
+	"C=s" => \$ex_out_dir,
+	"f=s" => \$ex_archive_file,
+	"v"   => \$ex_verbose,
+);
 
-my $num_entries = unpack("V", &getcf(\*IN, 4));
-print "$num_entries entries\n";
+&main();
 
-for (my $i = 0; $i < $num_entries; ++$i) {
-	local *OUT;
-	my $dir_len       = unpack("V", &getcf(\*IN, 4));
-	my $dir_name      = unpack("Z*", &getcf(\*IN, $dir_len));
-	$dir_name         =~ s{\\}{/}go;
-	my $file_name_len = unpack("V", &getcf(\*IN, 4));
-	my $file_name     = unpack("Z*", &getcf(\*IN, $file_name_len));
-	my $file_size     = unpack("V", &getcf(\*IN, 4));
-	my $u1            = unpack("V", &getcf(\*IN, 4));
-	my $u2            = unpack("V", &getcf(\*IN, 4));
-	print "$dir_name$file_name ($file_size bytes)\n";
+sub main ()
+{
+	local(*IN, *OUT);
 
-	my $abs_file = "$out_dir/$dir_name/$file_name";
-	&mkdir_p_stripbase($abs_file);
-#	seek(IN, $filesize, 1);
-	open(OUT, "> $abs_file") ||
-		warn "Could not write to $abs_file: $!\n";
-	binmode OUT;
-	&transfer(\*OUT, \*IN, $file_size);
-	close OUT;
+	open(IN, "< $ex_archive_file") ||
+		die "Could not open $ex_archive_file: $!\n";
+	binmode IN;
+	if (&getcf(\*IN, 4) ne "GKPO") {
+		die "Not a GKPO file\n";
+	}
+
+	my $num_entries = unpack("V", &getcf(\*IN, 4));
+	if ($ex_verbose) {
+		print "$num_entries files in archive\n";
+	}
+
+	for (my $i = 0; $i < $num_entries; ++$i) {
+		my $dir_len       = unpack("V", &getcf(\*IN, 4));
+		my $dir_name      = unpack("Z*", &getcf(\*IN, $dir_len));
+		$dir_name         =~ s{\\}{/}go;
+		my $file_name_len = unpack("V", &getcf(\*IN, 4));
+		my $file_name     = unpack("Z*", &getcf(\*IN, $file_name_len));
+		my $file_size     = unpack("V", &getcf(\*IN, 4));
+		my $u1            = unpack("V", &getcf(\*IN, 4));
+		my $u2            = unpack("V", &getcf(\*IN, 4));
+
+		# there seems to be always a trailing slash in the dir_name
+		if ($ex_verbose) {
+			print "$dir_name$file_name ($file_size bytes)\n";
+		}
+
+		my $abs_file = "$ex_out_dir/$dir_name/$file_name";
+		&mkdir_p_stripbase($abs_file);
+# sometimes needed?
+#		seek(IN, $filesize, 1);
+		open(OUT, "> $abs_file") ||
+			warn "Could not write to $abs_file: $!\n";
+		binmode OUT;
+		&transfer(\*OUT, \*IN, $file_size);
+		close OUT;
+	}
 }

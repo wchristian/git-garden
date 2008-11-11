@@ -1,35 +1,63 @@
 #!/usr/bin/perl
 #
 #	extract_q2pak - extract Quake1/Quake2 PAK files
-#	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
+#	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2008
 #	http://jengelh.medozas.de/
 #	released in the Public Domain
 #
+use Getopt::Long;
 use strict;
 do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
 	die "Could not load shared.pm: $!\n";
 
-my($buf, $dir, $dirofs, $dirlen);
+my $ex_out_dir      = ".";
+my $ex_archive_file = "-";
+my $ex_verbose      = 0;
 
-open(IN, "< ".$ARGV[0]);
-binmode IN;
-if (&getcf(\*IN, 4) ne "PACK") {
-	die "Not a PAK file\n";
-}
-$dirofs = unpack("V", &getcf(\*IN, 4));
-$dirlen = unpack("V", &getcf(\*IN, 4));
-seek(IN, $dirofs, 0);
-read(IN, $dir, $dirlen);
+Getopt::Long::Configure(qw(bundling));
+GetOptions(
+	"C=s" => \$ex_out_dir,
+	"f=s" => \$ex_archive_file,
+	"v"   => \$ex_verbose,
+);
 
-for (my $i = 0; $i < $dirlen; $i += 64) {
-	my $dentry = substr($dir, $i, 64);
-	my($nam, $ofs, $len) = unpack("Z56VV", $dentry);
+&main();
 
-	open(OUT, "> $nam");
-	binmode OUT;
-	seek(IN, $ofs, 0);
-	read(IN, $buf, $len);
-	print OUT $buf;
-	close OUT;
-	print "$nam\n";
+sub main ()
+{
+	local(*IN, *OUT);
+	my($buf, $dir, $dirofs, $dirlen);
+
+	open(IN, "< $ex_archive_file") ||
+		die "Could not open $ex_archive_file: $!\n";
+	binmode IN;
+	if (&getcf(\*IN, 4) ne "PACK") {
+		die "Not a PAK file\n";
+	}
+
+	$dirofs = unpack("V", &getcf(\*IN, 4));
+	$dirlen = unpack("V", &getcf(\*IN, 4));
+	seek(IN, $dirofs, 0);
+	read(IN, $dir, $dirlen);
+	if ($ex_verbose) {
+		print "Directory \@$dirofs: ", $dirlen / 64, " entries\n";
+	}
+
+	for (my $i = 0; $i < $dirlen; $i += 64) {
+		my $dentry = substr($dir, $i, 64);
+		my($nam, $ofs, $len) = unpack("Z56VV", $dentry);
+
+		if ($ex_verbose) {
+			print "\@$ofs: $nam ($len bytes)\n";
+		}
+
+		my $abs_file = "$ex_out_dir/$nam";
+		&mkdir_p_stripbase($abs_file);
+		open(OUT, "> $abs_file") ||
+			warn "Could not write to $abs_file: $!\n";
+		binmode OUT;
+		seek(IN, $ofs, 0);
+		&transfer(\*OUT, \*IN, $len);
+		close OUT;
+	}
 }

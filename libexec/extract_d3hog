@@ -1,44 +1,65 @@
 #!/usr/bin/perl
 #
 #	extract_d3hog - extract Descent3 HOG files
-#	written by Jan Engelhardt <jengelh [at] medozas de>, 2003 - 2007
+#	written by Jan Engelhardt <jengelh [at] medozas de>, 2003 - 2008
 #	http://jengelh.medozas.de/
 #	released in the Public Domain
 #
+use Getopt::Long;
 use strict;
 do (($0 =~ m{^(.*)/})[0] || ".")."/shared.pm" ||
 	die "Could not load shared.pm: $!\n";
 
-my $inputf  = $ARGV[0];
-my $out_dir = $ARGV[1] || ".";
+my $ex_out_dir      = ".";
+my $ex_archive_file = "-";
+my $ex_verbose      = 0;
 
-local *IN;
-open(IN, "< $inputf") || die "Could not open $inputf: $!\n";
-binmode IN;
-if (&getcf(\*IN, 4) ne "HOG2") {
-	die "Not a HOG2 file\n";
-}
+Getopt::Long::Configure(qw(bundling));
+GetOptions(
+	"C=s" => \$ex_out_dir,
+	"f=s" => \$ex_archive_file,
+	"v"   => \$ex_verbose,
+);
 
-my $num_entries = unpack("V", &getcf(\*IN, 4));
-my $offset      = unpack("V", &getcf(\*IN, 4));
-&getcf(\*IN, 56); # 0xff
+&main();
 
-print STDERR"$num_entries entries\n";
+sub main ()
+{
+	local(*IN, *OUT);
 
-for (my $i = 0; $i < $num_entries; ++$i) {
-	# 48 long, 36 name, 4 length, 4 unknown
-	my $file_name  = unpack("Z*", &getcf(\*IN, 40));
-	my $file_size  = unpack("V", &getcf(\*IN, 4));
-	my $time_stamp = unpack("V", &getcf(\*IN, 4));
+	open(IN, "< $ex_archive_file") ||
+		die "Could not open $ex_archive_file: $!\n";
+	binmode IN;
+	if (&getcf(\*IN, 4) ne "HOG2") {
+		die "Not a HOG2 file\n";
+	}
 
-	print STDERR "$file_name ($file_size bytes, offset=$offset)\n";
-	$offset += $file_size;
+	my $num_entries = unpack("V", &getcf(\*IN, 4));
+	my $offset      = unpack("V", &getcf(\*IN, 4));
+	&getcf(\*IN, 56); # 0xff
 
-	my $abs_file = "$out_dir/$file_name";
-	&mkdir_p_stripbase($abs_file);
-	open(OUT, "> $abs_file") ||
-		warn "Could not write to $abs_file: $!\n";
-	binmode OUT;
-	&transfer(\*OUT, \*IN, $file_size, $offset);
-	close OUT;
+	if ($ex_verbose) {
+		print STDERR "$num_entries files in archive\n";
+	}
+
+	for (my $i = 0; $i < $num_entries; ++$i) {
+		# 48 long, 36 name, 4 length, 4 unknown
+		my $file_name  = unpack("Z*", &getcf(\*IN, 40));
+		my $file_size  = unpack("V", &getcf(\*IN, 4));
+		my $time_stamp = unpack("V", &getcf(\*IN, 4));
+
+		if ($ex_verbose) {
+			print STDERR "$file_name ($file_size bytes, ".
+				"offset=$offset)\n";
+		}
+		$offset += $file_size;
+
+		my $abs_file = "$ex_out_dir/$file_name";
+		&mkdir_p_stripbase($abs_file);
+		open(OUT, "> $abs_file") ||
+			warn "Could not write to $abs_file: $!\n";
+		binmode OUT;
+		&transfer(\*OUT, \*IN, $file_size, $offset);
+		close OUT;
+	}
 }
