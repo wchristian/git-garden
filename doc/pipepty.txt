@@ -1,6 +1,0 @@
-
-Syntax: pipepty PROGRAM [ARGS...]
-
-pipepty reads the input on STDIN, opens a pty (pseudo terminal) pair and
-hands the data out to the next process over the terminal, making it look like
-the (original) data came from a tty, not from a pipe.
