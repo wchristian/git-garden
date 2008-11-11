@@ -8,7 +8,7 @@ if HAVE_LIBCAP
 libexec_PROGRAMS += printcaps
 endif
 
-libexec_SCRIPTS  = diff2php doxygen-kerneldoc-filter extract_d3hog \
+libexec_SCRIPTS  = diff2php doxygen-kerneldoc-filter extract_dxhog \
 	extract_d3pkg extract_f3pod \
                 extract_q2pak filenameconv flv2avi fnt2bdf git-revert-stats \
                 logontime mailsplit mod2ogg mpg2ogg netload paddrspacesize \
