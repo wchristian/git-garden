@@ -3,7 +3,7 @@
 AM_CFLAGS = ${regular_CFLAGS} ${libHX_CFLAGS}
 
 libexec_PROGRAMS = bsvplay fd0ssh graph-fanout graph-lchain longjumpcd \
-	testdl qplay testdl utmp_register wavdiff xcp
+	testdl qplay testdl utmp_register wavdiff vfontas xcp
 if HAVE_LIBCAP
 libexec_PROGRAMS += printcaps
 endif
@@ -27,4 +27,5 @@ printcaps_LDADD     = -lcap
 testdl_LDADD        = ${libHX_LIBS}
 utmp_register_LDADD = ${libHX_LIBS}
 wavdiff_LDADD       = ${libHX_LIBS}
+vfontas_LDADD       = ${libHX_LIBS}
 xcp_LDADD           = ${libHX_LIBS}

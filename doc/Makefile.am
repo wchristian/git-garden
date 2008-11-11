@@ -42,6 +42,7 @@ man_MANS = \
 	truncate.1 \
 	wavdiff.1 \
 	wktimer.1 \
+	vfontas.1 \
 	xcp.1 \
 	hxtools.7 \
 	logontime.8 \
