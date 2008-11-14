@@ -40,8 +40,8 @@ enum {
 };
 
 struct vg_font {
-	unsigned int width, height, table_size;
-	char *glyph[256];
+	unsigned int width, height, wh, whz;
+	char glyph[0];
 };
 
 /* Variables */
@@ -50,36 +50,18 @@ static struct {
 	int action;
 } Opt;
 
-static void vf_font_destroy(struct vg_font *font)
-{
-	unsigned int i;
-
-	for (i = 0; i < ARRAY_SIZE(font->glyph); ++i)
-		free(font->glyph[i]);
-
-	free(font);
-}
-
 static struct vg_font *vf_font_alloc(unsigned int w, unsigned int h)
 {
 	struct vg_font *font;
-	unsigned int i;
 
-	if ((font = malloc(sizeof(*font))) == NULL)
+	if ((font = malloc(sizeof(*font) + w * h * 256)) == NULL)
 		return NULL;
 
-	font->width      = w;
-	font->height     = h;
-	font->table_size = ((w + 7) / 8) * h;
-
-	for (i = 0; i < sizeof(font->glyph); ++i)
-		if ((font->glyph[i] = malloc(font->table_size)) == NULL)
-			goto out;
+	font->width  = w;
+	font->height = h;
+	font->wh     = w * h / 8;
+	font->whz    = font->wh * 256;
 	return font;
-
- out:
-	vf_font_destroy(font);
-	return NULL;
 }
 
 static int vf_empty(const char *filename)
@@ -187,36 +169,36 @@ static void vf_text_to_mem(int fd, char *data)
 static int vf_create(const char *filename, const char *directory)
 {
 	struct vg_font *font;
-	const char *dentry;
-	int ret = 0;
-	void *dirp;
+	unsigned int i = 0;
+	int fd;
 
 	font = vf_font_alloc(8, 16);
 	if (font == NULL)
 		return EXIT_FAILURE;
 
-	if ((dirp = HXdir_open(directory)) == NULL) {
-		ret = -errno;
-		fprintf(stderr, "Could not read directory %s: %s\n",
-		        directory, strerror(errno));
-		return ret;
-	}
+	for (i = 0; i < 256; ++i) {
+		char buf[256];
 
-	while ((dentry = HXdir_read(dirp)) != NULL) {
-		char buf[512];
-		int input_fd;
-
-		snprintf(buf, sizeof(buf), "%s/%s", directory, dentry);
-		if ((input_fd = open(buf, O_RDONLY)) < 0) {
+		snprintf(buf, sizeof(buf), "%s/%03u", directory, i);
+		if ((fd = open(buf, O_RDONLY)) < 0) {
 			fprintf(stderr, "Could not open %s: %s\n",
 			        buf, strerror(errno));
 			continue;
 		}
-		vf_text_to_mem(input_fd, buf);
-		close(input_fd);
+		vf_text_to_mem(fd, &font->glyph[font->wh * i]);
+		close(fd);
 	}
 
-	return 0;
+	if ((fd = open(filename, O_WRONLY | O_TRUNC | O_CREAT,
+	    S_IRUGO | S_IWUGO)) < 0) {
+		fprintf(stderr, "Could not write to %s: %s\n",
+		        filename, strerror(errno));
+		return EXIT_FAILURE;
+	}
+
+	write(fd, font->glyph, font->whz);
+	close(fd);
+	return EXIT_SUCCESS;
 }
 
 static bool vf_get_options(int *argc, const char ***argv)
