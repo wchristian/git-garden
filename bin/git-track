@@ -1,0 +1,13 @@
+#!/bin/bash
+
+current_branch=$(pcregrep -o '(?<=^ref: refs/heads/)[^/]+$' .git/HEAD);
+if [[ -z "$current_branch" ]]; then
+	echo You do not seem to be on a branch >&2;
+	exit 1;
+fi;
+
+remote_name="${1%/*}";
+remote_branch="${1#*/}";
+
+git config branch.$current_branch.remote $remote_name
+git config branch.$current_branch.merge $remote_branch

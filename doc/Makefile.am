@@ -20,6 +20,7 @@ man_MANS = \
 	git-forest.1 \
 	git-lemon.1 \
 	git-revert-stats.1 \
+	git-track.1 \
 	longjumpcd.1 \
 	mailsplit.1 \
 	man2html.1 \
