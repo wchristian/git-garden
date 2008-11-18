@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20081101
+Version:	20081118
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
@@ -72,4 +72,4 @@ rm -Rf "%buildroot";
 %_datadir/kbd/keymaps/i386/*/*
 %_datadir/fonts/misc/*
 %_datadir/mc/syntax/*
-%doc doc/*
+%doc %_mandir/*/*
