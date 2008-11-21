@@ -8,3 +8,6 @@ testdl - test whether shared libraries load
 .SH Description
 .PP
 Tries to load bare libraries and check for missing symbols.
+Note that this will not work on shared libraries that reference symbols from
+the main program that have been exported using the -rdynamic linker flag.
+(Because testdl does not load the main program.)

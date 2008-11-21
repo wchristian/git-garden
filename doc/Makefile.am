@@ -21,12 +21,15 @@ man_MANS = \
 	git-lemon.1 \
 	git-revert-stats.1 \
 	git-track.1 \
+	hxtools.7 \
+	logontime.8 \
 	longjumpcd.1 \
 	mailsplit.1 \
 	man2html.1 \
 	mod2ogg.1 \
 	mpg2ogg.1 \
-	netload.1 \
+	netload.8 \
+	newns.8 \
 	ofl.1 \
 	omixer.1 \
 	oplay.1 \
@@ -34,6 +37,7 @@ man_MANS = \
 	pesubst.1 \
 	playalot.1 \
 	qplay.1 \
+	raregetty.8 \
 	recursive_lower.1 \
 	sourcefuncsize.1 \
 	stxdb.1 \
@@ -41,13 +45,9 @@ man_MANS = \
 	tailhex.1 \
 	testdl.1 \
 	truncate.1 \
+	utmp_register.8 \
+	vcsaview.8 \
+	vfontas.1 \
 	wavdiff.1 \
 	wktimer.1 \
-	vfontas.1 \
-	xcp.1 \
-	hxtools.7 \
-	logontime.8 \
-	newns.8 \
-	raregetty.8 \
-	utmp_register.8 \
-	vcsaview.8
+	xcp.1
