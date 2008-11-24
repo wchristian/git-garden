@@ -41,7 +41,7 @@ foreach my $file (@ARGV) {
 	close OUT;
 }
 
-sub fit_in($$)
+sub fit_in ()
 {
 	my($str, $len) = @_;
 	$str = substr($str, 0, $len);

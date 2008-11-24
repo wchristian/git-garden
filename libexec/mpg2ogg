@@ -33,7 +33,7 @@ if (!defined($pat{"o"}) || $pat{"o"} eq "") {
 	die "You must supply the -o option\n";
 }
 
-sub asgn($$)
+sub asgn ()
 {
 	$pat{$_[0]} = $_[1];
 	return;
