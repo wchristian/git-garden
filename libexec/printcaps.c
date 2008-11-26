@@ -1,9 +1,9 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <libHX/defs.h>
 #undef _POSIX_SOURCE
 #include <sys/capability.h>
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
 
 static const char *const cap_names[] = {
 #define E(x) [CAP_##x] = #x

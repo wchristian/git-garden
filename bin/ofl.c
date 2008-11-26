@@ -17,10 +17,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libHX/defs.h>
 #include <libHX/misc.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
 
 /**
  * @sb:		just space
