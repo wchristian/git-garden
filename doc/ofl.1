@@ -4,7 +4,7 @@
 ofl - open file lister
 .SH Syntax
 .PP
-\fBofl\fP [\fB-k\fP \fIsignalspec\fP] \fIpath\fP[...]
+\fBofl\fP [\fB\-P\fP] [\fB\-k\fP \fIsignalspec\fP] \fIpath\fP[...]
 .SH Description
 .PP
 Lists all processes that have directories or files open or in use within
@@ -12,5 +12,8 @@ Lists all processes that have directories or files open or in use within
 a mountpoint for example.
 .SH Options
 .TP
-\fB-k\fP \fIsignalspec\fP
+\fB\-k\fP \fIsignalspec\fP
 Send the given signal to all processes that match.
+.TP
+\fB\-P\fP
+Show only the PIDs of the processes that matched.

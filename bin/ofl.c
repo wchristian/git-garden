@@ -36,6 +36,8 @@ struct ofl_compound {
 	bool check, found;
 };
 
+static bool pids_only;
+
 static const char *ofl_comm(pid_t pid, char *buf, size_t size)
 {
 	char src[64], dst[512];
@@ -83,7 +85,9 @@ static bool ofl_file(const char *mnt, const char *file, const char *ll_entry,
 		return false;
 
 	data->found = true;
-	if (data->signal == 0) {
+	if (pids_only) {
+		printf("%u ", data->pid);
+	} else if (data->signal == 0) {
 		char buf[24];
 		printf("%u(%s): %s -> %s\n", data->pid,
 		       ofl_comm(data->pid, buf, sizeof(buf)), ll_entry, file);
@@ -292,6 +296,8 @@ int main(int argc, const char **argv)
 	unsigned int signum = 0;
 	char *signum_str = NULL;
 	struct HXoption options_table[] = {
+		{.sh = 'P', .type = HXTYPE_NONE, .ptr = &pids_only,
+		 .help = "Show only PIDs"},
 		{.sh = 'k', .type = HXTYPE_STRING, .ptr = &signum_str,
 		 .help = "Signal to send (if any)", .htyp = "NUM/NAME"},
 		HXOPT_AUTOHELP,
@@ -310,5 +316,9 @@ int main(int argc, const char **argv)
 		signum = parse_signal(signum_str);
 	while (*++argv != NULL)
 		ret |= ofl(*argv, signum);
+
+	if (pids_only)
+		printf("\n");
+
 	return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
