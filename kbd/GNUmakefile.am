@@ -18,6 +18,6 @@ vgafont_DATA = ahnv.fnt ati.fnt gotik.fnt ital.fnt neuropol.fnt nvidia.fnt \
 	bdftopcf <"$<" | gzip -9c >"$@";
 
 %_b.pcf.gz: %.bdf
-	$(top_srcdir)/bin/pesubst -mm -s \
+	${top_srcdir}/bin/pesubst -mm -s \
 	'^(FONT)\s+("?)(.*)\2' -d '$$1 $$2$$3_b$$2' - <"$<" | \
 	bdftopcf | gzip -9c >"$@";
