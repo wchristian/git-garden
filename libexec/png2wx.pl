@@ -21,12 +21,17 @@ sub main ()
 		"M=s" => \$Marker,
 	);
 
-	if ($cpp_file eq "" || $hpp_file eq "" || $Marker eq "") {
-		die "You need to specify -C, -H and -M options.\n";
+	if ($cpp_file eq "" || $hpp_file eq "") {
+		die "You need to specify -C, -H options.\n";
 	}
 
 	$hpp_include = $hpp_file;
-	$hpp_include =~ s{^(.*)/}{};
+	$hpp_include =~ s{^.*/}{};
+	if ($Marker eq "") {
+		$Marker = uc $hpp_file;
+		$Marker =~ s{[^a-z]}{_}gi;
+		print "Using marker $Marker\n";
+	}
 
 	#
 	# C++ header
