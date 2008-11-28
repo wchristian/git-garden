@@ -118,7 +118,16 @@ sub encoded ()
 	binmode FH;
 	$data = join(undef, <FH>);
 	$data =~ s/\\/\\\\/go;
-	$data =~ s/([^\x21\x23-\x7e])/sprintf "\\%03o", ord $1/egs;
+	$data =~ s/([^\x07\x08\x0a\x0d\x20-\x7e])/sprintf "\\%03o", ord $1/egs;
+	$data =~ s/\x07/\\a/gs;
+	$data =~ s/\x08/\\b/gs;
+	$data =~ s/\x09/\\t/gs;
+	$data =~ s/\x0a/\\n/gs;
+	$data =~ s/\x0d/\\v/gs;
+	$data =~ s/\x0c/\\f/gs;
+	$data =~ s/\x0d/\\r/gs;
+	$data =~ s/\"/\\"/gs;
+	# avoid trigraphs:
 	$data =~ s/\?\?(?=[-\(\)<>=\/\'!])/?\\077/g;
 	close FH;
 	return $data;
