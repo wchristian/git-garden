@@ -96,12 +96,12 @@ extern void initialize_images(void);
 
 	print CPP
 		"\n",
-		"void initialize_images(void) {\n",
+		"void initialize_images(void)\n{\n",
 		$main,
 		"	return;\n",
 		"}\n";
 	close CPP;
-	return;
+	return 0;
 }
 
 sub encoded ()

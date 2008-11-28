@@ -125,7 +125,7 @@ hpp_fp.close()
 
 cpp_fp.write(
 	"\n"
-	"void initialize_images(void) {\n" +
+	"void initialize_images(void)\n{\n" +
 	main +
 	"	return;\n"
 	"}\n"
