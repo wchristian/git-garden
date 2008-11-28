@@ -36,6 +36,7 @@ man_MANS = \
 	orec.1 \
 	pesubst.1 \
 	playalot.1 \
+	png2wx.1 \
 	qplay.1 \
 	raregetty.8 \
 	recursive_lower.1 \
