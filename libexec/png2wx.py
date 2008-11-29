@@ -107,7 +107,7 @@ main = ""
 for file in sys.argv:
 	base = re.sub(r"^.*/", "", file)
 	base = re.sub(r"(.*)\.(?:jpg|png)", r"\1", base)
-	base = re.sub(r"[^A-Za-z]", "_", base)
+	base = re.sub(r"[^A-Za-z0-9]", "_", base)
 
 	hpp_fp.write("extern wxBitmap *_img_" + base + ";\n")
 	cpp_fp.write("wxBitmap *_img_" + base + ";\n")

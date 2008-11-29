@@ -77,7 +77,7 @@ extern void initialize_images(void);
 		my $base = $file;
 		$base =~ s{^.*/}{};
 		$base =~ s{(.*)\.(?:jpg|png)$}{$1}gis;
-		$base =~ s/[^a-z]/_/gio;
+		$base =~ s/[^a-z0-9]/_/gio;
 
 		print HPP "extern wxBitmap *_img_$base;\n";
 		print CPP "wxBitmap *_img_$base;\n";
