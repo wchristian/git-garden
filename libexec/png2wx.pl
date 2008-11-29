@@ -123,7 +123,7 @@ sub encoded ()
 	$data =~ s/\x08/\\b/gs;
 	$data =~ s/\x09/\\t/gs;
 	$data =~ s/\x0a/\\n/gs;
-	$data =~ s/\x0d/\\v/gs;
+	$data =~ s/\x0b/\\v/gs;
 	$data =~ s/\x0c/\\f/gs;
 	$data =~ s/\x0d/\\r/gs;
 	$data =~ s/\"/\\"/gs;
