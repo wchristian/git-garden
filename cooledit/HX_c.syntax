@@ -18,6 +18,9 @@ context default
 	keyword whole char white
 	keyword whole class white
 	keyword whole const white
+	keyword whole const_cast1 white
+	keyword whole const_cast2 white
+	keyword whole const_cast3 white
 	keyword whole const_cast white
 	keyword whole continue white
 	keyword whole default white
