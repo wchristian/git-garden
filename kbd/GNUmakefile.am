@@ -1,6 +1,7 @@
 # -*- Makefile -*-
 
-x11fonts     = ahnv.pcf.gz ahnv_b.pcf.gz tosh.pcf.gz tosh_b.pcf.gz
+x11fonts     = ahnv.pcf.gz ahnv_b.pcf.gz rhx.pcf.gz rhx_b.pcf.gz \
+               tosh.pcf.gz tosh_b.pcf.gz
 x11miscdir   = ${x11fontdir}/misc
 x11misc_DATA = ${x11fonts}
 CLEANFILES   = ${x11fonts}
