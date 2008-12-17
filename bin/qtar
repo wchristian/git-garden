@@ -1,6 +1,86 @@
-#!/bin/bash
+#!/usr/bin/perl
+#
+#	Achieve higher compression by using dedicated file sorting
+#	to put similar blocks next to each other.
+#
 
-output="$1";
-shift;
-find "$@" -print0 | sort -z | tar -T- --null --no-r --owner=root --group=root \
--cvjf "$output";
+use File::Find;
+use Getopt::Long;
+use IPC::Open2;
+use strict;
+
+my @excludes = ();
+my $strategy = "by_normal";
+my @result;
+&main();
+
+sub main
+{
+	Getopt::Long::Configure(qw(bundling));
+	GetOptions(
+		"x"   => sub { push(@excludes, qr{(?:^|/)\.(?:git|svn)(?:/|$)}); },
+		"svn" => sub { $strategy = "by_basename";  }, # lame alias I agree
+		"ext" => sub { $strategy = "by_extension"; },
+	);
+
+	if (scalar(@ARGV) == 0) {
+		die "No output file. What gives?\n";
+	} elsif (scalar(@ARGV) == 1) {
+		die "No input directories. What gives?\n";
+	}
+
+	my $archive = shift @ARGV;
+
+	find({
+		wanted => \&collect,
+		no_chdir => 1,
+	}, @ARGV);
+	@result = sort $strategy @result;
+
+	&push_files($archive, \@result);
+}
+
+sub by_normal
+{
+	return $a cmp $b;
+}
+
+sub by_basename
+{
+	my($p, $q) = ($a, $b);
+	$p =~ s{.*/}{}g;
+	$q =~ s{.*/}{}g;
+	return $p cmp $q;
+}
+
+sub by_extension
+{
+	my($p, $q) = ($a, $b);
+	$p =~ s{.*\.(\w+)$}{$1};
+	$q =~ s{.*\.(\w+)$}{$1};
+	return $p cmp $q;
+}
+
+sub collect
+{
+	foreach my $regex (@excludes) {
+		if ($_ =~ $regex) {
+			return;
+		}
+	}
+	push(@result, $_);
+}
+
+sub push_files
+{
+	local *COUT;
+
+	if (!open(\*COUT, "|-", "tar", "-T-", "--null",
+	    "--no-recursion", "--owner=root", "--group=root",
+	    "-cvjf", shift @_)) {
+		die "Could not run tar: $!\n";
+	}
+	print COUT join("\x00", @{shift @_});
+	close COUT;
+	return 0;
+}
