@@ -14,7 +14,7 @@ libexec_SCRIPTS  = diff2php doxygen-kerneldoc-filter extract_dxhog \
                 logontime mailsplit mod2ogg mpg2ogg netload paddrspacesize \
                 png2wx.pl png2wx.py proc_iomem_count \
                 proc_stat_signal_decode raregetty \
-                sourcefuncsize vcsaview
+                sourcefuncsize stxdb vcsaview
 
 bsvplay_SOURCES     = bsvplay.c pcspkr_pcm.c
 bsvplay_LDADD       = ${libHX_LIBS} -lm
