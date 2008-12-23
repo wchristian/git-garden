@@ -8,7 +8,6 @@
  */
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sched.h>
@@ -17,12 +16,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libHX/ctype_helper.h>
 #include <libHX/option.h>
 
 /* Functions */
 static int get_options(int *, const char ***);
 static void getopt_op_e(const struct HXoptcb *);
-static inline int printable(char);
+static inline char printable(char);
 
 /* Variables */
 static struct {
@@ -147,7 +147,7 @@ static void getopt_op_e(const struct HXoptcb *cbi)
 	Opt.start = strtoll(cbi->data, NULL, 0);
 }
 
-static inline int printable(char x)
+static inline char printable(char x)
 {
-	return isprint(x) ? x : '.';
+	return HX_isprint(x) ? x : '.';
 }

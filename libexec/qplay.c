@@ -8,7 +8,6 @@
  */
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
@@ -16,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libHX/ctype_helper.h>
 #include <libHX/arbtree.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
@@ -173,7 +173,7 @@ static unsigned int parse_arg_ag(const char *origptr)
 	if (*ptr == '#' || *ptr == '+' || *ptr == '-') /* c# */
 		lookup[1] = *ptr++;
 
-	if (isdigit(*ptr)) /* c2, or c#2 */
+	if (HX_isdigit(*ptr)) /* c2, or c#2 */
 		note_len = strtoul(ptr, (char **)&ptr, 10);
 
 	if ((lookup[0] == 'c' && lookup[1] == '-') ||
@@ -346,7 +346,7 @@ static unsigned int parse_arg_x(const char *origptr)
 	size_t var_size;
 
 	++ptr;
-	while (isspace(*ptr))
+	while (HX_isspace(*ptr))
 		++ptr;
 	if (*ptr != '(') {
 		fprintf(stderr, "** Syntax error, no '(' following 'X'\n");
@@ -354,12 +354,12 @@ static unsigned int parse_arg_x(const char *origptr)
 	}
 
 	++ptr;
-	while (isspace(*ptr))
+	while (HX_isspace(*ptr))
 		++ptr;
 	var_begin = ptr;
-	while (!isspace(*ptr) && *ptr != ')')
+	while (!HX_isspace(*ptr) && *ptr != ')')
 		var_end = ++ptr;
-	while (isspace(*ptr))
+	while (HX_isspace(*ptr))
 		++ptr;
 	if (*ptr != ')') {
 		fprintf(stderr, "** Syntax error, no ')' after 'X'\n");
@@ -383,7 +383,7 @@ static unsigned int parse_arg_x(const char *origptr)
 static void parse_str(const char *ptr)
 {
 	while (*ptr != '\0') {
-		if (isspace(*ptr)) {
+		if (HX_isspace(*ptr)) {
 			++ptr;
 			continue;
 		}
@@ -436,12 +436,13 @@ static void parse_str(const char *ptr)
  */
 static void parse_var(FILE *fp, char *line)
 {
-	char *ws = HXmc_dup(line), *key = ws + 1, *val = key;
+	hxmc_t *ws = HXmc_strinit(line);
+	char *key = ws + 1, *val = key;
 
-	while (!isspace(*val))
+	while (!HX_isspace(*val))
 		++val;
 	*val++ = '\0';
-	while (isspace(*val))
+	while (HX_isspace(*val))
 		++val;
 
 	HXbtree_add(varmap, key, val);
