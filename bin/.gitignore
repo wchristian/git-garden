@@ -1,4 +1,5 @@
 /declone
+/htruncate
 /longjumpcd
 /newns
 /ofl
@@ -6,4 +7,3 @@
 /oplay
 /orec
 /tailhex
-/truncate

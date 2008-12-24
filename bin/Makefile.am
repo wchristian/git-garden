@@ -3,7 +3,7 @@
 AM_CFLAGS        = ${regular_CFLAGS} ${libHX_CFLAGS}
 CLEANFILES       = omixer orec
 
-bin_PROGRAMS     = declone newns ofl oplay tailhex truncate
+bin_PROGRAMS     = declone htruncate newns ofl oplay tailhex
 bin_SCRIPTS      = checkbrack cwdiff fxterm git-author-stat git-export-patch \
                    git-forest git-lemon git-track man2html \
                    omixer orec pesubst playalot \

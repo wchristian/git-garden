@@ -21,6 +21,7 @@ man_MANS = \
 	git-lemon.1 \
 	git-revert-stats.1 \
 	git-track.1 \
+	htruncate.1 \
 	hxtools.7 \
 	logontime.8 \
 	longjumpcd.1 \
@@ -45,7 +46,6 @@ man_MANS = \
 	sysinfo.1 \
 	tailhex.1 \
 	testdl.1 \
-	truncate.1 \
 	utmp_register.8 \
 	vcsaview.8 \
 	vfontas.1 \
