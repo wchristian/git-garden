@@ -16,7 +16,7 @@ my @result;
 
 sub main
 {
-	Getopt::Long::Configure(qw(bundling));
+	Getopt::Long::Configure(qw(bundling pass_through));
 	GetOptions(
 		"x"   => sub { push(@excludes, qr{(?:^|/)\.(?:git|svn)(?:/|$)}); },
 		"svn" => sub { $strategy = "by_basename";  }, # lame alias I agree
@@ -34,10 +34,11 @@ sub main
 	find({
 		wanted => \&collect,
 		no_chdir => 1,
-	}, @ARGV);
+	}, grep /^[^-]/, @ARGV);
+	@ARGV   = grep /^-/, @ARGV;
 	@result = sort $strategy @result;
 
-	&push_files($archive, \@result);
+	&push_files($archive, \@result, \@ARGV);
 }
 
 sub by_normal
@@ -77,10 +78,10 @@ sub push_files
 
 	if (!open(\*COUT, "|-", "tar", "-T-", "--null",
 	    "--no-recursion", "--owner=root", "--group=root",
-	    "-cvjf", shift @_)) {
+	    "-cvf", $_[0], @{$_[2]})) {
 		die "Could not run tar: $!\n";
 	}
-	print COUT join("\x00", @{shift @_});
+	print COUT join("\x00", @{$_[1]});
 	close COUT;
 	return 0;
 }
