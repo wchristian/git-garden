@@ -12,6 +12,7 @@ use strict;
 
 do_hostname();
 do_version();
+do_loc();
 do_cpuinfo();
 do_loadavg();
 do_meminfo();
@@ -75,6 +76,41 @@ sub do_cpuinfo
 		print "/$cpu_max_mhz";
 	}
 	print " MHz";
+}
+
+sub do_loc
+{
+	my $loc;
+
+	if (!open(IN, "</proc/interrupts")) {
+		return;
+	}
+
+	while (defined(my $line = <IN>)) {
+		if ($line =~ /^LOC:\s*(\d+)/) {
+			$loc = $1;
+			last;
+		}
+	}
+
+	close IN;
+	if (!defined($loc)) {
+		return;
+	}
+
+	sleep 1;
+	if (!open(IN, "</proc/interrupts")) {
+		return;
+	}
+
+	while (defined(my $line = <IN>)) {
+		if ($line =~ /^LOC:\s*(\d+)/) {
+			print " \@", $1 - $loc, "Hz";
+			last;
+		}
+	}
+
+	close IN;
 }
 
 sub do_disk
