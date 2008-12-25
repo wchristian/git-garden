@@ -1,5 +1,6 @@
 /*
  *	vfontas.c - VGA font textfile assembler
+ *	FNT and CPI font extraction/converter program.
  *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2008
  *
  *	This program is free software; you can redistribute it and/or
@@ -7,6 +8,7 @@
  *	as published by the Free Software Foundation; either version
  *	2.1 of the License, or (at your option) any later version.
  *	For details, see the file named "LICENSE.GPL2".
+ *
  */
 #include <sys/file.h>
 #include <sys/mman.h>
@@ -24,6 +26,7 @@
 #include <libHX/defs.h>
 #include <libHX/misc.h>
 #include <libHX/option.h>
+#include <libHX/string.h>
 #define MMAP_NONE ((void *)-1)
 #ifndef S_IRUGO
 #	define S_IRUGO (S_IRUSR | S_IRGRP | S_IROTH)
@@ -37,12 +40,47 @@ enum {
 	CMD_EMPTY,
 	CMD_CREATE,
 	CMD_EXTRACT,
+	CMD_CONVERTCPI,
 };
 
 struct vg_font {
 	unsigned int width, height, wh, whz;
 	char glyph[0];
 };
+
+/* CPI: see http://www.seasip.info/DOS/CPI/cpi.html */
+struct cpi_fontfile_header {
+	uint8_t id0;
+	char id[7], reserved[8];
+	uint16_t pnum;
+	uint8_t ptyp;
+	uint32_t fih_offset;
+} __attribute__((packed));
+
+struct cpi_fontinfo_header {
+	uint16_t num_codepages;
+} __attribute__((packed));
+
+struct cpi_cpentry_header {
+	uint16_t cpeh_size;
+	uint32_t next_cpeh_offset;
+	uint16_t device_type;
+	char device_name[8];
+	uint16_t codepage;
+	char reserved[6];
+	uint32_t cpih_offset;
+} __attribute__((packed));
+
+struct cpi_cpinfo_header {
+	uint16_t version;
+	uint16_t num_fonts;
+	uint16_t size;
+} __attribute__((packed));
+
+struct cpi_screenfont_header {
+	uint8_t height, width, yaspect, xaspect;
+	uint16_t num_chars;
+} __attribute__((packed));
 
 /* Variables */
 static struct {
@@ -146,6 +184,117 @@ static int vf_extract(const char *filename, const char *directory)
 	return ret == 256;
 }
 
+static void vf_extract_cpi3(const void *_data,
+    const struct cpi_cpinfo_header *cpih, const char *directory)
+{
+	hxmc_t *out_file;
+	char buf[sizeof("-4294967296")];
+	const struct cpi_screenfont_header *sfh =
+		static_cast(const void *, cpih + 1);
+	unsigned int i, length;
+	int out_fd;
+
+	for (i = 0; i < cpih->num_fonts; ++i) {
+		HX_mkdir(directory);
+		out_file = HXmc_strinit(directory);
+		HXmc_strcat(&out_file, "/");
+		snprintf(buf, sizeof(buf), "%ux%u.fnt",
+			sfh->width, sfh->height);
+		HXmc_strcat(&out_file, buf);
+		printf("Writing to %s\n", out_file);
+
+		if ((out_fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC,
+		    S_IRUGO | S_IWUGO)) < 0) {
+			fprintf(stderr, "%s: %s\n", out_file, strerror(errno));
+			HXmc_free(out_file);
+			continue;
+		}
+
+		length = sfh->width * sfh->height / 8 * sfh->num_chars;
+		write(out_fd, static_cast(const void *, sfh + 1), length);
+		close(out_fd);
+		sfh = static_cast(const void *, sfh + 1) + length;
+	}
+}
+
+static void vf_extract_cpi2(const void *_data, const char *directory)
+{
+	const struct cpi_fontfile_header *ffh = _data;
+	const struct cpi_fontinfo_header *fih;
+	const struct cpi_cpentry_header *cpeh;
+	const struct cpi_cpinfo_header *cpih;
+	unsigned int i;
+	hxmc_t *out_dir;
+	char buf[sizeof("-4294967296")];
+
+	if (ffh->id0 != 0xFF || strncmp(ffh->id, "FONT    ", sizeof(ffh->id)) != 0)
+		return;
+	if (ffh->pnum != 1 || ffh->ptyp != 1)
+		return;
+
+	fih  = _data + ffh->fih_offset;
+	cpeh = static_cast(const void *, fih + 1);
+
+	for (i = 0; i < fih->num_codepages; ++i,
+	     cpeh = _data + cpeh->next_cpeh_offset)
+	{
+		printf("CPEH #%u: Name: %.*s, Codepage: %u\n",
+		       i, sizeof(cpeh->device_name), cpeh->device_name,
+		       cpeh->codepage);
+
+		if (cpeh->device_type != 1)
+			/* non-screen */
+			continue;
+
+		cpih = _data + cpeh->cpih_offset;
+		if (cpih->version != 1)
+			continue;
+
+		out_dir = HXmc_strinit(directory);
+		HXmc_strcat(&out_dir, "/");
+		*buf = '\0';
+		HX_strlncat(buf, cpeh->device_name, sizeof(buf), sizeof(cpeh->device_name));
+		HX_strrtrim(buf);
+		HXmc_strcat(&out_dir, buf);
+		HXmc_strcat(&out_dir, "/");
+		snprintf(buf, sizeof(buf), "%u", cpeh->codepage);
+		HXmc_strcat(&out_dir, buf);
+		vf_extract_cpi3(_data, cpih, out_dir);
+		HXmc_free(out_dir);
+	}
+}
+
+static int vf_extract_cpi(const char *filename, const char *directory)
+{
+	struct stat sb;
+	void *mapping;
+	int in_fd, saved_errno;
+
+	if ((in_fd = open(filename, O_RDONLY)) < 0) {
+		fprintf(stderr, "Could not open %s: %s\n",
+		        filename, strerror(errno));
+		return -errno;
+	} else if (fstat(in_fd, &sb) < 0) {
+		saved_errno = errno;
+		fprintf(stderr, "Could not fstat(): %s\n", strerror(errno));
+		close(in_fd);
+		return -saved_errno;
+	}
+
+	mapping = mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED, in_fd, 0);
+	if (mapping == MMAP_NONE) {
+		saved_errno = errno;
+		fprintf(stderr, "Could not mmap(): %s\n", strerror(errno));
+		close(in_fd);
+		return -saved_errno;
+	}
+
+	vf_extract_cpi2(mapping, directory);
+	munmap(mapping, sb.st_size);
+	close(in_fd);
+	return 1;
+}
+
 static void vf_text_to_mem(int fd, char *data)
 {
 	unsigned int y;
@@ -214,6 +363,8 @@ static bool vf_get_options(int *argc, const char ***argv)
 		 .help = "File to operate on", .htyp = "FILE"},
 		{.sh = 'x', .ln = "extract", .type = HXTYPE_VAL, .ptr = &Opt.action,
 		 .val = CMD_EXTRACT, .help = "Extract font file to directory"},
+		{.ln = "cpi", .type = HXTYPE_VAL, .ptr = &Opt.action,
+		 .val = CMD_CONVERTCPI, .help = "Convert a CPI to FNT"},
 		HXOPT_AUTOHELP,
 		HXOPT_TABLEEND,
 	};
@@ -228,8 +379,9 @@ static bool vf_get_options(int *argc, const char ***argv)
 		fprintf(stderr, "-E option requires -f option too\n");
 		return false;
 	}
-	if ((Opt.action == CMD_CREATE || Opt.action == CMD_EXTRACT) &&
-	   (Opt.file == NULL || Opt.directory == NULL)) {
+	if ((Opt.action == CMD_CREATE || Opt.action == CMD_EXTRACT ||
+	    Opt.action == CMD_CONVERTCPI) &&
+	    (Opt.file == NULL || Opt.directory == NULL)) {
 		fprintf(stderr, "-c and -x option require both "
 		        "-D and -f options\n");
 		return false;
@@ -250,6 +402,9 @@ int main(int argc, const char **argv)
 			break;
 		case CMD_EXTRACT:
 			ret = vf_extract(Opt.file, Opt.directory);
+			break;
+		case CMD_CONVERTCPI:
+			ret = vf_extract_cpi(Opt.file, Opt.directory);
 			break;
 		case CMD_CREATE:
 			ret = vf_create(Opt.file, Opt.directory);
