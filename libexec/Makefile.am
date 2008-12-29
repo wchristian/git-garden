@@ -3,7 +3,8 @@
 AM_CFLAGS = ${regular_CFLAGS} ${libHX_CFLAGS}
 
 libexec_PROGRAMS = bsvplay fd0ssh graph-fanout graph-lchain longjumpcd \
-	testdl qplay testdl utmp_register wavdiff vfontas xcp
+	testdl qplay testdl utmp_register wavdiff vfontas xcp \
+	xfs_irecover
 if HAVE_LIBCAP
 libexec_PROGRAMS += printcaps
 endif
@@ -30,3 +31,5 @@ utmp_register_LDADD = ${libHX_LIBS}
 wavdiff_LDADD       = ${libHX_LIBS}
 vfontas_LDADD       = ${libHX_LIBS}
 xcp_LDADD           = ${libHX_LIBS}
+xfs_irecover_SOURCES = xfs_irecover.c xfs_irecover_spawn.c
+xfs_irecover_LDADD  = ${libHX_LIBS}
