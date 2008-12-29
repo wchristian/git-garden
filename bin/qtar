@@ -11,6 +11,7 @@ use strict;
 
 my @excludes = ();
 my $strategy = "by_normal";
+my $packer = "bzip2";
 my @result;
 &main();
 
@@ -21,6 +22,7 @@ sub main
 		"x"   => sub { push(@excludes, qr{(?:^|/)\.(?:git|svn)(?:/|$)}); },
 		"svn" => sub { $strategy = "by_basename";  }, # lame alias I agree
 		"ext" => sub { $strategy = "by_extension"; },
+		"use" => sub { $packer = $_[1]; },
 	);
 
 	if (scalar(@ARGV) == 0) {
@@ -76,7 +78,7 @@ sub push_files
 {
 	local *COUT;
 
-	if (!open(\*COUT, "|-", "tar", "-T-", "--null",
+	if (!open(\*COUT, "|-", "tar", "-T-", "--null", "--use=$packer",
 	    "--no-recursion", "--owner=root", "--group=root",
 	    "-cvf", $_[0], @{$_[2]})) {
 		die "Could not run tar: $!\n";
