@@ -8,11 +8,12 @@
 use Getopt::Long;
 use strict;
 
-my($Quiet, $Shuffle, $Alt);
+my($Quiet, $Shuffle, $Alt, $Aac_workaround);
 my @list;
 
 &Getopt::Long::Configure(qw(bundling pass_through));
 GetOptions(
+	"aac" => \$Aac_workaround,
 	"a" => \$Alt,
 	"q" => \$Quiet,
 	"z" => \$Shuffle,
@@ -46,6 +47,8 @@ foreach my $file (@list) {
 		}
 	} elsif ($file =~ /\.umx$/io) {
 		&play_umx($file);
+	} elsif ($Aac_workaround && $file =~ /\.aac$/io) {
+		&play_aac($file);
 	} else {
 		system "mplayer", $file;
 	}
@@ -75,6 +78,13 @@ sub play_umx ()
 	system "timidity", "-Os", "-id".($Quiet ? "" : "t"), $of;
 	unlink $of;
 	return;
+}
+
+sub play_aac ()
+{
+	my $file = shift @_;
+
+	system "faad -f2 -w \"$file\" | oplay -";
 }
 
 sub s_random ()
