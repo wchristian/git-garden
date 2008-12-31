@@ -28,6 +28,7 @@ man_MANS = \
 	mailsplit.1 \
 	man2html.1 \
 	mod2ogg.1 \
+	mpl.1 \
 	mpg2ogg.1 \
 	netload.8 \
 	newns.8 \
@@ -36,7 +37,6 @@ man_MANS = \
 	oplay.1 \
 	orec.1 \
 	pesubst.1 \
-	playalot.1 \
 	png2wx.1 \
 	qplay.1 \
 	raregetty.8 \
