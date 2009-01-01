@@ -157,7 +157,7 @@ static int mixer_inst_dev(char *ptr, const char *dev, size_t ln)
 static void mixer_proc(const char *ctl, const char *vol)
 {
 	int mixer_fd;
-	if ((mixer_fd = open(cdevp, O_RDWR, 0600)) < 0) {
+	if ((mixer_fd = open(cdevp, O_RDWR)) < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 		        cdevp, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -665,7 +665,7 @@ static void record(int argc, const char **argv)
 		ffd = STDOUT_FILENO;
 	} else if (pri.seekto != 0) {
 		if ((ffd = open(*argv, O_RDWR | O_APPEND | O_CREAT,
-		    S_IRUSR | S_IWUSR | S_IWGRP | S_IWOTH)) < 0) {
+		    S_IRUGO | S_IWUGO)) < 0) {
 			fprintf(stderr, "Could not open %s: %s\n",
 			        *argv, strerror(errno));
 			exit(EXIT_FAILURE);
@@ -675,7 +675,7 @@ static void record(int argc, const char **argv)
 		else
 			lseek(ffd, pri.seekto, SEEK_END);
 	} else if ((ffd = open(*argv, O_WRONLY | O_CREAT | O_TRUNC,
-	    S_IRUSR | S_IWUSR | S_IWGRP | S_IWOTH)) < 0) {
+	    S_IRUGO | S_IWUGO)) < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 		        *argv, strerror(errno));
 		exit(EXIT_FAILURE);
