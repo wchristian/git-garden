@@ -31,5 +31,4 @@ utmp_register_LDADD = ${libHX_LIBS}
 wavdiff_LDADD       = ${libHX_LIBS}
 vfontas_LDADD       = ${libHX_LIBS}
 xcp_LDADD           = ${libHX_LIBS}
-xfs_irecover_SOURCES = xfs_irecover.c xfs_irecover_spawn.c
 xfs_irecover_LDADD  = ${libHX_LIBS}

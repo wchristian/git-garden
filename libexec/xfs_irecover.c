@@ -38,9 +38,9 @@
 #include <libHX/defs.h>
 #include <libHX/misc.h>
 #include <libHX/option.h>
+#include <libHX/proc.h>
 #include <libHX/string.h>
 #include <arpa/inet.h>
-#include "xfs_irecover_spawn.h"
 
 typedef int8_t __s8;
 typedef uint8_t __u8;
@@ -373,6 +373,10 @@ static void ir_extract(struct work_info *wi)
 	}
 }
 
+static struct HXproc xdb_proc = {
+	.p_flags = HXPROC_VERBOSE | HXPROC_STDIN | HXPROC_STDOUT,
+};
+
 static bool ir_get_devinfo(struct work_info *work_info)
 {
 	const char *const args[] = {"xfs_db", work_info->device, NULL};
@@ -380,13 +384,13 @@ static bool ir_get_devinfo(struct work_info *work_info)
 	int num_lines = 0, i;
 	char *ret, **lines;
 
-	if (!spawn_startl(args, &work_info->xdb_pid, &work_info->xdb_write,
-	    &work_info->xdb_read)) {
-		fprintf(stderr, "Error starting xfs_db: %s\n",
-		        strerror(errno));
+	if ((i = HXproc_run_async(args, &xdb_proc)) <= 0) {
+		fprintf(stderr, "Error starting xfs_db: %s\n", strerror(-i));
 		return false;
 	}
 
+	work_info->xdb_read  = xdb_proc.p_stdout;
+	work_info->xdb_write = xdb_proc.p_stdin;
 	/* munge prompt */
 	ir_fdwait(work_info);
 	i = read(work_info->xdb_read, work_info->buffer,
@@ -529,9 +533,7 @@ int main(int argc, const char **argv)
 	free(work_info.buffer);
 	free(work_info.device);
 	free(work_info.output_dir);
-	if (waitpid(work_info.xdb_pid, NULL, WNOHANG) < 0 &&
-	    errno == EAGAIN)
-		kill(work_info.xdb_pid, SIGTERM);
-	waitpid(work_info.xdb_pid, NULL, 0);
+	kill(xdb_proc.p_pid, SIGTERM); /* just in case */
+	HXproc_wait(&xdb_proc);
 	return EXIT_SUCCESS;
 }
