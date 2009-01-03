@@ -13,7 +13,8 @@ qwertzdir    = ${keymapdir}/i386/qwertz
 qwertz_DATA  = de_ccj.map
 
 vgafont_DATA = ahnv.fnt ati.fnt gotik.fnt ital.fnt neuropol.fnt nvidia.fnt \
-               rhx.fnt tosh.fnt verdana.fnt vmware.fnt
+               rhx.fnt tosh.fnt verdana.fnt vmware.fnt \
+               ega437_8x16.fnt ega437_8x14.fnt ega437_8x8.fnt
 
 %.pcf.gz: %.bdf
 	bdftopcf <"$<" | gzip -9c >"$@";

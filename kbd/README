@@ -8,7 +8,8 @@ ripped from VGA ROMs, they are CP437.
 
 SUSE users:
 If you load this font on boot-up, i.e. you entered it into CONSOLE_FONT in
-/etc/sysconfig/console, you also have to set CONSOLE_UNICODEMAP to "cp437".
+/etc/sysconfig/console, you also have to set CONSOLE_UNICODEMAP to "cp437"
+(since SUSE 11.1 the full path, /usr/share/kbd/unimaps/cp437.uni).
 
 
 == X FONTS ==
@@ -25,3 +26,17 @@ wrapper utility in bin/ is preferred to correctly display boldface in xterm.
 The .map files are (additional!) keyboard maps. They build up upon certain
 keyboard definitions from the "kbd" package and make some more keys available.
 If you want to load one at boot-up, use KEYTABLE in /etc/sysconfig/keyboard.
+
+
+== FONT OVERVIEW ==
+ahnv.fnt - conglomerate of ati.fnt and nvidia.fnt (composer's favorite)
+ati.fnt - ATI Rage XL ROM font (found in many ATI cards)
+ega*.fnt - from EGA.CPI
+gotik.fnt - some floppy stuff from 1994
+ital.fnt - some floppy stuff from 1994
+mu0.fnt - from the SUSE "kbd" package
+nvidia.fnt - NVIDIA GF2MX400 ROM font (found in many Nvidia cards)
+rhx.fnt - from the SUSE "kbd" package, with alterations
+roman-1.fnt - from FreeDOS
+tosh.fnt - CrystalLogic CS55554 ROM font (found in Toshiba CS220 laptop)
+vmware.fnt - VMware VGA ROM font
