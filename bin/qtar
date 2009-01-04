@@ -22,7 +22,7 @@ sub main
 		"x"   => sub { push(@excludes, qr{(?:^|/)\.(?:git|svn)(?:/|$)}); },
 		"svn" => sub { $strategy = "by_basename";  }, # lame alias I agree
 		"ext" => sub { $strategy = "by_extension"; },
-		"use" => sub { $packer = $_[1]; },
+		"use=s" => sub { $packer = $_[1]; },
 	);
 
 	if (scalar(@ARGV) == 0) {
