@@ -53,7 +53,7 @@ struct work_info {
 	char *output_dir;
 	unsigned long long start_inode, max_inodes, truncate_threshold;
 	size_t size_cutoff;
-	bool dry_run;
+	unsigned int dry_run;
 
 	/* generated */
 	unsigned long long stop_inode, icount;
