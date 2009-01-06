@@ -61,7 +61,6 @@ struct work_info {
 	char *buffer;
 	unsigned int buffer_size, inode_size;
 	int xdb_read, xdb_write, blkfd;
-	pid_t xdb_pid;
 	time_t stat_timestamp;
 	unsigned int stat_recovered;
 	unsigned long long stat_lastnode;
