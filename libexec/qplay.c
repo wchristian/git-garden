@@ -357,7 +357,7 @@ static unsigned int parse_arg_x(const char *origptr)
 	while (HX_isspace(*ptr))
 		++ptr;
 	var_begin = ptr;
-	while (!HX_isspace(*ptr) && *ptr != ')')
+	while (!HX_isspace(*ptr) && *ptr != '\0' && *ptr != ')')
 		var_end = ++ptr;
 	while (HX_isspace(*ptr))
 		++ptr;
@@ -439,7 +439,7 @@ static void parse_var(FILE *fp, char *line)
 	hxmc_t *ws = HXmc_strinit(line);
 	char *key = ws + 1, *val = key;
 
-	while (!HX_isspace(*val))
+	while (!HX_isspace(*val) && *val != '\0')
 		++val;
 	*val++ = '\0';
 	while (HX_isspace(*val))

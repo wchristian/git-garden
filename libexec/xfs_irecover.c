@@ -237,7 +237,7 @@ static struct extent_info *ir_extent_list(struct work_info *wi,
 		return NULL;
 
 	wp = lines[i];
-	while (!HX_isspace(*wp))
+	while (!HX_isspace(*wp) && *wp != '\0')
 		++wp;
 	while (HX_isspace(*wp))
 		++wp;
@@ -412,7 +412,7 @@ static bool ir_get_devinfo(struct work_info *work_info)
 		const char *key = lines[i];
 		char *value = lines[i];
 
-		while (!HX_isspace(*value))
+		while (!HX_isspace(*value) && *value != '\0')
 			++value;
 		*value++ = '\0';
 		while (HX_isspace(*value))

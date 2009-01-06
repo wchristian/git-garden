@@ -123,7 +123,7 @@ static bool ofl_pmap(const char *mnt, const char *map_file,
 		HX_chomp(line);
 		p = line;
 		for (i = 0; i < 5; ++i) {
-			while (!HX_isspace(*p))
+			while (!HX_isspace(*p) && *p != '\0')
 				++p;
 			while (HX_isspace(*p))
 				++p;
