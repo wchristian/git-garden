@@ -187,7 +187,7 @@ sub header
 	print "<head>\n";
 	print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
 	print "<title>", ehtml($name), "(", ehtml($section), ") - ", ehtml($title), "</title>\n";
-	print <<EOF
+	print <<EOF;
 <style type="text/css">
 h1 { font-size: 100%; margin-top: 2em; margin-bottom: 0; }
 h2 { font-size: 100%; margin-left: 4ex; margin-top: 2em; margin-bottom: 0; }
@@ -201,5 +201,12 @@ p { margin-top: 1ex; margin-bottom: 1ex; }
 </head>
 
 <body>
+
+<table width="98%">
+	<tr>
 EOF
+	print "\t\t<td>", ehtml($name), "(", ehtml($section), ")</td>\n";
+	print "\t\t<td align=\"center\">", ehtml($author), "</td>\n\n";
+	print "\t\t<td>", ehtml($name), "(", ehtml($section), ")</td>\n\n";
+	print "\t\t</tr>\n</table>\n\n";
 }
