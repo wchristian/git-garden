@@ -10,7 +10,9 @@ for i in `git rev-list --reverse "$@"`; do
 	# that we want to make git-log behave as if it was not outputting
 	# to a terminal.
 	git log -1 --abbrev-commit --pretty=oneline "$i" | cat;
-	git log -1 --pretty=raw "$i" | grep ^parent | head -n1 >"$f";
+	p=$(git log -1 --pretty=raw "$i" | grep ^parent | head -n1);
+	echo "$p ("$(git describe "$i^" 2>/dev/null)")" >"$f";
 	git log -1 -C -M -p --stat=72 --summary "$i" | \
 	perl -lpe '$s=1 if/^---/;s/^ +// if!$s' >>"$f";
+	echo -en "-- \n# Created with git-export-patch\n" >>"$f";
 done;
