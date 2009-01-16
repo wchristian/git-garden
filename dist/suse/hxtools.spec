@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20090103
+Version:	20090116
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
@@ -9,7 +9,7 @@ Summary:	Collection of day-to-day tools
 Source:		%name-%version.tar.bz2
 License:	GPL,PD
 # freetype2, xorg-x11 for "bdftopcf"
-BuildRequires:	libHX-devel >= 2.0, freetype2, libcap-devel
+BuildRequires:	libHX-devel >= 2.2, freetype2, libcap-devel
 BuildRequires:	xorg-x11, pkg-config
 BuildRoot:	%_tmppath/%name-%version-build
 Recommends:	hxtools-noarch = %version
@@ -27,7 +27,6 @@ Obsoletes:	hxtools-data
 %description noarch
 Architecture-indepent data for hxtools.
 
-%debug_package
 %prep
 %setup
 
