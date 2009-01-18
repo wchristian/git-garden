@@ -51,6 +51,7 @@ sub do_cpuinfo
 	if ($cpu_model eq "") {
 		$cpu_model = "$cpu_vendor $cpu_arch";
 	}
+	$cpu_model =~ s/^\s*(?:dual|quad)(?:\s+core)?\s*//i;
 	print " | ";
 	if ($cpu_num > 1) {
 		print "${cpu_num}x ";
