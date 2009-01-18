@@ -72,9 +72,11 @@ sub do_cpuinfo
 		close IN;
 	}
 
-	print "$cpu_model $cpu_mhz";
+	print "$cpu_model ";
 	if ($cpu_max_mhz != 0) {
-		print "/$cpu_max_mhz";
+		print "\@$cpu_mhz/$cpu_max_mhz";
+	} else {
+		print $cpu_mhz;
 	}
 	print " MHz";
 }
