@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
-x11fonts     = ahnv.pcf.gz ahnv_b.pcf.gz rhx.pcf.gz rhx_b.pcf.gz \
-               tosh.pcf.gz tosh_b.pcf.gz
+x11fonts     = ahnv.pcf.gz ahnv_b.pcf.gz mux.pcf.gz mux_b.pcf.gz \
+               rhx.pcf.gz rhx_b.pcf.gz tosh.pcf.gz tosh_b.pcf.gz
 x11miscdir   = ${x11fontdir}/misc
 x11misc_DATA = ${x11fonts}
 CLEANFILES   = ${x11fonts}
@@ -12,7 +12,8 @@ qwerty_DATA  = us_ccj.map us_ccj_sonyvaiou3.map
 qwertzdir    = ${keymapdir}/i386/qwertz
 qwertz_DATA  = de_ccj.map
 
-vgafont_DATA = ahnv.fnt ati.fnt gotik-textura.fnt ital.fnt neuropol.fnt nvidia.fnt \
+vgafont_DATA = ahnv.fnt ati.fnt gotik-textura.fnt ital.fnt mux.fnt \
+               neuropol.fnt nvidia.fnt \
                rhx.fnt tosh.fnt verdana.fnt vmware.fnt \
                ega437_8x16.fnt ega437_8x14.fnt ega437_8x8.fnt
 
