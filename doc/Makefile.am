@@ -51,4 +51,5 @@ man_MANS = \
 	vfontas.1 \
 	wavdiff.1 \
 	wktimer.1 \
-	xcp.1
+	xcp.1 \
+	xfs_irecover.8
