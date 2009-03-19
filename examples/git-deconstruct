@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+#
+#	reverses the entire git history, producing new commits
+#
+
+use IPC::Open2;
+use strict;
+
+my $rev_array = [];
+my $rev_ptr   = {};
+my $rev_new   = {};
+if (!open(FH, "git log '--pretty=format:%H %P' |")) {
+	die();
+}
+while (defined(my $line = <FH>)) {
+	chomp($line);
+	my($commit, @parents) = split(/\s+/, $line);
+
+	push(@$rev_array, $commit);
+	if (!exists($rev_ptr->{$commit})) {
+		$rev_ptr->{$commit} = [];
+	}
+
+	foreach my $p (@parents) {
+		my $q;
+
+		if (!exists($rev_ptr->{$p})) {
+			$q = [];
+			$rev_ptr->{$p} = $q;
+		} else {
+			$q = $rev_ptr->{$p};
+		}
+		push(@$q, $commit);
+	}
+}
+close FH;
+
+sub split_commit
+{
+	my($author_name, $author_email, $author_date);
+	my($cmit_name, $cmit_email, $cmit_date);
+
+	while (defined(my $line = shift @_)) {
+		chomp $line;
+		my($type) = ($line =~ /^(\w+)/);
+
+		if ($type eq "author") {
+			($author_name, $author_email, $author_date) =
+				($line =~ /^author (.*) <(.*?)> (.*)/);
+		} elsif ($type eq "committer") {
+			($cmit_name, $cmit_email, $cmit_date) =
+				($line =~ /^committer (.*) <(.*?)> (.*)/);
+		} elsif (!defined($type)) {
+			last;
+		}
+	}
+
+	return ($author_name, $author_email, $author_date,
+		$cmit_name, $cmit_email, $cmit_date, join("", @_));
+}
+
+foreach my $commit (@$rev_array) {
+	my($an, $ae, $ad, $cn, $ce, $cd, $log) =
+		split_commit(`git cat-file commit $commit`);
+
+	my @cmd = ("git", "commit-tree", "$commit^{tree}");
+	foreach my $parent (@{$rev_ptr->{$commit}}) {
+		push(@cmd, "-p", $rev_new->{$parent});
+	}
+
+#	print "GIT_AUTHOR_NAME=\"$an\" GIT_AUTHOR_DATE=\"$ad\" ";
+#	print "GIT_AUTHOR_EMAIL=\"$ae\" ";
+#	print "GIT_COMMITER_NAME=\"$cn\" ";
+#	print "GIT_COMMITTER_EMAIL=\"$ce\" CIT_COMMITTER_DATE=\"$cd\" ";
+	print join(" ", @cmd), "\n";
+	my($k_out, $k_in);
+	$ENV{GIT_AUTHOR_NAME}     = $an;
+	$ENV{GIT_AUTHOR_EMAIL}    = $ae;
+	$ENV{GIT_AUTHOR_DATE}     = $ad;
+	$ENV{GIT_COMMITTER_NAME}  = $cn;
+	$ENV{GIT_COMMITTER_EMAIL} = $ce;
+	$ENV{GIT_COMMITTER_DATE}  = $cd;
+	my $pid = open2($k_in, $k_out, @cmd);
+	print $k_out $log;
+	close $k_out;
+	chomp(my $new_commit = <$k_in>);
+	close $k_in;
+	waitpid($pid, 0);
+	$rev_new->{$commit} = $new_commit;
+	print "Created $new_commit\n";
+}
