@@ -1,0 +1,12 @@
+#!/bin/bash
+
+fdupes -n -r -- "$@" | \
+while read file; do
+	if [[ -z "$target" ]]; then
+		target="$file";
+	elif [[ -z "$file" ]]; then
+		target="";
+	else
+		ln -f "$target" "$file";
+	fi;
+done;

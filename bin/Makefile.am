@@ -4,7 +4,8 @@ AM_CFLAGS        = ${regular_CFLAGS} ${libHX_CFLAGS}
 CLEANFILES       = omixer orec
 
 bin_PROGRAMS     = declone htruncate newns ofl oplay tailhex
-bin_SCRIPTS      = checkbrack cwdiff fxterm git-author-stat git-export-patch \
+bin_SCRIPTS      = checkbrack cwdiff fduphl \
+                   fxterm git-author-stat git-export-patch \
                    git-forest git-lemon git-track man2html mpl \
                    omixer orec pesubst pmap_dirty qtar recursive_lower \
                    sysinfo wktimer

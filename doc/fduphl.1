@@ -1,0 +1,11 @@
+.TH fduphl 1 "2009\-03\-05" "hxtools" "hxtools"
+.SH Name
+.PP
+fduphl - find duplicates files and hardlink them together
+.SH Syntax
+.PP
+\fBfduphl\fP \fIdirs\fP...
+.SH Description
+.PP
+Calls fdupes(1) to find duplicate files and combines them into a single inode
+to save on disk space. The reverse operation can be done using declone(1).
