@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+use strict;
+my %authors;
+my $total;
+my $files;
+my $rev = shift(@ARGV) || "HEAD";
+
+foreach my $file (`git ls-tree --name-only -r $rev`) {
+	chomp($file);
+	print STDERR "Processing $file\n";
+	foreach my $line (`git blame $rev -- "$file"`) {
+		chomp($line);
+		$line =~ s[^.*?\((.*?)\s*\d{4}-\d{2}-\d{2}.*][$1];
+		++$authors{$line};
+		++$total;
+	}
+}
+
+print "Total lines: $total\n";
+foreach my $author (sort { $authors{$b} <=> $authors{$a} } keys %authors) {
+	printf "%12u  %5.2f%%  %s\n",
+	       $authors{$author},
+	       $authors{$author} * 100 / $total,
+	       $author;
+}
