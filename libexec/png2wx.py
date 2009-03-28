@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #
 #	png2wx - embed png in C++
 #	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
