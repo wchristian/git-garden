@@ -8,7 +8,7 @@ bin_SCRIPTS      = checkbrack cwdiff fduphl \
                    fxterm git-author-stat git-export-patch \
                    git-forest git-lemon git-track man2html mpl \
                    omixer orec pesubst pmap_dirty qtar recursive_lower \
-                   sysinfo wktimer
+                   su1 sysinfo wktimer
 ofl_LDADD        = ${libHX_LIBS}
 oplay_LDADD      = ${libHX_LIBS}
 tailhex_LDADD    = ${libHX_LIBS}
