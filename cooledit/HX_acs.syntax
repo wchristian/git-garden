@@ -1,32 +1,56 @@
 # -*- cooleditsyntax -*-
 
+# Syntax for ZDoom ACS scripts
+
 context default
+	keyword whole DEATH white
+	keyword whole DISCONNECT white
 	keyword whole ENTER white
+	keyword whole LIGHTNING white
+	keyword whole NET white
 	keyword whole OPEN white
+	keyword whole RESPAWN white
+	keyword whole RETURN white
+	keyword whole UNLOADING white
+	keyword whole bool white
 	keyword whole break white
 	keyword whole case white
 	keyword whole const white
 	keyword whole continue white
 	keyword whole default white
+	keyword whole disconnect white
 	keyword whole do white
 	keyword whole else white
 	keyword whole enter white
 	keyword whole fixed white
+	keyword whole for white
 	keyword whole function white
+	keyword whole global white
 	keyword whole goto white
 	keyword whole if white
 	keyword whole int white
+	keyword whole net white
 	keyword whole open white
 	keyword whole restart white
+	keyword whole respawn white
+	keyword whole return white
 	keyword whole script white
+	keyword whole special white
+	keyword whole static white
 	keyword whole str white
 	keyword whole suspend white
 	keyword whole switch white
 	keyword whole terminate white
+	keyword whole unloading white
 	keyword whole until white
 	keyword whole void white
 	keyword whole while white
 	keyword whole world white
+
+	keyword whole pickup white
+	keyword whole bluereturn white
+	keyword whole redreturn white
+	keyword whole whitereturn white
 
 	keyword /\* yellow
 	keyword \*/ yellow
@@ -67,6 +91,15 @@ context exclusive /\* \*/ yellow
 
 context linestart # \n brightred
 	spellcheck
+	keyword define white
+	keyword encryptstrings white
+	keyword import white
+	keyword include white
+	keyword libdefine white
+	keyword library white
+	keyword nocompat white
+	keyword nowadauthor white
+	keyword wadauthor white
 	keyword \\\n yellow
 	keyword /\**\*/ yellow
 	keyword //*\n yellow
