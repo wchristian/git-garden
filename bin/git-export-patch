@@ -1,5 +1,15 @@
 #!/bin/bash
 
+if [[ "$1" == "--tsvn" ]]; then
+	shift;
+	tsvn=1;
+
+	# So arcane...
+	rev=$(git log $(git rev-list --reverse "$@" | head -n1) |
+	      grep "git-svn-id:" | head -n1 | grep -Po '(?<=\@)\d+');
+	echo "On SVN r$rev";
+fi;
+
 j=0;
 for i in `git rev-list --reverse "$@"`; do
 	let ++j;
@@ -14,5 +24,14 @@ for i in `git rev-list --reverse "$@"`; do
 	echo "$p ("$(git describe "$i^" 2>/dev/null)")" >"$f";
 	git log -1 -C -M -p --stat=72 --summary "$i" | \
 	perl -lpe '$s=1 if/^---/;s/^ {4}// if!$s' >>"$f";
-	echo -en "-- \n# Created with git-export-patch\n" >>"$f";
+	if [[ -z "$tsvn" ]]; then
+		echo -en "-- \n# Created with git-export-patch\n" >>"$f";
+	else
+		echo -en "-- \n# Created with git-export-tsvn-patch\n" >>"$f";
+
+		pesubst -s '^(--- \S+)' -d '$1\t(revision '"$rev"')' -mm "$f";
+		# Convert to p0
+		pesubst -s '^--- a/(.*)' -d '--- $1' -mm "$f";
+		pesubst -s '^\+\+\+ b/(.*)' -d '+++ $1' -mm "$f";
+	fi;
 done;
