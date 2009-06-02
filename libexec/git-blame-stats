@@ -11,8 +11,12 @@ foreach my $file (`git ls-tree --name-only -r $rev`) {
 	print STDERR "Processing $file\n";
 	foreach my $line (`git blame $rev -- "$file"`) {
 		chomp($line);
-		$line =~ s[^.*?\((.*?)\s*\d{4}-\d{2}-\d{2}.*][$1];
-		++$authors{$line};
+		if (substr($line, 0, 1) eq "^") {
+			++$authors{"*initial checkin"};
+		} else {
+			$line =~ s[^.*?\((.*?)\s*\d{4}-\d{2}-\d{2}.*][$1];
+			++$authors{$line};
+		}
 		++$total;
 	}
 }
