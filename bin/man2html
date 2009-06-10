@@ -14,6 +14,7 @@ use strict;
 
 my $csv = Text::CSV_XS->new({eol => $/, sep_char => ' '});
 my $mode = 0;
+my @index;
 
 while (<>) {
 	chomp($_);
@@ -25,10 +26,14 @@ while (<>) {
 		header($_);
 	} elsif ($cmd eq ".SH") {
 		p_end();
-		print "<h1>", ehtml(substr($_, 4)), "</h1>\n\n";
+		push(@index, [1, substr($_, 4)]);
+		print "<h1><a name=\"", $#index, "\"></a>",
+		      ehtml(substr($_, 4)), "</h1>\n\n";
 	} elsif ($cmd eq ".SS") {
 		p_end();
-		print "<h2>", ehtml(substr($_, 4)), "</h2>\n\n";
+		push(@index, [2, substr($_, 4)]);
+		print "<h2><a name=\"", $#index, "\"></a>",
+		      ehtml(substr($_, 4)), "</h2>\n\n";
 	} elsif ($cmd eq ".br") {
 		print "<br />\n";
 	} elsif ($_ eq ".B") {
@@ -89,6 +94,25 @@ while (<>) {
 }
 
 p_end();
+
+if (scalar(@index) > 0) {
+	my $level = 0;
+	print "<h1>Index</h1>\n\n";
+	for (my $idx = 0; $idx <= $#index; ++$idx) {
+		my $entry = $index[$idx];
+		if ($level < $entry->[0]) {
+			print "<ol>\n";
+			++$level;
+		} elsif ($level > $entry->[0]) {
+			print "</ol>\n";
+			--$level;
+		}
+		print "<li><a href=\"#$idx\">", ehtml($entry->[1]),
+		      "</a></li>";
+	}
+	print "</ol>\n";
+}
+
 print "</body>\n";
 print "</html>\n";
 
