@@ -3,7 +3,7 @@
 AM_CFLAGS = ${regular_CFLAGS} ${libHX_CFLAGS}
 
 libexec_PROGRAMS = bsvplay fd0ssh graph-fanout graph-lchain longjumpcd \
-	testdl qplay testdl utmp_register wavdiff vfontas xcp \
+	qplay testdl utmp_register wavdiff vfontas xcp \
 	xfs_irecover
 if HAVE_LIBCAP
 libexec_PROGRAMS += printcaps
