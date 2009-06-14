@@ -4,13 +4,19 @@
 checkbrack - check parenthesis and bracket count
 .SH Syntax
 .PP
-\fBcheckbrack\fP \fIfile\fP...
+\fBcheckbrack\fP [\fB\-p\fP] \fIfile\fP...
 .SH Description
 .PP
 Displays each line of the file(s), together with their open bracket count
 that is reached at the end of line. Particularly, it allows you to find missing
 closing brackets. This is especially helpful because the Perl interpreter for
 example has problems telling you where exactly something went wrong.
+.SH Options
+.PP
+.TP
+\fB\-p\fP
+Enable Perl/PHP mode, that is, do not consider presence $(, $), $[ and $] of a
+bracket imbalance.
 .SH Example
 .PP
 .nf

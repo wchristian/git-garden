@@ -6,7 +6,12 @@
 #	released in the Public Domain
 #
 
+use Getopt::Long;
 use strict;
+my $perl;
+
+&Getopt::Long::Configure(qw(bundling));
+&GetOptions("p" => \$perl_mode);
 
 foreach my $file (@ARGV) {
 	if (!-f $file) {
@@ -20,10 +25,18 @@ foreach my $file (@ARGV) {
 	while (defined(my $line = <IN>)) {
 		++$num;
 		chomp($line);
-		my @p11 = ($line =~ /((?<!\$)\()/g);
-		my @p12 = ($line =~ /((?<!\$)\))/g);
-		my @p21 = ($line =~ /((?<!\$)\[)/g);
-		my @p22 = ($line =~ /((?<!\$)\])/g);
+		my(@p11, @p12, @p21, @p22);
+		if ($perl) {
+			@p11 = ($line =~ /((?<!\$)\()/g);
+			@p12 = ($line =~ /((?<!\$)\))/g);
+			@p21 = ($line =~ /((?<!\$)\[)/g);
+			@p22 = ($line =~ /((?<!\$)\])/g);
+		} else {
+			@p11 = ($line =~ /(\()/g);
+			@p12 = ($line =~ /(\))/g);
+			@p21 = ($line =~ /(\[)/g);
+			@p22 = ($line =~ /(\])/g);
+		}
 		my @p31 = ($line =~ /(\{)/g);
 		my @p32 = ($line =~ /(\})/g);
 		$p1 += scalar @p11; $p1 -= scalar @p12;
