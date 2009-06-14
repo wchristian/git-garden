@@ -2,7 +2,8 @@
 
 AM_CFLAGS = ${regular_CFLAGS} ${libHX_CFLAGS}
 
-libexec_PROGRAMS = bsvplay fd0ssh graph-fanout graph-lchain longjumpcd \
+libexec_PROGRAMS = bsvplay cctypeinfo fd0ssh graph-fanout \
+	graph-lchain longjumpcd \
 	qplay testdl utmp_register wavdiff vfontas xcp \
 	xfs_irecover
 if HAVE_LIBCAP

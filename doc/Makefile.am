@@ -2,6 +2,7 @@
 
 man_MANS = \
 	bsvplay.1 \
+	cctypeinfo.1 \
 	checkbrack.1 \
 	cwdiff.1 \
 	declone.1 \
