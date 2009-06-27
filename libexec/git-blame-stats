@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 
+use Getopt::Long;
 use strict;
+Getopt::Long::Configure(qw(bundling));
 my %authors;
 my $total;
 my $files;
@@ -9,7 +11,7 @@ my $rev = shift(@ARGV) || "HEAD";
 foreach my $file (`git ls-tree --name-only -r $rev`) {
 	chomp($file);
 	print STDERR "Processing $file\n";
-	foreach my $line (`git blame $rev -- "$file"`) {
+	foreach my $line (`git blame -M -w $rev -- "$file"`) {
 		chomp($line);
 		if (substr($line, 0, 1) eq "^") {
 			++$authors{"*initial checkin"};
