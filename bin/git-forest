@@ -170,7 +170,7 @@ sub get_refs
 			my($curr) = (<$act_fh> =~ /^\S+\s+(\S+)/);
 			$curr = $Repo->command("rev-parse", $curr);
 			chomp $curr;
-			unshift(@{$ret->{$curr}}, "rebase/cn");
+			unshift(@{$ret->{$curr}}, "rebase/next");
 			close $act_fh;
 		}
 
