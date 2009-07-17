@@ -18,7 +18,7 @@ my $Use_du_style;
 &Getopt::Long::Configure(qw(bundling));
 &GetOptions("s" => \$Use_du_style);
 
-my $total_private_dirty = 0;
+my %total_counter;
 
 if (scalar(@ARGV) == 0) {
 	@ARGV = sort { $a <=> $b } map {
@@ -32,13 +32,15 @@ foreach my $pid (@ARGV) {
 	my $fh;
 	open($fh, "< /proc/$pid/smaps");
 
-	my $private_dirty = 0;
+	my %counter = (
+		Private_Dirty => 0,
+		Referenced => 0,
+	);
 	my $shared_dirty = 0;
 	while (defined(my $line = <$fh>)) {
-		if ($line =~ /^Private_Dirty:\s+(\d+)/i) {
-			$private_dirty += $1;
-		} elsif ($line =~ /^Shared_Dirty:\s+(\d+)/i) {
-			$shared_dirty += $1;
+		if ($line =~ /^(\w+):\s+(\d+)/i) {
+			$counter{$1} += $2;
+			$total_counter{$1} += $2;
 		}
 	}
 
@@ -48,30 +50,22 @@ foreach my $pid (@ARGV) {
 		close $fh;
 	}
 
-	&print_one("$pid($proc_name)", $private_dirty, $shared_dirty);
-	$total_private_dirty += $private_dirty;
+	&print_one("$pid($proc_name)", \%counter);
 }
 
-&print_one("Total", $total_private_dirty);
+&print_one("Total", \%total_counter);
 
 sub print_one
 {
-	my($text, $private_size, $shared_size) = @_;
+	my($text, $counter) = @_;
 
-	if (defined($shared_size)) {
-		$private_size .= "K";
-		$shared_size  .= "K";
-		if ($Use_du_style) {
-			printf "%-10s\t%s (shared: %s)\n", $private_size, $text, $shared_size;
-		} else {
-			print "$text: $private_size ($shared_size)\n";
-		}
+	my $pd = $counter->{Private_Dirty}."K";
+	my $re = $counter->{Referenced}."K";
+
+	# Pv_Dirty   Referenced
+	if ($Use_du_style) {
+		printf "%-10s  %-10s  %s\n", $pd, $re, $text;
 	} else {
-		$private_size .= "K";
-		if ($Use_du_style) {
-			printf "%-10s\t%s\n", $private_size, $text;
-		} else {
-			print "$text: $private_size\n";
-		}
+		printf "$text: $pd (ref $re)\n";
 	}
 }
