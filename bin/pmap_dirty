@@ -27,6 +27,8 @@ if (scalar(@ARGV) == 0) {
 	} glob("/proc/*");
 }
 
+&print_one();
+
 foreach my $pid (@ARGV) {
 	my $proc_name;
 	my $fh;
@@ -58,6 +60,13 @@ foreach my $pid (@ARGV) {
 sub print_one
 {
 	my($text, $counter) = @_;
+
+	if (!defined($counter)) {
+		if (!$Use_pid_sort) {
+			printf "%-10s  %-10s  %s\n", "PRIV_DIRT", "REFERENCD", "PROCESS";
+		}
+		return;
+	}
 
 	my $pd = $counter->{Private_Dirty}."K";
 	my $re = $counter->{Referenced}."K";
