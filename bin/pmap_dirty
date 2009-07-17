@@ -18,7 +18,7 @@ my $Use_du_style;
 &Getopt::Long::Configure(qw(bundling));
 &GetOptions("s" => \$Use_du_style);
 
-my $total_dirty = 0;
+my $total_private_dirty = 0;
 
 if (scalar(@ARGV) == 0) {
 	@ARGV = sort { $a <=> $b } map {
@@ -30,16 +30,16 @@ if (scalar(@ARGV) == 0) {
 foreach my $pid (@ARGV) {
 	my $proc_name;
 	my $fh;
-	open($fh, "pmap $pid |");
-	<$fh>;
-	<$fh>;
+	open($fh, "< /proc/$pid/smaps");
 
-	my $proc_dirty = 0;
-	while (my($start, $size, $rss, $dirty) = split(/\s+/, <$fh>)) {
-		if (substr($start, 0, 6) eq "Total:") {
-			last;
+	my $private_dirty = 0;
+	my $shared_dirty = 0;
+	while (defined(my $line = <$fh>)) {
+		if ($line =~ /^Private_Dirty:\s+(\d+)/i) {
+			$private_dirty += $1;
+		} elsif ($line =~ /^Shared_Dirty:\s+(\d+)/i) {
+			$shared_dirty += $1;
 		}
-		$proc_dirty += ($dirty =~ /(\d+)/)[0];
 	}
 
 	close $fh;
@@ -48,19 +48,30 @@ foreach my $pid (@ARGV) {
 		close $fh;
 	}
 
-	&print_one("$pid($proc_name)", $proc_dirty);
-	$total_dirty += $proc_dirty;
+	&print_one("$pid($proc_name)", $private_dirty, $shared_dirty);
+	$total_private_dirty += $private_dirty;
 }
 
-&print_one("Total", $total_dirty);
+&print_one("Total", $total_private_dirty);
 
 sub print_one
 {
-	my($text, $size) = @_;
-	$size .= "K";
-	if ($Use_du_style) {
-		printf "%-10s\t%s\n", $size, $text;
+	my($text, $private_size, $shared_size) = @_;
+
+	if (defined($shared_size)) {
+		$private_size .= "K";
+		$shared_size  .= "K";
+		if ($Use_du_style) {
+			printf "%-10s\t%s (shared: %s)", $private_size, $text, $shared_size;
+		} else {
+			print "$text: $private_size ($shared_size)\n";
+		}
 	} else {
-		print $text, ": ", $size, "\n";
+		$private_size .= "K";
+		if ($Use_du_style) {
+			printf "%-10s\t%s", $private_size, $text;
+		} else {
+			print "$text: $private_size\n";
+		}
 	}
 }
