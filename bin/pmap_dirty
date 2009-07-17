@@ -14,9 +14,9 @@
 use Getopt::Long;
 use strict;
 
-my $Use_du_style;
+my $Use_pid_sort;
 &Getopt::Long::Configure(qw(bundling));
-&GetOptions("s" => \$Use_du_style);
+&GetOptions("p" => \$Use_pid_sort);
 
 my %total_counter;
 
@@ -63,9 +63,9 @@ sub print_one
 	my $re = $counter->{Referenced}."K";
 
 	# Pv_Dirty   Referenced
-	if ($Use_du_style) {
-		printf "%-10s  %-10s  %s\n", $pd, $re, $text;
-	} else {
+	if ($Use_pid_sort) {
 		printf "$text: $pd (ref $re)\n";
+	} else {
+		printf "%-10s  %-10s  %s\n", $pd, $re, $text;
 	}
 }
