@@ -14,10 +14,9 @@
 use Getopt::Long;
 use strict;
 
-my $Use_bytes;
 my $Use_du_style;
 &Getopt::Long::Configure(qw(bundling));
-&GetOptions("b" => \$Use_bytes, "s" => \$Use_du_style);
+&GetOptions("s" => \$Use_du_style);
 
 my $total_dirty = 0;
 
@@ -58,11 +57,7 @@ foreach my $pid (@ARGV) {
 sub print_one
 {
 	my($text, $size) = @_;
-	if ($Use_bytes) {
-		$size *= 1024;
-	} else {
-		$size .= "K";
-	}
+	$size .= "K";
 	if ($Use_du_style) {
 		printf "%-10s\t%s\n", $size, $text;
 	} else {
