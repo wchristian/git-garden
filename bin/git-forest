@@ -162,11 +162,11 @@ sub get_refs
 
 	$Repo->command_close_pipe($fh, $c);
 
-	my $rebase = -e $Repo->repo_path()."/.dotest-merge/git-rebase-todo" &&
+	my $rebase = -e $Repo->repo_path()."/rebase-merge/git-rebase-todo" &&
 	             $Show_rebase;
 	if ($rebase) {
 		if (open(my $act_fh, $Repo->repo_path().
-		    "/.dotest-merge/git-rebase-todo")) {
+		    "/rebase-merge/git-rebase-todo")) {
 			my($curr) = (<$act_fh> =~ /^\S+\s+(\S+)/);
 			$curr = $Repo->command("rev-parse", $curr);
 			chomp $curr;
@@ -174,10 +174,10 @@ sub get_refs
 			close $act_fh;
 		}
 
-		chomp(my $up   = $Repo->command("rev-parse", ".dotest-merge/upstream"));
-		chomp(my $onto = $Repo->command("rev-parse", ".dotest-merge/onto"));
-		chomp(my $old  = $Repo->command("rev-parse", ".dotest-merge/head"));
-		unshift(@{$ret->{$up}}, "rebase/upstream");
+#		chomp(my $up   = $Repo->command("rev-parse", "rebase-merge/upstream"));
+		chomp(my $onto = $Repo->command("rev-parse", "rebase-merge/onto"));
+		chomp(my $old  = $Repo->command("rev-parse", "rebase-merge/head"));
+#		unshift(@{$ret->{$up}}, "rebase/upstream");
 		unshift(@{$ret->{$onto}}, "rebase/onto");
 		unshift(@{$ret->{$old}}, "rebase/saved-HEAD");
 	}
