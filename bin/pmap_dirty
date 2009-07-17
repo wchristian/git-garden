@@ -62,14 +62,14 @@ sub print_one
 		$private_size .= "K";
 		$shared_size  .= "K";
 		if ($Use_du_style) {
-			printf "%-10s\t%s (shared: %s)", $private_size, $text, $shared_size;
+			printf "%-10s\t%s (shared: %s)\n", $private_size, $text, $shared_size;
 		} else {
 			print "$text: $private_size ($shared_size)\n";
 		}
 	} else {
 		$private_size .= "K";
 		if ($Use_du_style) {
-			printf "%-10s\t%s", $private_size, $text;
+			printf "%-10s\t%s\n", $private_size, $text;
 		} else {
 			print "$text: $private_size\n";
 		}
