@@ -21,6 +21,7 @@ struct pcspkr {
 };
 
 extern void pcspkr_output(const struct pcspkr *, long, long, long);
+extern void pcspkr_silence(const struct pcspkr *, long);
 
 #ifdef __cplusplus
 } /* extern "C" */

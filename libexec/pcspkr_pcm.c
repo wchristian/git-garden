@@ -86,3 +86,23 @@ void pcspkr_output(const struct pcspkr *pcsp, long frequency,
 			break;
 	}
 }
+
+void pcspkr_silence(const struct pcspkr *pcsp, long duration)
+{
+	static const uint16_t value_16 = 0;
+	static const uint8_t value_8 = 0;
+	long sample;
+
+	switch (pcsp->format) {
+		case PCSPKR_8:
+			for (sample = 0; sample < duration; ++sample)
+				fwrite(&value_8, sizeof(value_8),
+				       1, pcsp->file_ptr);
+			break;
+		case PCSPKR_16:
+			for (sample = 0; sample < duration; ++sample)
+				fwrite(&value_16, sizeof(value_16),
+				       1, pcsp->file_ptr);
+			break;
+	}
+}

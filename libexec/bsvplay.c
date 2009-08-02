@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +29,8 @@ static struct pcspkr pcsp = {
 	.prop_square = 1,
 	.prop_sine   = 1,
 };
+
+static unsigned int filter_lo = 0, filter_hi = ~0U;
 
 static void parse_file(const char *file)
 {
@@ -49,9 +52,13 @@ static void parse_file(const char *file)
 	    sizeof(struct bsv_insn))
 	{
 		long frequency = 0x1234DD / tone.divisor;
+		bool silenced;
 
-		fprintf(stderr, "(%5u) %5hu %5ld %5hu %5hu\n",
-			++count, tone.divisor, frequency, tone.duration,
+		silenced = frequency < filter_lo || frequency > filter_hi;
+
+		fprintf(stderr, "(%5u) %5hu %5ld%c %5hu %5hu\n",
+			++count, tone.divisor, frequency,
+			silenced ? '*' : ' ', tone.duration,
 		        tone.af_pause);
 		/*
 		 * It seems that in the sample BSV executables from 1989
@@ -63,9 +70,13 @@ static void parse_file(const char *file)
 		 * willtell.exe: 225350 / 206 = 1093
 		 */
 		ticks += tone.duration + tone.af_pause;
-		pcspkr_output(&pcsp, frequency,
-		              tone.duration * pcsp.sample_rate / 1086,
-		              tone.af_pause * pcsp.sample_rate / 1086);
+		if (silenced)
+			pcspkr_silence(&pcsp, (tone.duration + tone.af_pause) *
+				pcsp.sample_rate / 1086);
+		else
+			pcspkr_output(&pcsp, frequency,
+			              tone.duration * pcsp.sample_rate / 1086,
+			              tone.af_pause * pcsp.sample_rate / 1086);
 	}
 
 	fprintf(stderr, "Total ticks: %u\n", ticks);
@@ -74,6 +85,10 @@ static void parse_file(const char *file)
 int main(int argc, const char **argv)
 {
 	static const struct HXoption options_table[] = {
+		{.sh = 'H', .type = HXTYPE_UINT, .ptr = &filter_hi,
+		 .help = "High frequency cutoff (low-pass filter)"},
+		{.sh = 'L', .type = HXTYPE_UINT, .ptr = &filter_lo,
+		 .help = "Low frequency cutoff (high-pass filter)"},
 		{.sh = 'i', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_sine,
 		 .help = "Proportion of sine-wave calculation mixed in"},
 		{.sh = 'q', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_square,
