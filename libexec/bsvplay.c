@@ -31,6 +31,7 @@ static struct pcspkr pcsp = {
 };
 
 static unsigned int filter_lo = 0, filter_hi = ~0U;
+static unsigned int tick_groupsize, tick_filter;
 
 static void parse_file(const char *file)
 {
@@ -54,10 +55,14 @@ static void parse_file(const char *file)
 		long frequency = 0x1234DD / tone.divisor;
 		bool silenced;
 
+		++count;
+
 		silenced = frequency < filter_lo || frequency > filter_hi;
+		if (tick_groupsize != 0)
+			silenced |= (count % tick_groupsize) != tick_filter;
 
 		fprintf(stderr, "(%5u) %5hu %5ld%c %5hu %5hu\n",
-			++count, tone.divisor, frequency,
+			count, tone.divisor, frequency,
 			silenced ? '*' : ' ', tone.duration,
 		        tone.af_pause);
 		/*
@@ -89,6 +94,10 @@ int main(int argc, const char **argv)
 		 .help = "High frequency cutoff (low-pass filter)"},
 		{.sh = 'L', .type = HXTYPE_UINT, .ptr = &filter_lo,
 		 .help = "Low frequency cutoff (high-pass filter)"},
+		{.sh = 'M', .type = HXTYPE_UINT, .ptr = &tick_groupsize,
+		 .help = "Size of a tick block"},
+		{.sh = 'T', .type = HXTYPE_UINT, .ptr = &tick_filter,
+		 .help = "Play only this tick in a tick block"},
 		{.sh = 'i', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_sine,
 		 .help = "Proportion of sine-wave calculation mixed in"},
 		{.sh = 'q', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_square,
