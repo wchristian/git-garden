@@ -32,6 +32,7 @@ static struct pcspkr pcsp = {
 
 static unsigned int filter_lo = 0, filter_hi = ~0U;
 static unsigned int tick_groupsize, tick_filter;
+static unsigned int no_zero_ticks;
 
 static void parse_file(const char *file)
 {
@@ -75,7 +76,9 @@ static void parse_file(const char *file)
 		 * willtell.exe: 225350 / 206 = 1093
 		 */
 		ticks += tone.duration + tone.af_pause;
-		if (silenced)
+		if (silenced && no_zero_ticks)
+			;
+		else if (silenced)
 			pcspkr_silence(&pcsp, (tone.duration + tone.af_pause) *
 				pcsp.sample_rate / 1086);
 		else
@@ -98,6 +101,8 @@ int main(int argc, const char **argv)
 		 .help = "Size of a tick block"},
 		{.sh = 'T', .type = HXTYPE_UINT, .ptr = &tick_filter,
 		 .help = "Play only this tick in a tick block"},
+		{.sh = 'Z', .type = HXTYPE_NONE, .ptr = &no_zero_ticks,
+		 .help = "Skip over silenced ticks"},
 		{.sh = 'i', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_sine,
 		 .help = "Proportion of sine-wave calculation mixed in"},
 		{.sh = 'q', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_square,
