@@ -35,6 +35,7 @@ ega*.fnt - from EGA.CPI
 gotik.fnt - some floppy stuff from 1994
 ital.fnt - some floppy stuff from 1994
 mu0.fnt - from the SUSE "kbd" package
+mux.fnt - An edge variant of mu(0), by me (Jan)
 nvidia.fnt - NVIDIA GF2MX400 ROM font (found in many Nvidia cards)
 rhx.fnt - from the SUSE "kbd" package, with alterations
 roman-1.fnt - from FreeDOS
