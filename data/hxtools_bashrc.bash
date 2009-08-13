@@ -73,6 +73,15 @@ function xd()
 	return $?;
 }
 
+function _complete_noop()
+{
+	return 0
+}
+
+# Use smart directory completion
+complete -o nospace -o dirnames -F _complete_noop \
+	cd chroot md mkdir pushd rd rmdir;
+
 # Allow truncation via > operator
 set +C;
 
