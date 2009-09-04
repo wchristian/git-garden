@@ -1,7 +1,7 @@
-.TH testdl 1 "2008\-02\-06" "hxtools" "hxtools"
+.TH testdl 1 "2008-02-06" "hxtools" "hxtools"
 .SH Name
 .PP
-testdl - test whether shared libraries load
+testdl \(em test whether shared libraries load
 .SH Syntax
 .PP
 \fBtestdl\fP \fIlibrary\fP...
@@ -9,5 +9,5 @@ testdl - test whether shared libraries load
 .PP
 Tries to load bare libraries and check for missing symbols.
 Note that this will not work on shared libraries that reference symbols from
-the main program that have been exported using the -rdynamic linker flag.
+the main program that have been exported using the \-rdynamic linker flag.
 (Because testdl does not load the main program.)

@@ -1,7 +1,7 @@
-.TH pesubst 1 "2008\-02\-06" "hxtools" "hxtools"
+.TH pesubst 1 "2008-02-06" "hxtools" "hxtools"
 .SH Name
 .PP
-pesubst - perl\-regexp stream substitution
+pesubst \(em perl-regexp stream substitution
 .SH Syntax
 .PP
 \fBpesubst\fP [\fB\-f\fP] [\fB\-s\fP \fIpattern\fP] [\fB\-d\fP \fIpattern\fP]
@@ -55,13 +55,13 @@ whatsoever, even a newline, which normally it would not match.
 Extend your pattern's legibility by permitting whitespace and comments.
 .SH Examples
 .PP
-Change all occurrences of foo (case\-insensitive) to bar:
+Change all occurrences of foo (case-insensitive) to bar:
 .PP
 .nf
 	pesubst \-s foo \-d bar \-ms myfile
 .fi
 .PP
-Change all Shell\-style comments into C++ ones:
+Change all Shell-style comments into C++ ones:
 .PP
 .nf
 	pesubst \-s '^#' \-d // \-mm myfile

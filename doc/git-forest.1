@@ -1,7 +1,7 @@
-.TH "git\-forest" 1 "2008\-07\-06" "hxtools" "hxtools"
+.TH "git-forest" 1 "2008-07-06" "hxtools" "hxtools"
 .SH Name
 .TP
-git\-forest - display the commit history forest
+git-forest \(em display the commit history forest
 .SH Syntax
 \fBgit\-forest\fP
 [\fB\-a\fP] [\fB\-\-no\-rebase\fP] [\fB\-\-style=\fP\fInumber\fP]
@@ -9,18 +9,18 @@ git\-forest - display the commit history forest
 [\fIrefspec\fP...]
 .SH Description
 .PP
-git\-forest is a command\-line zero\-lookahead git repository history
+git-forest is a command-line zero-lookahead git repository history
 visualizer with Unicode output with a bit of gitk resemblance.
 .SS Why another program?
 The tree visualization of gitk is very useful, but there were (git 1.5.4
 timeframe) no decent visualizers that can run in a console window, without the
 need to have X around (which gitk depends on). tig has numerous limitations,
 it cannot display octopus merges or octopus branching. As of git 1.5.6, there
-are still no other Unicode\-output programs known to me.
+are still no other Unicode-output programs known to me.
 .SS A bit of internals
-git\-forest originally was a zero\-lookahead visualizer, i.e. branches were
-accomodated when they have first been seen. Since mid\-June 2008, git\-forest
-has a lookahead tunable that controls how long an inter\-merge vine (a
+git-forest originally was a zero-lookahead visualizer, i.e. branches were
+accomodated when they have first been seen. Since mid-June 2008, git-forest
+has a lookahead tunable that controls how long an inter-merge vine (a
 branch in the graphical sense) can be.
 .SH Options
 .TP
@@ -31,17 +31,17 @@ Display author for each commit.
 Do not show the rebase pseudo-refs.
 .TP
 \fB\-\-style=1\fP
-Use single\-line visuals (default).
+Use single-line visuals (default).
 .TP
 \fB\-\-style=2\fP
-Use double\-line visuals.
+Use double-line visuals.
 .TP
 \fB\-\-style=10\fP
 Use specific rounded Unicode visuals for edges; glyphs might only be available
 with X11 terminals and appropriate fonts.
 .TP
 \fB\-\-style=15\fP
-Use single bold\-line visuals. Not readily usable with VGA console fonts
+Use single bold-line visuals. Not readily usable with VGA console fonts
 without special unimaps.
 .TP
 \fB\-\-sha\fP
