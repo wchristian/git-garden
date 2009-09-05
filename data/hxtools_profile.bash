@@ -16,11 +16,7 @@ export CVS_RSH="ssh";
 
 # /usr/local comes first, naturally because that's the overriding things
 if [ "$HXPREF_SET_PATH" == yes ]; then
-	if [ "$isroot" -ne 0 ]; then
-		PATH="/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/opt/hxtools/bin:/usr/X11R6/bin";
-	else
-		PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/hxtools/bin:/usr/X11R6/bin";
-	fi;
+	PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/X11R6/bin:/opt/hxtools/bin";
 	for i in gnome2 gnome kde3; do
 		[ -d "/opt/$i/bin" ] && PATH="$PATH:/opt/$i/bin";
 	done;
