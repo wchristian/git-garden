@@ -58,7 +58,7 @@ struct work_info {
 	/* generated */
 	unsigned long long stop_inode, icount;
 	size_t blocksize;
-	char *buffer;
+	char *buffer, *blank_buffer;
 	unsigned int buffer_size, inode_size;
 	int xdb_read, xdb_write, blkfd;
 	time_t stat_timestamp;
@@ -273,7 +273,10 @@ static void ir_xfer(int ofd, int ifd, size_t z, const struct work_info *wi)
 		} else if (ret == 0) {
 			break;
 		}
-		write(ofd, wi->buffer, ret);
+		if (memcmp(wi->buffer, wi->blank_buffer, segment) != 0)
+			write(ofd, wi->buffer, ret);
+		else
+			lseek(ofd, ret, SEEK_CUR);
 		z -= ret;
 	}
 }
@@ -499,6 +502,11 @@ static bool ir_get_options(int *argc, const char ***argv,
 		fprintf(stderr, "malloc: %s\n", strerror(errno));
 		return false;
 	}
+	if ((work_info->blank_buffer =
+	    calloc(1, work_info->buffer_size)) == NULL) {
+		fprintf(stderr, "calloc: %s\n", strerror(errno));
+		return false;
+	}
 
 	work_info->blkfd = open(work_info->device, O_RDONLY);
 	if (work_info->blkfd < 0) {
@@ -536,6 +544,7 @@ int main(int argc, const char **argv)
 	close(work_info.xdb_write);
 	close(work_info.xdb_read);
 	free(work_info.buffer);
+	free(work_info.blank_buffer);
 	free(work_info.device);
 	free(work_info.output_dir);
 	kill(xdb_proc.p_pid, SIGTERM); /* just in case */
