@@ -1,7 +1,7 @@
-.TH fd0ssh 1 "2008\-04\-06" "hxtools" "hxtools"
+.TH fd0ssh 1 "2008-04-06" "hxtools" "hxtools"
 .SH Name
 .PP
-fd0ssh - pipe for password\-over\-stdin support to ssh
+fd0ssh \(em pipe for password-over-stdin support to ssh
 .SH Syntax
 .PP
 \fBfd0ssh\fP \fImount_command\fP
@@ -11,7 +11,7 @@ This is a wrapper for ssh which reads the password from stdin and sets things
 up so that ssh will recall the wrapper to get the password, which will be read
 from the parent process using a pipe.
 .PP
-It is used by \fBpam_mount\fP(8) to mount SSH\-based filesystems, such as ccgfs
+It is used by \fBpam_mount\fP(8) to mount SSH-based filesystems, such as ccgfs
 and sshfs.
 .SH "See also"
 .PP
