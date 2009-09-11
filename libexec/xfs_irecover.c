@@ -518,13 +518,17 @@ static bool ir_get_options(int *argc, const char ***argv,
 	if (!ir_get_devinfo(work_info))
 		return false;
 
-	if (work_info->max_inodes == 0) {
-		fprintf(stderr, "Approximately %llu inodes\n",
-		        work_info->icount);
+	fprintf(stderr, "Filesystem claims to have %llu inodes\n", work_info->icount);
+	if (work_info->max_inodes == 0 ||
+	    work_info->max_inodes > work_info->icount)
 		work_info->max_inodes = work_info->icount;
-	}
-
 	work_info->stop_inode = work_info->start_inode + work_info->max_inodes;
+	if (work_info->stop_inode > work_info->icount) {
+		work_info->stop_inode = work_info->icount;
+		work_info->max_inodes = work_info->stop_inode - work_info->start_inode;
+	}
+	fprintf(stderr, "Inode range %llu--%llu\n", work_info->start_inode,
+		work_info->stop_inode);
 	return true;
 }
 
