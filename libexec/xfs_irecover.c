@@ -286,6 +286,7 @@ static void ir_copy(const struct work_info *wi, unsigned long long inum,
 	unsigned int i;
 	char buf[256];
 	int fd;
+	size_t rem, qty;
 
 	snprintf(buf, sizeof(buf), "%s/%llu", wi->output_dir, inum);
 	if ((fd = open(buf, O_WRONLY | O_CREAT | O_TRUNC,
@@ -294,11 +295,16 @@ static void ir_copy(const struct work_info *wi, unsigned long long inum,
 		return;
 	}
 
-	for (i = 0; i < ext_info->e_num; ++i) {
+	rem = inode->di_size;
+	for (i = 0; i < ext_info->e_num && rem > 0; ++i) {
 		ext = &ext_info->e_data[i];
 		lseek(wi->blkfd, wi->blocksize * ext->start_block, SEEK_SET);
 		lseek(fd, wi->blocksize * ext->start_offset, SEEK_SET);
-		ir_xfer(fd, wi->blkfd, wi->blocksize * ext->block_count, wi);
+		qty = wi->blocksize * ext->block_count;
+		if (qty > rem)
+			qty = rem;
+		ir_xfer(fd, wi->blkfd, qty, wi);
+		rem -= qty;
 	}
 
 	if (fstat(fd, &sb) == 0 && (sb.st_size > wi->truncate_threshold ||
@@ -378,7 +384,7 @@ static struct HXproc xdb_proc = {
 
 static bool ir_get_devinfo(struct work_info *work_info)
 {
-	const char *const args[] = {"xfs_db", work_info->device, NULL};
+	const char *const args[] = {"xfs_db", "-r", work_info->device, NULL};
 	unsigned long long di_dblocks = 0, di_blocksize = 0, di_inodesize = 0;
 	int num_lines = 0, i;
 	char *ret, **lines;
