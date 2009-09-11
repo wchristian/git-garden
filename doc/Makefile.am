@@ -25,6 +25,7 @@ man_MANS = \
 	git-track.1 \
 	htruncate.1 \
 	hxtools.7 \
+	kps.1 \
 	logontime.8 \
 	longjumpcd.1 \
 	mailsplit.1 \
