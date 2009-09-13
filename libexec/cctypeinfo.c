@@ -41,6 +41,7 @@ p(double);
 q(long double, longdouble);
 q(void *, voidptr);
 q(void (*)(void), funcptr);
+p(intptr_t);
 p(wchar_t);
 p(uint8_t);
 p(uint16_t);
@@ -64,6 +65,7 @@ int main(void)
 	t(long double);
 	t(void *);
 	t(void (*)(void));
+	t(intptr_t);
 	t(wchar_t);
 	t(uint8_t);
 	t(uint16_t);
