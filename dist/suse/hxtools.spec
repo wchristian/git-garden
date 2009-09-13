@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20090809
+Version:	20090913
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
@@ -55,6 +55,7 @@ find opt/hxtools -type f -print0 | \
 	xargs -0 grep -l ELF | perl -ne 'print"/$_"' >"$o/binary.lst";
 find opt/hxtools -type f -print0 | \
 	xargs -0 grep -L ELF | perl -ne 'print"/$_"' >"$o/noarch.lst";
+chmod a+x "$b/%_sysconfdir"/hx*.bash;
 
 %clean
 rm -Rf "%buildroot";
@@ -65,10 +66,12 @@ rm -Rf "%buildroot";
 %files noarch -f noarch.lst
 %defattr(-,root,root)
 %dir %prefix
-%_sysconfdir/hx*
-%_sysconfdir/openldap/schema/*
+%config %_sysconfdir/hx*
+%config %_sysconfdir/openldap/schema/*
 %_datadir/kbd/consolefonts/*
 %_datadir/kbd/keymaps/i386/*/*
 %_datadir/fonts/misc/*
 %_datadir/mc/syntax/*
 %doc %_mandir/*/*
+
+%changelog
