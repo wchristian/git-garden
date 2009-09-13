@@ -1,6 +1,6 @@
 /*
  *	qplay.c - QBasic music command interpreter
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2002 - 2007
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2002 - 2009
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,7 +16,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <libHX/ctype_helper.h>
-#include <libHX/arbtree.h>
+#include <libHX/defs.h>
+#include <libHX/map.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
 #include "pcspkr.h"
@@ -40,7 +41,7 @@ static void parse_str(const char *);
 static void parse_var(FILE *, char *);
 
 /* Variables */
-static struct HXbtree *keymap, *varmap;
+static struct HXmap *keymap, *varmap;
 static double notemap[MAX_OCTAVES*12], glob_mode = 7.0 / 8;
 static int glob_spd = 120, glob_len = 4, glob_octave = 4;
 static struct pcspkr pcsp = {
@@ -84,14 +85,13 @@ int main(int argc, const char **argv)
  */
 static void init_maps(void)
 {
-#define ADD(k, v) HXbtree_add(keymap, (k), (const void *)(v));
+#define ADD(k, v) HXmap_add(keymap, (k), reinterpret_cast(const void *, static_cast(long, (v))));
 	int n;
 
-	keymap = HXbtree_init(HXBT_MAP | HXBT_SCMP | HXBT_CID);
-	varmap = HXbtree_init(HXBT_MAP | HXBT_SCMP | HXBT_CID |
-	         HXBT_CKEY | HXBT_CDATA);
+	keymap = HXmap_init(HXMAPT_DEFAULT, HXMAP_SKEY);
+	varmap = HXmap_init(HXMAPT_DEFAULT, HXMAP_SCKEY | HXMAP_SCDATA);
 	if (keymap == NULL || varmap == NULL) {
-		perror("HXbtree_init()");
+		perror("HXmap_init()");
 		exit(EXIT_FAILURE);
 	}
 	for (n = 0; n < MAX_OCTAVES * 12; ++n)
@@ -164,7 +164,7 @@ static void parse_file(const char *fn)
 static unsigned int parse_arg_ag(const char *origptr)
 {
 	unsigned long note_len = glob_len, note_dur;
-	struct HXbtree_node *fq_node;
+	const struct HXmap_node *fq_node;
 	double af = 1, len_plus = 0;
 	const char *ptr = origptr;
 	char lookup[4] = {};
@@ -195,7 +195,7 @@ static unsigned int parse_arg_ag(const char *origptr)
 	note_len += len_plus * note_len;
 	note_dur  = note_len * glob_mode;
 
-	if ((fq_node = HXbtree_find(keymap, lookup)) == NULL) {
+	if ((fq_node = HXmap_find(keymap, lookup)) == NULL) {
 		fprintf(stderr, "Irk. fq_node == NULL\n");
 	} else {
 		pcspkr_output(&pcsp,
@@ -371,7 +371,7 @@ static unsigned int parse_arg_x(const char *origptr)
 	strncpy(var_name, var_begin, (var_size + 1 > sizeof(var_name)) ?
 	        sizeof(var_name) : var_size);
 
-	if ((data = HXbtree_get(varmap, var_name)) == NULL) {
+	if ((data = HXmap_get(varmap, var_name)) == NULL) {
 		fprintf(stderr, "** Variable \"%s\" not found\n", var_name);
 		return ptr - origptr;
 	}
@@ -445,5 +445,6 @@ static void parse_var(FILE *fp, char *line)
 	while (HX_isspace(*val))
 		++val;
 
-	HXbtree_add(varmap, key, val);
+	HXmap_add(varmap, key, val);
+	HXmc_free(ws);
 }

@@ -1,7 +1,6 @@
 /*
  *	graph-fanout.c - Fanout tree for Graphviz
- *	Copyright © CC Computer Consultants GmbH, 2007 - 2008
- *	Jan Engelhardt <jengelh@medozas.de>
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2007 - 2009
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -35,8 +34,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libHX/arbtree.h>
 #include <libHX/deque.h>
+#include <libHX/map.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
 
@@ -50,18 +49,18 @@ struct node {
 /* Variables */
 static unsigned int fan_height = 8;
 static unsigned int rt_node_counter;
-static struct HXbtree *nodename_map;
-static struct HXbtree *roots_map;
+static struct HXmap *nodename_map;
+static struct HXmap *roots_map;
 
 /* Functions */
 static bool fanout_get_options(int *, const char ***);
 static void fanout_process(FILE *);
 static void fanout_build(const char *, const char *);
 static void fanout_find_roots(void);
-static void fanout_process_roots(struct HXbtree *);
+static void fanout_process_roots(struct HXmap *);
 static void fanout_one_node(struct node *);
-static void fanout_dump_tree(const struct HXbtree *);
-static void fanout_free_tree(struct HXbtree *);
+static void fanout_dump_tree(const struct HXmap *);
+static void fanout_free_tree(struct HXmap *);
 
 //-----------------------------------------------------------------------------
 int main(int argc, const char **argv)
@@ -69,13 +68,13 @@ int main(int argc, const char **argv)
 	const char **file;
 	FILE *fp;
 
-	nodename_map = HXbtree_init(HXBT_MAP | HXBT_SCMP);
+	nodename_map = HXmap_init(HXMAPT_DEFAULT, HXMAP_SKEY);
 	if (nodename_map == NULL) {
-		perror("HXbtree_init");
+		perror("HXmap_init");
 		abort();
 	}
 
-	roots_map = HXbtree_init(HXBT_ICMP);
+	roots_map = HXmap_init(HXMAPT_DEFAULT, HXMAP_SINGULAR);
 	if (roots_map == NULL) {
 		perror("HXbtree_init");
 		abort();
@@ -103,7 +102,7 @@ int main(int argc, const char **argv)
 	fanout_process_roots(roots_map);
 	fanout_dump_tree(nodename_map);
 	fanout_free_tree(nodename_map);
-	HXbtree_free(roots_map);
+	HXmap_free(roots_map);
 	return EXIT_SUCCESS;
 }
 
@@ -138,9 +137,9 @@ static void fanout_process(FILE *fp)
 static void fanout_build(const char *child_name, const char *parent_name)
 {
 	struct node *child_ptr, *parent_ptr;
-	struct HXbtree_node *tree_node;
+	int ret;
 
-	parent_ptr = HXbtree_get(nodename_map, parent_name);
+	parent_ptr = HXmap_get(nodename_map, parent_name);
 	if (parent_ptr == NULL) {
 		struct node local_node = {.name = HX_strdup(parent_name)};
 
@@ -155,16 +154,20 @@ static void fanout_build(const char *child_name, const char *parent_name)
 			abort();
 		}
 
-		tree_node = HXbtree_add(nodename_map, local_node.name,
-		            HX_memdup(&local_node, sizeof(local_node)));
-		if (tree_node == NULL) {
-			perror("HXbtree_add");
+		parent_ptr = HX_memdup(&local_node, sizeof(local_node));
+		if (parent_ptr == NULL) {
+			perror("HX_memdup");
 			abort();
 		}
-		parent_ptr = tree_node->data;
+
+		ret = HXmap_add(nodename_map, local_node.name, parent_ptr);
+		if (ret <= 0) {
+			fprintf(stderr, "HXmap_add: %s\n", strerror(-ret));
+			abort();
+		}
 	}
 
-	child_ptr = HXbtree_get(nodename_map, child_name);
+	child_ptr = HXmap_get(nodename_map, child_name);
 	if (child_ptr == NULL) {
 		struct node local_node = {.name = HX_strdup(child_name)};
 
@@ -179,13 +182,16 @@ static void fanout_build(const char *child_name, const char *parent_name)
 			abort();
 		}
 
-		tree_node = HXbtree_add(nodename_map, local_node.name,
-		            HX_memdup(&local_node, sizeof(local_node)));
-		if (tree_node == NULL) {
-			perror("HXbtree_add");
+		child_ptr = HX_memdup(&local_node, sizeof(local_node));
+		if (child_ptr == NULL) {
+			perror("HX_memdup");
 			abort();
 		}
-		child_ptr = tree_node->data;
+		ret = HXmap_add(nodename_map, local_node.name, child_ptr);
+		if (ret <= 0) {
+			fprintf(stderr, "HXmap_add: %s\n", strerror(-ret));
+			abort();
+		}
 	}
 
 	HXdeque_push(parent_ptr->children, child_ptr);
@@ -194,34 +200,31 @@ static void fanout_build(const char *child_name, const char *parent_name)
 
 static void fanout_find_roots(void)
 {
-	const struct HXbtree_node *tree_node;
+	const struct HXmap_node *tree_node;
 	struct node *w;
-	void *trav;
+	struct HXmap_trav *trav;
 
-	trav = HXbtrav_init(nodename_map);
-	while ((tree_node = HXbtraverse(trav)) != NULL) {
+	trav = HXmap_travinit(nodename_map, 0);
+	while ((tree_node = HXmap_traverse(trav)) != NULL) {
 		w = tree_node->data;
 		for (; w->parent != NULL; w = w->parent)
 			;
-		HXbtree_add(roots_map, w);
+		HXmap_add(roots_map, w, NULL);
 	}
 
-	HXbtrav_free(trav);
+	HXmap_travfree(trav);
 }
 
-static void fanout_process_roots(struct HXbtree *root_map)
+static void fanout_process_roots(struct HXmap *root_map)
 {
-	const struct HXbtree_node *tree_node;
-	struct node *current;
-	void *trav;
+	const struct HXmap_node *tree_node;
+	struct HXmap_trav *trav;
 
-	trav = HXbtrav_init(root_map);
-	while ((tree_node = HXbtraverse(trav)) != NULL) {
-		current = tree_node->data;
-		fanout_one_node(current);
-	}
+	trav = HXmap_travinit(root_map, 0);
+	while ((tree_node = HXmap_traverse(trav)) != NULL)
+		fanout_one_node(tree_node->key);
 
-	HXbtrav_free(trav);
+	HXmap_travfree(trav);
 }
 
 static void fanout_one_node(struct node *current)
@@ -266,7 +269,7 @@ static void fanout_one_node(struct node *current)
 				abort();
 			}
 			HXdeque_push(new_children, rt_node);
-			HXbtree_add(nodename_map, rt_node->name, rt_node);
+			HXmap_add(nodename_map, rt_node->name, rt_node);
 		}
 
 		child = k->ptr;
@@ -283,37 +286,37 @@ static void fanout_one_node(struct node *current)
 		fanout_one_node(current);
 }
 
-static void fanout_dump_tree(const struct HXbtree *tree)
+static void fanout_dump_tree(const struct HXmap *tree)
 {
-	const struct HXbtree_node *tree_node;
+	const struct HXmap_node *tree_node;
 	const struct node *source;
-	void *trav;
+	struct HXmap_trav *trav;
 
-	trav = HXbtrav_init(tree);
-	while ((tree_node = HXbtraverse(trav)) != NULL) {
+	trav = HXmap_travinit(tree, 0);
+	while ((tree_node = HXmap_traverse(trav)) != NULL) {
 		source = tree_node->data;
 		if (source->parent != NULL)
 			printf("%s\n%s\n",
 			       source->name, source->parent->name);
 	}
 
-	HXbtrav_free(trav);
+	HXmap_travfree(trav);
 }
 
-static void fanout_free_tree(struct HXbtree *tree)
+static void fanout_free_tree(struct HXmap *tree)
 {
-	const struct HXbtree_node *tree_node;
+	const struct HXmap_node *tree_node;
 	struct node *current;
-	void *trav;
+	struct HXmap_trav *trav;
 
-	trav = HXbtrav_init(tree);
-	while ((tree_node = HXbtraverse(trav)) != NULL) {
+	trav = HXmap_travinit(tree, 0);
+	while ((tree_node = HXmap_traverse(trav)) != NULL) {
 		current = tree_node->data;
 		HXdeque_free(current->children);
 		free(current->name);
 		free(current);
 	}
 
-	HXbtrav_free(trav);
-	HXbtree_free(tree);
+	HXmap_travfree(trav);
+	HXmap_free(tree);
 }

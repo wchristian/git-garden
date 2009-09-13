@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libHX/arbtree.h>
+#include <libHX/map.h>
 #include <libHX/string.h>
 
 /* Definitions */
@@ -22,15 +22,15 @@ struct node {
 };
 
 /* Variables */
-static struct HXbtree *nodename_map;
+static struct HXmap *nodename_map;
 
 /* Functions */
 static void lchain_process(FILE *);
 static bool lchain_contains(const struct node *, const struct node *);
 static void lchain_link(const char *, const char *);
 static void lchain_relink(struct node *, struct node *);
-static void lchain_dump_tree(const struct HXbtree *);
-static void lchain_free_tree(struct HXbtree *);
+static void lchain_dump_tree(const struct HXmap *);
+static void lchain_free_tree(struct HXmap *);
 
 //-----------------------------------------------------------------------------
 int main(int argc, const char **argv)
@@ -40,9 +40,9 @@ int main(int argc, const char **argv)
 
 	setvbuf(stdout, NULL, _IOLBF, 0);
 
-	nodename_map = HXbtree_init(HXBT_MAP | HXBT_SCMP);
+	nodename_map = HXmap_init(HXMAPT_DEFAULT, HXMAP_SKEY);
 	if (nodename_map == NULL) {
-		perror("HXbtree_init");
+		perror("HXmap_init");
 		abort();
 	}
 
@@ -97,9 +97,9 @@ static inline bool lchain_contains(const struct node *start,
 static void lchain_link(const char *source_name, const char *target_name)
 {
 	struct node *source_ptr, *target_ptr;
-	struct HXbtree_node *tree_node;
+	int ret;
 
-	target_ptr = HXbtree_get(nodename_map, target_name);
+	target_ptr = HXmap_get(nodename_map, target_name);
 	if (target_ptr == NULL) {
 		struct node local_node = {.name = HX_strdup(target_name)};
 
@@ -108,16 +108,20 @@ static void lchain_link(const char *source_name, const char *target_name)
 			abort();
 		}
 
-		tree_node = HXbtree_add(nodename_map, local_node.name,
-		            HX_memdup(&local_node, sizeof(local_node)));
-		if (tree_node == NULL) {
-			perror("HXbtree_add");
+		target_ptr = HX_memdup(&local_node, sizeof(local_node));
+		if (target_ptr == NULL) {
+			perror("HX_memdup");
 			abort();
 		}
-		target_ptr = tree_node->data;
+
+		ret = HXmap_add(nodename_map, local_node.name, target_ptr);
+		if (ret <= 0) {
+			fprintf(stderr, "HXmap_add: %s\n", strerror(-ret));
+			abort();
+		}
 	}
 
-	source_ptr = HXbtree_get(nodename_map, source_name);
+	source_ptr = HXmap_get(nodename_map, source_name);
 	if (source_ptr == NULL) {
 		struct node local_node = {
 			.name   = HX_strdup(source_name),
@@ -129,13 +133,17 @@ static void lchain_link(const char *source_name, const char *target_name)
 			abort();
 		}
 
-		tree_node = HXbtree_add(nodename_map, local_node.name,
-		            HX_memdup(&local_node, sizeof(local_node)));
-		if (tree_node == NULL) {
-			perror("HXbtree_add");
+		source_ptr = HX_memdup(&local_node, sizeof(local_node));
+		if (source_ptr == NULL) {
+			perror("HX_memdup");
 			abort();
 		}
-		source_ptr = tree_node->data;
+
+		ret = HXmap_add(nodename_map, local_node.name, source_ptr);
+		if (ret <= 0) {
+			fprintf(stderr, "HXmap_add: %s\n", strerror(-ret));
+			abort();
+		}
 
 		/* New parent */
 		return;
@@ -250,15 +258,15 @@ static void lchain_relink(struct node *source, struct node *new_parent)
 }
 
 #if 0
-static void lchain_loopcheck(const struct HXbtree *tree)
+static void lchain_loopcheck(const struct HXmap *tree)
 {
-	const struct HXbtree_node *tree_node;
+	const struct HXmap_node *tree_node;
 	const struct node *source;
 	struct node *w;
-	void *trav;
+	struct HXmap_trav *trav;
 
-	trav = HXbtrav_init(tree);
-	while ((tree_node = HXbtraverse(trav)) != NULL) {
+	trav = HXmap_travinit(tree, 0);
+	while ((tree_node = HXmap_traverse(trav)) != NULL) {
 		source = tree_node->data;
 		for (w = source->parent; w != NULL; w = w->parent) {
 			if (w->mark)
@@ -270,40 +278,40 @@ static void lchain_loopcheck(const struct HXbtree *tree)
 			w->mark = false;
 	}
 
-	HXbtrav_free(trav);
+	HXmap_travfree(trav);
 }
 #endif
 
-static void lchain_dump_tree(const struct HXbtree *tree)
+static void lchain_dump_tree(const struct HXmap *tree)
 {
-	const struct HXbtree_node *tree_node;
+	const struct HXmap_node *tree_node;
 	const struct node *source;
-	void *trav;
+	struct HXmap_trav *trav;
 
-	trav = HXbtrav_init(tree);
-	while ((tree_node = HXbtraverse(trav)) != NULL) {
+	trav = HXmap_travinit(tree, 0);
+	while ((tree_node = HXmap_traverse(trav)) != NULL) {
 		source = tree_node->data;
 		if (source->parent != NULL)
 			printf("%s\n%s\n",
 			       source->name, source->parent->name);
 	}
 
-	HXbtrav_free(trav);
+	HXmap_travfree(trav);
 }
 
-static void lchain_free_tree(struct HXbtree *tree)
+static void lchain_free_tree(struct HXmap *tree)
 {
-	const struct HXbtree_node *tree_node;
+	const struct HXmap_node *tree_node;
 	struct node *source;
-	void *trav;
+	struct HXmap_trav *trav;
 
-	trav = HXbtrav_init(tree);
-	while ((tree_node = HXbtraverse(trav)) != NULL) {
+	trav = HXmap_travinit(tree, 0);
+	while ((tree_node = HXmap_traverse(trav)) != NULL) {
 		source = tree_node->data;
 		free(source->name);
 		free(source);
 	}
 
-	HXbtrav_free(trav);
-	HXbtree_free(tree);
+	HXmap_travfree(trav);
+	HXmap_free(tree);
 }
