@@ -1,11 +1,11 @@
 .TH xcp 1 "2008-11-11" "hxtools" "hxtools"
 .SH Name
 .PP
-xcp \- proof-of-concept cp(1) with alternate copying mechanisms
+xcp \(em proof-of-concept cp(1) with alternate copying mechanisms
 .SH Syntax
 .PP
-\fBxcp\fP [\fB-m\fP|\fB--mmap\fP] [\fB-s\fP|\fB--splice\fP] \fIfromfile\fP
-\fItofile\fP
+\fBxcp\fP [\fB\-m\fP|\fB\-\-mmap\fP] [\fB\-s\fP|\fB\-\-splice\fP]
+\fIfromfile\fP \fItofile\fP
 .SH Description
 .PP
 Copies the file from \fIsrc\fP to \fIdst\fP using \fBmmap\fP(2) or
@@ -13,8 +13,8 @@ Copies the file from \fIsrc\fP to \fIdst\fP using \fBmmap\fP(2) or
 normally used. mmap may actually be faster than the r/w cycle.
 .SH Options
 .TP
-\fB-m\fP, \fB\-\-mmap\fP
+\fB\-m\fP, \fB\-\-mmap\fP
 Select mmap copying mode. This is the default.
 .TP
-\fB-s\fP, \fB\-\-splice\fP
+\fB\-s\fP, \fB\-\-splice\fP
 Select splice copying mode.
