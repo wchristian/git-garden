@@ -112,13 +112,18 @@ context default
 	keyword whole .type brightmagenta
 	keyword whole .word brightmagenta
 
+	keyword whole xsetbv white
+	keyword whole xsave white
+	keyword whole xrstor white
 	keyword whole xorw white
 	keyword whole xorps white
 	keyword whole xorpd white
 	keyword whole xorl white
 	keyword whole xorb white
 	keyword whole xor white
+	keyword whole xlatb white
 	keyword whole xlat white
+	keyword whole xgetbv white
 	keyword whole xchgw white
 	keyword whole xchgl white
 	keyword whole xchg white
@@ -143,6 +148,7 @@ context default
 	keyword whole unpcklpd white
 	keyword whole unpckhps white
 	keyword whole unpckhpd white
+	keyword whole ud2 white
 	keyword whole ucomiss white
 	keyword whole ucomisd white
 	keyword whole testw white
@@ -153,6 +159,7 @@ context default
 	keyword whole sysexit white
 	keyword whole sysenter white
 	keyword whole syscall white
+	keyword whole swapgs white
 	keyword whole subw white
 	keyword whole subss white
 	keyword whole subsd white
@@ -163,11 +170,13 @@ context default
 	keyword whole sub white
 	keyword whole str white
 	keyword whole stosw white
+	keyword whole stosq white
 	keyword whole stosd white
 	keyword whole stosb white
 	keyword whole stmxcsr white
 	keyword whole sti white
 	keyword whole std white
+	keyword whole stc white
 	keyword whole st white
 	keyword whole sqrtss white
 	keyword whole sqrtsd white
@@ -232,6 +241,10 @@ context default
 	keyword whole rsqrtss white
 	keyword whole rsqrtps white
 	keyword whole rsm white
+	keyword whole roundss white
+	keyword whole roundsd white
+	keyword whole roundps white
+	keyword whole roundpd white
 	keyword whole rorw white
 	keyword whole ror white
 	keyword whole rolw white
@@ -244,6 +257,7 @@ context default
 	keyword whole repne white
 	keyword whole repe white
 	keyword whole rep white
+	keyword whole rdtscp white
 	keyword whole rdtsc white
 	keyword whole rdpmc white
 	keyword whole rdmsr white
@@ -272,12 +286,14 @@ context default
 	keyword whole punpckhdq white
 	keyword whole punpckhbw white
 	keyword whole ptr white
+	keyword whole ptest white
 	keyword whole pswapd white
 	keyword whole psubw white
 	keyword whole psubusw white
 	keyword whole psubusb white
 	keyword whole psubsw white
 	keyword whole psubsb white
+	keyword whole psubq white
 	keyword whole psubd white
 	keyword whole psubb white
 	keyword whole psrlw white
@@ -313,27 +329,44 @@ context default
 	keyword whole popfl white
 	keyword whole popfd white
 	keyword whole popf white
+	keyword whole popcnt white
 	keyword whole popad white
 	keyword whole popa white
 	keyword whole pop white
 	keyword whole pmuludq white
 	keyword whole pmullw white
+	keyword whole pmulld white
 	keyword whole pmulhw white
+	keyword whole pmulhuw white
 	keyword whole pmulhrw white
 	keyword whole pmulhrsw white
+	keyword whole pmuldq white
+	keyword whole pmovzx white
+	keyword whole pmovsx white
 	keyword whole pmovmskb white
+	keyword whole pminuw white
+	keyword whole pminud white
 	keyword whole pminub white
 	keyword whole pminsw white
+	keyword whole pminsd white
+	keyword whole pminsb white
+	keyword whole pmaxuw white
+	keyword whole pmaxud white
 	keyword whole pmaxub white
 	keyword whole pmaxsw white
+	keyword whole pmaxsb white
 	keyword whole pmaddwd white
 	keyword whole pmaddubsw white
 	keyword whole pinsrw white
+	keyword whole pinsrq white
+	keyword whole pinsrd white
+	keyword whole pinsrb white
 	keyword whole pi2fw white
 	keyword whole pi2fd white
 	keyword whole phsubw white
 	keyword whole phsubsw white
 	keyword whole phsubd white
+	keyword whole phminposuw white
 	keyword whole phaddw white
 	keyword whole phaddsw white
 	keyword whole phaddd white
@@ -357,18 +390,30 @@ context default
 	keyword whole pf2iw white
 	keyword whole pf2id white
 	keyword whole pextrw white
+	keyword whole pextrq white
+	keyword whole pextrd white
+	keyword whole pextrb white
+	keyword whole pcmpistrm white
+	keyword whole pcmpistri white
 	keyword whole pcmpgtw white
+	keyword whole pcmpgtq white
 	keyword whole pcmpgtd white
 	keyword whole pcmpgtb white
+	keyword whole pcmpestrm white
+	keyword whole pcmpestri white
 	keyword whole pcmpeqw white
+	keyword whole pcmpeqq white
 	keyword whole pcmpeqd white
 	keyword whole pcmpeqb white
+	keyword whole pblendw whiet
+	keyword whole pblendvb white
 	keyword whole pavgw white
 	keyword whole pavgusb white
 	keyword whole pavgb white
 	keyword whole pause white
 	keyword whole pandn white
 	keyword whole pand white
+	keyword whole pamxsd white
 	keyword whole palignr white
 	keyword whole paddw white
 	keyword whole paddusw white
@@ -379,6 +424,7 @@ context default
 	keyword whole paddd white
 	keyword whole paddb white
 	keyword whole packuswb white
+	keyword whole packusdw white
 	keyword whole packsswb white
 	keyword whole packssdw white
 	keyword whole pabsw white
@@ -392,6 +438,7 @@ context default
 	keyword whole outb white
 	keyword whole out white
 	keyword whole orw white
+	keyword whole orq white
 	keyword whole orps white
 	keyword whole orpd white
 	keyword whole orl white
@@ -406,27 +453,31 @@ context default
 	keyword whole mulps white
 	keyword whole mulpd white
 	keyword whole mul white
+	keyword whole mpsadbw white
 	keyword whole movzx white
 	keyword whole movzbl white
 	keyword whole movw white
 	keyword whole movups white
 	keyword whole movupd white
+	keyword whole movsxd white
 	keyword whole movsx white
 	keyword whole movsw white
 	keyword whole movss white
+	keyword whole movsq white
 	keyword whole movsldup white
 	keyword whole movsl white
 	keyword whole movshdup white
-	keyword whole movsd* white
 	keyword whole movsd white
 	keyword whole movsbl white
 	keyword whole movsb white
+	keyword whole movs white
 	keyword whole movq2dq white
 	keyword whole movq white
 	keyword whole movntq white
 	keyword whole movntps white
 	keyword whole movntpd white
 	keyword whole movnti white
+	keyword whole movntdqa white
 	keyword whole movntdq white
 	keyword whole movmskps white
 	keyword whole movmskpd white
@@ -442,6 +493,7 @@ context default
 	keyword whole movdq2q white
 	keyword whole movddup white
 	keyword whole movd white
+	keyword whole movbe white
 	keyword whole movb white
 	keyword whole movaps white
 	keyword whole movapd white
@@ -500,6 +552,7 @@ context default
 	keyword whole lahf white
 	keyword whole jz white
 	keyword whole js white
+	keyword whole jrcxz white
 	keyword whole jpo white
 	keyword whole jpe white
 	keyword whole jp white
@@ -536,11 +589,14 @@ context default
 	keyword whole iretd white
 	keyword whole iret white
 	keyword whole inw white
+	keyword whole invvpid white
 	keyword whole invlpg white
+	keyword whole invept white
 	keyword whole invd white
 	keyword whole into white
 	keyword whole int white
 	keyword whole insw white
+	keyword whole insertps white
 	keyword whole insd white
 	keyword whole insb white
 	keyword whole inl white
@@ -673,10 +729,13 @@ context default
 	keyword whole fadd white
 	keyword whole fabs white
 	keyword whole f2xm1 white
+	keyword whole extractps white
 	keyword whole esc white
 	keyword whole enter white
 	keyword whole emms white
 	keyword whole dword white
+	keyword whole dpps white
+	keyword whole dppd white
 	keyword whole divw white
 	keyword whole divss white
 	keyword whole divsd white
@@ -693,6 +752,7 @@ context default
 	keyword whole cvttss2si white
 	keyword whole cvttsd2si white
 	keyword whole cvttps2pi white
+	keyword whole cvttps2dq white
 	keyword whole cvttpd2pi white
 	keyword whole cvttpd2dq white
 	keyword whole cvtss2si white
@@ -706,11 +766,14 @@ context default
 	keyword whole cvtps2dq white
 	keyword whole cvtpi2ps white
 	keyword whole cvtpi2pd white
+	keyword whole cvtpi2dq white
 	keyword whole cvtpd2ps white
 	keyword whole cvtpd2pi white
 	keyword whole cvtpd2dq white
 	keyword whole cvtdq2ps white
 	keyword whole cvtdq2pd white
+	keyword whole crc32 white
+	keyword whole cqo white
 	keyword whole cpuid white
 	keyword whole comiss white
 	keyword whole comisd white
@@ -720,7 +783,6 @@ context default
 	keyword whole cmpw white
 	keyword whole cmpsw white
 	keyword whole cmpss white
-	keyword whole cmpsd* white
 	keyword whole cmpsd white
 	keyword whole cmpsb white
 	keyword whole cmpps white
@@ -753,6 +815,8 @@ context default
 	keyword whole cmovge white
 	keyword whole cmovg white
 	keyword whole cmove white
+	keyword whole cmovc white
+	keyword whole cmovbe white
 	keyword whole cmovb white
 	keyword whole cmovae white
 	keyword whole cmova white
@@ -762,6 +826,7 @@ context default
 	keyword whole clflush white
 	keyword whole cld white
 	keyword whole clc white
+	keyword whole cdqe white
 	keyword whole cdq white
 	keyword whole cbw white
 	keyword whole cbtw white
@@ -781,6 +846,10 @@ context default
 	keyword whole bsfl white
 	keyword whole bsf white
 	keyword whole bound white
+	keyword whole blendvps white
+	keyword whole blendvpd white
+	keyword whole blendps white
+	keyword whole blendpd white
 	keyword whole arpl white
 	keyword whole andw white
 	keyword whole andps white
