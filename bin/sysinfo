@@ -27,6 +27,8 @@ sub do_cpuinfo
 	my($cpu_mhz, $cpu_max_mhz, $cpu_model, $cpu_vendor, $cpu_arch, $cpu_num);
 	local *IN;
 
+	chomp(my $karch = `uname -m 2>/dev/null`);
+
 	if (!open(IN, "</proc/cpuinfo")) {
 		return;
 	}
@@ -53,6 +55,9 @@ sub do_cpuinfo
 	$cpu_model =~ s/^\s*(?:dual|quad)(?:\s+core)?\s*//i;
 	$cpu_model =~ s/ +/ /g;
 	$cpu_model =~ s/ +$//g;
+	if ($karch ne "") {
+		print " $karch";
+	}
 	print " | ";
 	if ($cpu_num > 1) {
 		print "${cpu_num}x ";
