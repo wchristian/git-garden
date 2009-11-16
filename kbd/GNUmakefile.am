@@ -1,7 +1,6 @@
 # -*- Makefile -*-
 
-x11fonts     = ahnv.pcf.gz ahnv_b.pcf.gz mux.pcf.gz mux_b.pcf.gz \
-               rhx.pcf.gz rhx_b.pcf.gz tosh.pcf.gz tosh_b.pcf.gz
+x11fonts     = ahnv.pcf.gz mux.pcf.gz rhx.pcf.gz tosh.pcf.gz
 x11miscdir   = ${x11fontdir}/misc
 x11misc_DATA = ${x11fonts}
 CLEANFILES   = ${x11fonts}
@@ -19,8 +18,3 @@ vgafont_DATA = ahnv.fnt ati.fnt gotik-textura.fnt ital.fnt mux.fnt \
 
 %.pcf.gz: %.bdf
 	bdftopcf <"$<" | gzip -9c >"$@";
-
-%_b.pcf.gz: %.bdf
-	${top_srcdir}/bin/pesubst -mm -s \
-	'^(FONT)\s+("?)(.*)\2' -d '$$1 $$2$$3_b$$2' - <"$<" | \
-	bdftopcf | gzip -9c >"$@";
