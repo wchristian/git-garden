@@ -39,7 +39,7 @@ sub do_cpuinfo
 			$cpu_vendor = $1;
 		} elsif ($l =~ /^arch\s+:\s+(.*)/i) {
 			$cpu_arch = $1;
-		} elsif ($l =~ /^model name\s+:\s+(.*)/i) {
+		} elsif ($l =~ /^(?:cpu|model name)\s+:\s+(.*)/i) {
 			$cpu_model = $1;
 			$cpu_model =~ s/\@?\s*\d+\.\d+[GM]Hz//s;
 		} elsif ($l =~ /^cpu mhz\s+:\s+(.*)/i) {
@@ -73,12 +73,12 @@ sub do_cpuinfo
 		close IN;
 	}
 
-	print "$cpu_model ";
+	print $cpu_model;
 	if ($cpu_mhz != 0) {
 		if ($cpu_max_mhz != 0) {
-			print "\@$cpu_mhz/$cpu_max_mhz";
+			print " \@$cpu_mhz/$cpu_max_mhz";
 		} else {
-			print $cpu_mhz;
+			print " ", $cpu_mhz;
 		}
 		print " MHz";
 	}
