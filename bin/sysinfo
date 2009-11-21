@@ -46,7 +46,7 @@ sub do_cpuinfo
 			$cpu_mhz = $1;
 		}
 	}
-	$cpu_mhz =~ s/\..*/$1/;
+	$cpu_mhz =~ s/\..*//;
 	if ($cpu_model eq "") {
 		$cpu_model = "$cpu_vendor $cpu_arch";
 	}
@@ -74,12 +74,14 @@ sub do_cpuinfo
 	}
 
 	print "$cpu_model ";
-	if ($cpu_max_mhz != 0) {
-		print "\@$cpu_mhz/$cpu_max_mhz";
-	} else {
-		print $cpu_mhz;
+	if ($cpu_mhz != 0) {
+		if ($cpu_max_mhz != 0) {
+			print "\@$cpu_mhz/$cpu_max_mhz";
+		} else {
+			print $cpu_mhz;
+		}
+		print " MHz";
 	}
-	print " MHz";
 }
 
 sub do_loc
