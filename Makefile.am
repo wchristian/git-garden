@@ -4,8 +4,8 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 SUBDIRS          = bin data doc kbd libexec
 
 tmpdir := $(shell mktemp -dtu)
-packer  = bzip2
-packext = .tar.bz2
+packer  = xz
+packext = .tar.xz
 
 .PHONY: tarball
 tarball:

@@ -1,34 +1,39 @@
 
 Name:		hxtools
-Version:	20091011
+Version:	20091123
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
 Summary:	Collection of day-to-day tools
 
-Source:		%name-%version.tar.bz2
+Source:		%name-%version.tar.xz
 License:	GPL,PD
 # freetype2, xorg-x11 for "bdftopcf"
 BuildRequires:	libHX-devel >= 3.0, freetype2, libcap-devel
-BuildRequires:	xorg-x11, pkg-config
+BuildRequires:	xorg-x11, pkg-config, xz
 BuildRoot:	%_tmppath/%name-%version-build
-Recommends:	hxtools-noarch = %version
+Recommends:	hxtools-data = %version
 Prefix:		/opt/hxtools
+
+%if "%{?vendor_uuid}" != ""
+Provides:	%name(vendor:%vendor_uuid) = %version-%release
+%endif
 
 %description
 A big tool collection.
 
-%package noarch
+%package data
 Group:		System/Base
 Summary:	Collection day-to-day tools (data)
 Requires:	hxtools = %version
-Obsoletes:	hxtools-data
+Obsoletes:	hxtools-noarch
+BuildArch:	noarch
 
-%description noarch
+%description data
 Architecture-indepent data for hxtools.
 
 %prep
-%setup
+%setup -q
 
 %build
 %configure \
@@ -54,24 +59,31 @@ cd "$b";
 find opt/hxtools -type f -print0 | \
 	xargs -0 grep -l ELF | perl -ne 'print"/$_"' >"$o/binary.lst";
 find opt/hxtools -type f -print0 | \
-	xargs -0 grep -L ELF | perl -ne 'print"/$_"' >"$o/noarch.lst";
+	xargs -0 grep -L ELF | perl -ne 'print"/$_"' >"$o/data.lst";
 chmod a+x "$b/%_sysconfdir"/hx*.bash;
 
 %clean
 rm -Rf "%buildroot";
+echo -en "\e[1;32m""Now rebuild aaa_base if you changed DIR_COLORS!""\e[0m\n";
 
 %files -f binary.lst
 %defattr(-,root,root)
-
-%files noarch -f noarch.lst
-%defattr(-,root,root)
 %dir %prefix
+%dir %prefix/bin
+%dir %prefix/libexec
+
+%files data -f data.lst
+%defattr(-,root,root)
 %config %_sysconfdir/hx*
+%dir %_sysconfdir/openldap
+%dir %_sysconfdir/openldap/schema
 %config %_sysconfdir/openldap/schema/*
-%_datadir/kbd/consolefonts/*
-%_datadir/kbd/keymaps/i386/*/*
-%_datadir/fonts/misc/*
-%_datadir/mc/syntax/*
+%dir %prefix
+%dir %prefix/bin
+%dir %prefix/libexec
+%_datadir/kbd
+%_datadir/fonts/misc
+%_datadir/mc
 %doc %_mandir/*/*
 
 %changelog
