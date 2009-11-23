@@ -41,14 +41,14 @@ sub do_cpuinfo
 			$cpu_vendor = $1;
 		} elsif ($l =~ /^arch\s+:\s+(.*)/i) {
 			$cpu_arch = $1;
-		} elsif ($l =~ /^model name\s+:\s+(.*)/i) {
+		} elsif ($l =~ /^(?:cpu|model name)\s+:\s+(.*)/i) {
 			$cpu_model = $1;
 			$cpu_model =~ s/\@?\s*\d+\.\d+[GM]Hz//s;
 		} elsif ($l =~ /^cpu mhz\s+:\s+(.*)/i) {
 			$cpu_mhz = $1;
 		}
 	}
-	$cpu_mhz =~ s/\..*/$1/;
+	$cpu_mhz =~ s/\..*//;
 	if ($cpu_model eq "") {
 		$cpu_model = "$cpu_vendor $cpu_arch";
 	}
@@ -78,13 +78,15 @@ sub do_cpuinfo
 		close IN;
 	}
 
-	print "$cpu_model ";
-	if ($cpu_max_mhz != 0) {
-		print "\@$cpu_mhz/$cpu_max_mhz";
-	} else {
-		print $cpu_mhz;
+	print $cpu_model;
+	if ($cpu_mhz != 0) {
+		if ($cpu_max_mhz != 0) {
+			print " \@$cpu_mhz/$cpu_max_mhz";
+		} else {
+			print " ", $cpu_mhz;
+		}
+		print " MHz";
 	}
-	print " MHz";
 }
 
 sub do_loc
