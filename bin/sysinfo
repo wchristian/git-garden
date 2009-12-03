@@ -155,9 +155,12 @@ sub do_gfx
 
 	my $dev;
 	chomp($dev = <IN>);
+	close IN;
+	if (!defined($dev)) {
+		return;
+	}
 	$dev =~ s/^.*VGA compatible controller:\s+//;
 	print " | Gfx: $dev";
-	close IN;
 
 	my($scr_res, $scr_virt);
 
