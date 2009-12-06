@@ -29,15 +29,15 @@ If you want to load one at boot-up, use KEYTABLE in /etc/sysconfig/keyboard.
 
 
 == FONT OVERVIEW ==
-ahnv.fnt - conglomerate of ati.fnt and nvidia.fnt (composer's favorite)
+ahnv.fnt - conglomerate of ati.fnt and nvidia.fnt
 ati.fnt - ATI Rage XL ROM font (found in many ATI cards)
 ega*.fnt - from EGA.CPI
 gotik.fnt - some floppy stuff from 1994
 ital.fnt - some floppy stuff from 1994
-mu0.fnt - from the SUSE "kbd" package
+mu0.fnt - from the SUSE "kbd" package, mu.fnt
 mux.fnt - An edge variant of mu(0), by me (Jan)
-nvidia.fnt - NVIDIA GF2MX400 ROM font (found in many Nvidia cards)
+nvidia.fnt - NVIDIA GF2MX400 ROM font (found in many Nvidia cards and
+original 386s/486s with at least AMIBIOS)
 rhx.fnt - from the SUSE "kbd" package, with alterations
-roman-1.fnt - from FreeDOS
 tosh.fnt - CrystalLogic CS55554 ROM font (found in Toshiba CS220 laptop)
 vmware.fnt - VMware VGA ROM font
