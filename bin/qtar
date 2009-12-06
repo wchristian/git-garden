@@ -11,7 +11,7 @@ use strict;
 
 my @excludes = ();
 my $strategy = "by_normal";
-my $packer = "bzip2";
+my $packer = undef;
 my @result;
 &main();
 
@@ -32,6 +32,15 @@ sub main
 	}
 
 	my $archive = shift @ARGV;
+	if (!defined($packer)) {
+		if (substr($archive, -3, 3) eq ".xz") {
+			$packer = "xz";
+		} elsif (substr($archive, -4, 4) eq ".bz2") {
+			$packer = "bzip2";
+		} elsif (substr($archive, -3, 3) eq ".gz") {
+			$packer = "gzip";
+		}
+	}
 
 	find({
 		wanted => \&collect,
