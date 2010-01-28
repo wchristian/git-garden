@@ -19,7 +19,7 @@ sub main
 {
 	Getopt::Long::Configure(qw(bundling pass_through));
 	GetOptions(
-		"x"   => sub { push(@excludes, qr{(?:^|/)\.(?:git|svn)(?:/|$)}); },
+		"x"   => sub { push(@excludes, qr{(?:^|/)\.(?:git|svn|hg)(?:/|$)}); },
 		"svn" => sub { $strategy = "by_basename";  }, # lame alias I agree
 		"ext" => sub { $strategy = "by_extension"; },
 		"use=s" => sub { $packer = $_[1]; },
