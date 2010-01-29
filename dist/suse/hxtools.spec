@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20091123
+Version:	20100129
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
@@ -44,7 +44,7 @@ Architecture-indepent data for hxtools.
 	--with-keymapdir=%_datadir/kbd/keymaps \
 	--with-vgafontdir=%_datadir/kbd/consolefonts \
 	--with-x11fontdir=%_datadir/fonts
-make %{?jobs:-j%jobs};
+make %{?_smp_mflags};
 
 %install
 o="$PWD";
