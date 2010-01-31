@@ -52,7 +52,6 @@ context default
 	keyword whole off64_t white
 	keyword whole off_t white
 	keyword whole operator white
-	keyword whole pid_t white
 	keyword whole private white
 	keyword whole protected white
 	keyword whole public white
