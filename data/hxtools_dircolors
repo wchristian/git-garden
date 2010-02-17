@@ -123,7 +123,8 @@ EXEC		1;31
 .jpeg	0;36
 .jpg	0;36	# JPEG
 .mid	0;36	# MIDI file
-.mkv	0;36	# Matroska container
+.mka	0;36	# Matroska container (used for audio-only)
+.mkv	0;36	# Matroska container (used for video)
 .mod	0;36	# Fast Tracker Module
 .mov	0;36	# QuickTime Movie
 .mp2	0;36	# MPEG-1 layer 2 audio
