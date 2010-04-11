@@ -1,6 +1,6 @@
 /*
  *	bsvplay.c - BASICA binary music format interpreter
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2002 - 2007
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2002 - 2010
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libHX/init.h>
 #include <libHX/option.h>
 #include "pcspkr.h"
 
@@ -112,9 +113,17 @@ int main(int argc, const char **argv)
 		HXOPT_AUTOHELP,
 		HXOPT_TABLEEND,
 	};
+	int ret;
 
-	if (HX_getopt(options_table, &argc, &argv, HXOPT_USAGEONERR) <= 0)
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+
+	if (HX_getopt(options_table, &argc, &argv, HXOPT_USAGEONERR) <= 0) {
+		HX_exit();
 		return EXIT_FAILURE;
+	}
 
 	pcsp.file_ptr = fdopen(STDOUT_FILENO, "wb");
 	if (argc == 1)
@@ -123,5 +132,6 @@ int main(int argc, const char **argv)
 		while (--argc > 0)
 			parse_file(*++argv);
 
+	HX_exit();
 	return EXIT_SUCCESS;
 }

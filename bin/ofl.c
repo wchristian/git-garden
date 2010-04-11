@@ -4,7 +4,7 @@
  *	(While it says mountpoint in the source, any directory is acceptable,
  *	as are files.)
  *
- *	written by Jan Engelhardt, 2008
+ *	written by Jan Engelhardt, 2008 - 2010
  *	Released in the Public Domain.
  */
 #include <sys/stat.h>
@@ -16,11 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <libHX/ctype_helper.h>
-#include <libHX/defs.h>
-#include <libHX/misc.h>
-#include <libHX/option.h>
-#include <libHX/string.h>
+#include <libHX.h>
 
 /**
  * @sb:		just space
@@ -303,22 +299,31 @@ int main(int argc, const char **argv)
 		HXOPT_AUTOHELP,
 		HXOPT_TABLEEND,
 	};
-	bool ret = false;
+	int ret;
 
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
 	if (HX_getopt(options_table, &argc, &argv, HXOPT_USAGEONERR) < 0)
-		return EXIT_FAILURE + 1;
+		goto out;
 	if (argc == 1) {
 		fprintf(stderr, "You need to supply at least a path\n");
-		return EXIT_FAILURE + 1;
+		goto out;
 	}
 
 	if (signum_str != NULL)
 		signum = parse_signal(signum_str);
+	ret = false;
 	while (*++argv != NULL)
 		ret |= ofl(*argv, signum);
 
 	if (pids_only)
 		printf("\n");
 
+	HX_exit();
 	return ret ? EXIT_SUCCESS : EXIT_FAILURE;
+ out:
+	HX_exit();
+	return EXIT_FAILURE + 1;
 }

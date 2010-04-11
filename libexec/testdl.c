@@ -1,6 +1,6 @@
 /*
  *	testdl - test symbol resolving
- *	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
+ *	written by Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2010
  *	http://jengelh.medozas.de/
  *	released in the Public Domain
  */
@@ -11,11 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libHX/defs.h>
-#include <libHX/deque.h>
-#include <libHX/misc.h>
-#include <libHX/option.h>
-#include <libHX/string.h>
+#include <libHX.h>
 #define MAXFNLEN 256
 
 static struct HXdeque *tdl_search_dirs = NULL;
@@ -121,7 +117,7 @@ static bool tdl_get_options(int *argc, const char ***argv)
 	return HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) > 0;
 }
 
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	const struct HXdeque_node *node;
 	void *handle;
@@ -163,4 +159,17 @@ int main(int argc, const char **argv)
 	}
 
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }

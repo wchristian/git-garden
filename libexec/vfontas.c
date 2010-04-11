@@ -1,7 +1,7 @@
 /*
  *	vfontas.c - VGA font textfile assembler
  *	FNT and CPI font extraction/converter program.
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2008
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2010
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <libHX/defs.h>
+#include <libHX/init.h>
 #include <libHX/misc.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
@@ -389,7 +390,7 @@ static bool vf_get_options(int *argc, const char ***argv)
 	return true;
 }
 
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	int ret = 0;
 
@@ -412,4 +413,17 @@ int main(int argc, const char **argv)
 	}
 
 	return (ret > 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }

@@ -1,7 +1,7 @@
 /*
  *	deltify wavs
  *	used to compare artifacts of audio codecs
- *	written by Jan Engelhardt <jengelh [at] medozas de>, 2008
+ *	written by Jan Engelhardt <jengelh [at] medozas de>, 2008 - 2010
  *	http://jengelh.medozas.de/
  *	released in the Public Domain
  */
@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libHX/init.h>
 #include <libHX/option.h>
 
 struct fdstream {
@@ -177,7 +178,7 @@ static void wavdiff_normal_process(struct fdstream *file)
 	} while (!a_stop && !b_stop);
 }
 
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	if (!wavdiff_get_options(&argc, &argv))
 		return EXIT_FAILURE;
@@ -197,4 +198,17 @@ int main(int argc, const char **argv)
 	close(gfile[1].fd);
 	close(gfile[2].fd);
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }

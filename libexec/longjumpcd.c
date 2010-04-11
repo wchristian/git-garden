@@ -1,6 +1,6 @@
 /*
  *	longjumpcd.c - cd to a nearby path
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2007
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2010
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libHX/deque.h>
+#include <libHX/init.h>
 #include <libHX/misc.h>
 #include <libHX/string.h>
 #define PREFIX "longjumpcd: "
@@ -29,7 +30,7 @@ static int try_path(const char *, const char *, ino_t);
 static ino_t Base_inode, Root_inode;
 
 //-----------------------------------------------------------------------------
-int main(int argc, char **argv)
+static int main2(int argc, const char **argv)
 {
 	struct HXdeque *dq;
 	char *upath;
@@ -122,6 +123,19 @@ int main(int argc, char **argv)
 
 	free(upath);
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }
 
 static ino_t get_inode(const char *path)

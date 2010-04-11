@@ -1,6 +1,6 @@
 /*
  *	graph-lchain.c - Longest-chain tree nodes
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2007 - 2008
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2007 - 2010
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libHX/init.h>
 #include <libHX/map.h>
 #include <libHX/string.h>
 
@@ -33,7 +34,7 @@ static void lchain_dump_tree(const struct HXmap *);
 static void lchain_free_tree(struct HXmap *);
 
 //-----------------------------------------------------------------------------
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	const char **file;
 	FILE *fp;
@@ -64,6 +65,19 @@ int main(int argc, const char **argv)
 	lchain_dump_tree(nodename_map);
 	lchain_free_tree(nodename_map);
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }
 
 static void lchain_process(FILE *fp)

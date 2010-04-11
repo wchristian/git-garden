@@ -1,6 +1,6 @@
 /*
  *	utmp_register.c - (de)register in U/WTMP
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2007
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2004 - 2010
  *	http://jengelh.medozas.de/
  *
  *	This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <utmp.h>
+#include <libHX/init.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
 #include "config.h"
@@ -131,7 +132,7 @@ static void update_lastlog(const char *file, const struct utmp *utmp)
 #endif
 }
 
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	struct utmp entry = {};
 	struct timeval tv;
@@ -194,4 +195,17 @@ int main(int argc, const char **argv)
 
 	endutent();
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }

@@ -1,5 +1,5 @@
 /*
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2009
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2009 - 2010
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-#include <libHX/misc.h>
 #include <libHX.h>
 #include <pwd.h>
 
@@ -340,10 +338,15 @@ static void kps_tree_show(struct HXmap *tree)
 int main(int argc, const char **argv)
 {
 	struct HXmap *tree;
+	int ret;
 
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
 	tree = kps_proc_init();
 	kps_tree_show(tree);
 	HXmap_free(tree);
-
+	HX_exit();
 	return EXIT_SUCCESS;
 }

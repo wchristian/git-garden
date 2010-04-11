@@ -1,6 +1,6 @@
 /*
  *	tailhex.c - tail follower with hexdump
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2007
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2010
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <libHX/ctype_helper.h>
+#include <libHX/init.h>
 #include <libHX/option.h>
 
 /* Functions */
@@ -37,7 +38,7 @@ static struct {
 };
 
 //-----------------------------------------------------------------------------
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	unsigned int buf_offset = 0;
 	unsigned char *buf;
@@ -68,7 +69,7 @@ int main(int argc, const char **argv)
 	if (rax < 0)
 		perror("seek to %lld failed");
 
-	while (1) {
+	while (true) {
 		long long pos;
 		int i;
 
@@ -111,6 +112,19 @@ int main(int argc, const char **argv)
 	}
 
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }
 
 //-----------------------------------------------------------------------------

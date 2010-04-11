@@ -1,6 +1,6 @@
 /*
  *	graph-fanout.c - Fanout tree for Graphviz
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2007 - 2009
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2007 - 2010
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -11,18 +11,18 @@
  * Assume you have a group of nodes X_1 ... X_n that all point to a next-node P
  * (it is a directed graph). If n is within the threshold ("fan_height" in the
  * source code), do nothing with this group.
- *                                                                               
+ *
  * Insert intermediate parent nodes for X_1 ... X_n so that P and every
  * intermediate only has at most n nodes pointing to it.
- *                                                                               
- * (Just think of it like the n-level pagetables.)                               
- *                                                                               
+ *
+ * (Just think of it like the n-level pagetables.)
+ *
  * This is basically just a hack for graphviz because it tends to overlap edges
  * when it has to give them greater curvature. (Make yourself a tree with 32
  * nodes X_1...X_32 and one root node to which all 32 are attached.) The edges
  * X_1-->P and X_32-->P will have a great 'curvature', while X_16-->P is pretty
  * linear.
- *                                                                              
+ *
  * The 'problem' (it's rather "we did not want to write code until the dawn of
  * time just to avoid this problem") lies in graphviz's math parts to form the
  * edge curvature -- so it happens that X_1-->P will overlap with X_4-->P. This
@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libHX/deque.h>
+#include <libHX/init.h>
 #include <libHX/map.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
@@ -63,7 +64,7 @@ static void fanout_dump_tree(const struct HXmap *);
 static void fanout_free_tree(struct HXmap *);
 
 //-----------------------------------------------------------------------------
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	const char **file;
 	FILE *fp;
@@ -104,6 +105,19 @@ int main(int argc, const char **argv)
 	fanout_free_tree(nodename_map);
 	HXmap_free(roots_map);
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }
 
 static bool fanout_get_options(int *argc, const char ***argv)

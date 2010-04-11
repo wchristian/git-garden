@@ -1,6 +1,6 @@
 /*
  *	octl.c - Interface to OSS-API volume, recording and playback
- *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2007
+ *	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2005 - 2010
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include <libHX/defs.h>
 #include <libHX/deque.h>
+#include <libHX/init.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
 #define VERBOSITY_MIN 0
@@ -73,7 +74,7 @@ static struct {
 };
 
 //-----------------------------------------------------------------------------
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	char *pp = HX_basename(*argv);
 
@@ -98,6 +99,19 @@ int main(int argc, const char **argv)
 		        argv[0], argv[1]);
 	}
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }
 
 static void mixer(int argc, const char **argv)
