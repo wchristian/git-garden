@@ -17,3 +17,11 @@ Send the given signal to all processes that match.
 .TP
 \fB\-P\fP
 Show only the PIDs of the processes that matched.
+.SH Differences to lsof/fuser
+.PP
+.IP \(bu 4
+`lsof /home/user` and `fuser /home/user` would not list processes that have a
+descriptor open on /home/user/subdir.
+.IP \(bu 4
+`fuser -m /home/subdir` would automatically go down to the root of a vfsmount
+(e.g. /home) and list all processes, instead of limiting to /home/subdir.
