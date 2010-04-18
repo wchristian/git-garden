@@ -50,6 +50,7 @@ EXEC		1;31
 .tbz2	0;31	# Tar / BZip2
 .tgz	0;31	# Tar / GZip
 #.z	0:31	# LZ77/78 "compress" files (old)
+.xz	0;31	# tukaani xz
 .zip	0;31	# Zip
 .zoo	0;31	# Zoo
 
