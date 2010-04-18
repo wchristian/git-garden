@@ -35,6 +35,20 @@ certain keyboard definitions from the "kbd" package and make some more
 keys available. If you want to load one at boot-up in openSUSE, use
 KEYTABLE in /etc/sysconfig/keyboard.
 
+de_jeng.map
+	German keymap addon:
+	- Compose key
+	- left/right tty switch using WinLeft/WinRight
+us_jeng.map:
+	US keymap addon:
+	- Compose key
+	- left/right tty switch using WinLeft/WinRight
+	- German glyphs reachable through AltGr
+us_jeng_sonyvaiou3.map
+	US keymap addon:
+	- Compose key
+	- left/right tty switch
+	- adjusted for SONY VAIO U3 keycodes
 
 == FONT OVERVIEW ==
 

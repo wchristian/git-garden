@@ -6,10 +6,10 @@ x11misc_DATA = ${x11fonts}
 CLEANFILES   = ${x11fonts}
 
 qwertydir    = ${keymapdir}/i386/qwerty
-qwerty_DATA  = us_ccj.map us_ccj_sonyvaiou3.map
+qwerty_DATA  = us_jng.map us_jng_vaiou3.map
 
 qwertzdir    = ${keymapdir}/i386/qwertz
-qwertz_DATA  = de_ccj.map
+qwertz_DATA  = de_jng.map
 
 vgafont_DATA = ahnv.fnt ati.fnt gotik-textura.fnt ital.fnt mux.fnt \
                neuropol.fnt nvidia.fnt \

@@ -1,4 +1,7 @@
-include "us_ccj.map"
+#
+# Keymap for SONY VAIO U3
+#
+include "us_jng.map"
 
 plain keycode 124 = equal
 shift keycode 124 = plus
