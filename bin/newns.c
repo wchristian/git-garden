@@ -33,8 +33,12 @@ int main(int argc, char **argv)
 
 	ret = clone(mexec, stack + STACK_SIZE / 2,
 	      CLONE_NEWNS | CLONE_THREAD | CLONE_SIGHAND | CLONE_VM, &argv[1]);
-	if (ret < 0)
+	if (ret < 0) {
 		perror("clone");
-	sleep(6000);
-	return !!ret;
+	} else {
+		/* Waiting for thread to exec */
+		while (true)
+			sleep(1);
+	}
+	return EXIT_FAILURE;
 }
