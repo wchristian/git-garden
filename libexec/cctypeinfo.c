@@ -49,6 +49,7 @@ p(uint8_t);
 p(uint16_t);
 p(uint32_t);
 p(uint64_t);
+p(mode_t);
 q(struct x16, x16);
 q(struct x32, x32);
 q(struct x64, x64);
@@ -78,6 +79,7 @@ int main(void)
 	t(struct x16);
 	t(struct x32);
 	t(struct x64);
+	t(mode_t);
 	return EXIT_SUCCESS;
 }
 #endif
