@@ -3,7 +3,7 @@
 AM_CFLAGS = ${regular_CFLAGS} ${libHX_CFLAGS}
 
 libexec_PROGRAMS = bsvplay cctypeinfo fd0ssh graph-fanout \
-	graph-lchain longjumpcd \
+	graph-lchain longjumpcd proc_iomem_count \
 	qplay testdl utmp_register wavdiff vfontas xcp \
 	xfs_irecover
 if HAVE_LIBCAP
@@ -15,7 +15,7 @@ libexec_SCRIPTS  = diff2php doxygen-kerneldoc-filter extract_dxhog \
                 extract_qupak filenameconv flv2avi flv2mka fnt2bdf \
                 git-blame-stats git-new-root git-revert-stats \
                 logontime mailsplit mod2ogg mpg2ogg netload paddrspacesize \
-                png2wx.pl proc_iomem_count \
+                png2wx.pl \
                 proc_stat_signal_decode raregetty rpmdep.pl \
                 sourcefuncsize stxdb vcsaview
 noinst_SCRIPTS = png2wx.py
@@ -28,6 +28,7 @@ longjumpcd_LDADD    = ${libHX_LIBS}
 qplay_SOURCES       = qplay.c pcspkr_pcm.c
 qplay_LDADD         = ${libHX_LIBS} -lm
 printcaps_LDADD     = -lcap
+proc_iomem_count_LDADD = ${libHX_LIBS}
 testdl_LDADD        = ${libHX_LIBS}
 utmp_register_LDADD = ${libHX_LIBS}
 wavdiff_LDADD       = ${libHX_LIBS}

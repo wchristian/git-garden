@@ -1,7 +1,0 @@
-#!/usr/bin/perl
-
-while (<>) {
-	my($start, $end) = (/^\s*(\S+)-(\S+)\s*:/);
-	printf "%5u MB\t%s",
-		eval("0x$end - 0x$start") / 1048576, $_;
-}
