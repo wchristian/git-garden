@@ -53,101 +53,6 @@ static unsigned int rt_node_counter;
 static struct HXmap *nodename_map;
 static struct HXmap *roots_map;
 
-/* Functions */
-static bool fanout_get_options(int *, const char ***);
-static void fanout_process(FILE *);
-static void fanout_build(const char *, const char *);
-static void fanout_find_roots(void);
-static void fanout_process_roots(struct HXmap *);
-static void fanout_one_node(struct node *);
-static void fanout_dump_tree(const struct HXmap *);
-static void fanout_free_tree(struct HXmap *);
-
-//-----------------------------------------------------------------------------
-static int main2(int argc, const char **argv)
-{
-	const char **file;
-	FILE *fp;
-
-	nodename_map = HXmap_init(HXMAPT_DEFAULT, HXMAP_SKEY);
-	if (nodename_map == NULL) {
-		perror("HXmap_init");
-		abort();
-	}
-
-	roots_map = HXmap_init(HXMAPT_DEFAULT, HXMAP_SINGULAR);
-	if (roots_map == NULL) {
-		perror("HXbtree_init");
-		abort();
-	}
-
-	if (!fanout_get_options(&argc, &argv))
-		return EXIT_FAILURE;
-
-	if (argc == 1) {
-		fanout_process(stdin);
-	} else {
-		for (file = &argv[1]; *file != NULL; ++file) {
-			fp = fopen(*file, "r");
-			if (fp == NULL) {
-				fprintf(stderr, "%s: Could not open %s: %s\n",
-				        *argv, *file, strerror(errno));
-				continue;
-			}
-			fanout_process(fp);
-			fclose(fp);
-		}
-	}
-
-	fanout_find_roots();
-	fanout_process_roots(roots_map);
-	fanout_dump_tree(nodename_map);
-	fanout_free_tree(nodename_map);
-	HXmap_free(roots_map);
-	return EXIT_SUCCESS;
-}
-
-int main(int argc, const char **argv)
-{
-	int ret;
-
-	if ((ret = HX_init()) <= 0) {
-		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
-		abort();
-	}
-	ret = main2(argc, argv);
-	HX_exit();
-	return ret;
-}
-
-static bool fanout_get_options(int *argc, const char ***argv)
-{
-	struct HXoption options_table[] = {
-		{.sh = 'n', .type = HXTYPE_UINT, .ptr = &fan_height,
-		 .help = "Maximum height per group", .htyp = "INT"},
-		HXOPT_AUTOHELP,
-		HXOPT_TABLEEND,
-	};
-	return HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) > 0;
-}
-
-static void fanout_process(FILE *fp)
-{
-	hxmc_t *source_name = NULL, *target_name = NULL;
-
-	while (HX_getl(&source_name, fp) != NULL) {
-		if (HX_getl(&target_name, fp) == NULL)
-			break;
-
-		HX_chomp(source_name);
-		HX_chomp(target_name);
-		fanout_build(source_name, target_name);
-	}
-
-	HXmc_free(source_name);
-	HXmc_free(target_name);
-}
-
 static void fanout_build(const char *child_name, const char *parent_name)
 {
 	struct node *child_ptr, *parent_ptr;
@@ -212,6 +117,23 @@ static void fanout_build(const char *child_name, const char *parent_name)
 	child_ptr->parent = parent_ptr;
 }
 
+static void fanout_process(FILE *fp)
+{
+	hxmc_t *source_name = NULL, *target_name = NULL;
+
+	while (HX_getl(&source_name, fp) != NULL) {
+		if (HX_getl(&target_name, fp) == NULL)
+			break;
+
+		HX_chomp(source_name);
+		HX_chomp(target_name);
+		fanout_build(source_name, target_name);
+	}
+
+	HXmc_free(source_name);
+	HXmc_free(target_name);
+}
+
 static void fanout_find_roots(void)
 {
 	const struct HXmap_node *tree_node;
@@ -225,18 +147,6 @@ static void fanout_find_roots(void)
 			;
 		HXmap_add(roots_map, w, NULL);
 	}
-
-	HXmap_travfree(trav);
-}
-
-static void fanout_process_roots(struct HXmap *root_map)
-{
-	const struct HXmap_node *tree_node;
-	struct HXmap_trav *trav;
-
-	trav = HXmap_travinit(root_map, 0);
-	while ((tree_node = HXmap_traverse(trav)) != NULL)
-		fanout_one_node(tree_node->key);
 
 	HXmap_travfree(trav);
 }
@@ -300,6 +210,18 @@ static void fanout_one_node(struct node *current)
 		fanout_one_node(current);
 }
 
+static void fanout_process_roots(struct HXmap *root_map)
+{
+	const struct HXmap_node *tree_node;
+	struct HXmap_trav *trav;
+
+	trav = HXmap_travinit(root_map, 0);
+	while ((tree_node = HXmap_traverse(trav)) != NULL)
+		fanout_one_node(tree_node->key);
+
+	HXmap_travfree(trav);
+}
+
 static void fanout_dump_tree(const struct HXmap *tree)
 {
 	const struct HXmap_node *tree_node;
@@ -333,4 +255,71 @@ static void fanout_free_tree(struct HXmap *tree)
 
 	HXmap_travfree(trav);
 	HXmap_free(tree);
+}
+
+static bool fanout_get_options(int *argc, const char ***argv)
+{
+	struct HXoption options_table[] = {
+		{.sh = 'n', .type = HXTYPE_UINT, .ptr = &fan_height,
+		 .help = "Maximum height per group", .htyp = "INT"},
+		HXOPT_AUTOHELP,
+		HXOPT_TABLEEND,
+	};
+	return HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) > 0;
+}
+
+static int main2(int argc, const char **argv)
+{
+	const char **file;
+	FILE *fp;
+
+	nodename_map = HXmap_init(HXMAPT_DEFAULT, HXMAP_SKEY);
+	if (nodename_map == NULL) {
+		perror("HXmap_init");
+		abort();
+	}
+
+	roots_map = HXmap_init(HXMAPT_DEFAULT, HXMAP_SINGULAR);
+	if (roots_map == NULL) {
+		perror("HXbtree_init");
+		abort();
+	}
+
+	if (!fanout_get_options(&argc, &argv))
+		return EXIT_FAILURE;
+
+	if (argc == 1) {
+		fanout_process(stdin);
+	} else {
+		for (file = &argv[1]; *file != NULL; ++file) {
+			fp = fopen(*file, "r");
+			if (fp == NULL) {
+				fprintf(stderr, "%s: Could not open %s: %s\n",
+				        *argv, *file, strerror(errno));
+				continue;
+			}
+			fanout_process(fp);
+			fclose(fp);
+		}
+	}
+
+	fanout_find_roots();
+	fanout_process_roots(roots_map);
+	fanout_dump_tree(nodename_map);
+	fanout_free_tree(nodename_map);
+	HXmap_free(roots_map);
+	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }

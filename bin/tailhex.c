@@ -20,12 +20,6 @@
 #include <libHX/init.h>
 #include <libHX/option.h>
 
-/* Functions */
-static int get_options(int *, const char ***);
-static void getopt_op_e(const struct HXoptcb *);
-static inline char printable(char);
-
-/* Variables */
 static struct {
 	long long start;
 	int approx, follow, bsize, quad;
@@ -37,7 +31,44 @@ static struct {
 	.quad   = 0,
 };
 
-//-----------------------------------------------------------------------------
+static void getopt_op_e(const struct HXoptcb *cbi)
+{
+	Opt.start = strtoll(cbi->data, NULL, 0);
+}
+
+static int get_options(int *argc, const char ***argv)
+{
+	static const struct HXoption options_table[] = {
+		{.sh = 'B', .type = HXTYPE_INT, .ptr = &Opt.bsize,
+		 .help = "Buffer and window width"},
+		{.sh = 'Q', .type = HXTYPE_NONE, .ptr = &Opt.quad,
+		 .help = "Use 64-bit position numbers beginning from 0"},
+		{.sh = 'a', .type = HXTYPE_NONE, .ptr = &Opt.approx,
+		 .help = "Approximate position start"},
+		{.sh = 'e', .type = HXTYPE_STRING, .cb = getopt_op_e,
+		 .help = "Exact position start"},
+		{.sh = 'f', .type = HXTYPE_NONE, .ptr = &Opt.follow,
+		 .help = "Output appended data as file grows", NULL},
+		HXOPT_AUTOHELP,
+		HXOPT_TABLEEND,
+	};
+
+	if (HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) <= 0)
+		return 0;
+
+	if (*argc == 1) {
+		fprintf(stderr, "Error: You need to provide a filename\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+static inline char printable(char x)
+{
+	return HX_isprint(x) ? x : '.';
+}
+
 static int main2(int argc, const char **argv)
 {
 	unsigned int buf_offset = 0;
@@ -128,40 +159,3 @@ int main(int argc, const char **argv)
 }
 
 //-----------------------------------------------------------------------------
-static int get_options(int *argc, const char ***argv)
-{
-	static const struct HXoption options_table[] = {
-		{.sh = 'B', .type = HXTYPE_INT, .ptr = &Opt.bsize,
-		 .help = "Buffer and window width"},
-		{.sh = 'Q', .type = HXTYPE_NONE, .ptr = &Opt.quad,
-		 .help = "Use 64-bit position numbers beginning from 0"},
-		{.sh = 'a', .type = HXTYPE_NONE, .ptr = &Opt.approx,
-		 .help = "Approximate position start"},
-		{.sh = 'e', .type = HXTYPE_STRING, .cb = getopt_op_e,
-		 .help = "Exact position start"},
-		{.sh = 'f', .type = HXTYPE_NONE, .ptr = &Opt.follow,
-		 .help = "Output appended data as file grows", NULL},
-		HXOPT_AUTOHELP,
-		HXOPT_TABLEEND,
-	};
-
-	if (HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) <= 0)
-		return 0;
-
-	if (*argc == 1) {
-		fprintf(stderr, "Error: You need to provide a filename\n");
-		return 0;
-	}
-
-	return 1;
-}
-
-static void getopt_op_e(const struct HXoptcb *cbi)
-{
-	Opt.start = strtoll(cbi->data, NULL, 0);
-}
-
-static inline char printable(char x)
-{
-	return HX_isprint(x) ? x : '.';
-}

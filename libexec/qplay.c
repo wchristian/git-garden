@@ -22,21 +22,8 @@ enum {
 	MAX_OCTAVES = 9,
 };
 
-/* Functions */
-static void init_maps(void);
-static void parse_file(const char *);
-static unsigned int parse_arg_ag(const char *);
-static unsigned int parse_arg_l(const char *);
-static unsigned int parse_arg_m(const char *);
-static unsigned int parse_arg_n(const char *);
-static unsigned int parse_arg_o(const char *);
-static unsigned int parse_arg_p(const char *);
-static unsigned int parse_arg_t(const char *);
-static unsigned int parse_arg_x(const char *);
 static void parse_str(const char *);
-static void parse_var(FILE *, char *);
 
-/* Variables */
 static struct HXmap *keymap, *varmap;
 static double notemap[MAX_OCTAVES*12], glob_mode = 7.0 / 8;
 static int glob_spd = 120, glob_len = 4, glob_octave = 4;
@@ -46,122 +33,6 @@ static struct pcspkr pcsp = {
 	.prop_square = 1,
 	.prop_sine   = 1,
 };
-
-//-----------------------------------------------------------------------------
-int main(int argc, const char **argv)
-{
-	static const struct HXoption options_table[] = {
-		{.sh = 'i', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_sine,
-		 .help = "Proportion of sine-wave calculation mixed in"},
-		{.sh = 'q', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_square,
-		 .help = "Proportion of square-wave calculation mixed in"},
-		{.sh = 'r', .type = HXTYPE_UINT, .ptr = &pcsp.sample_rate,
-		 .help = "Sample rate (default: 48000)"},
-		HXOPT_AUTOHELP,
-		HXOPT_TABLEEND,
-	};
-	int ret;
-
-	if ((ret = HX_init()) <= 0) {
-		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
-		abort();
-	}
-
-	if (HX_getopt(options_table, &argc, &argv, HXOPT_USAGEONERR) <= 0) {
-		HX_exit();
-		return EXIT_FAILURE;
-	}
-
-	pcsp.file_ptr = stdout;
-	init_maps();
-
-	if (argc == 1)
-		parse_file("-");
-	else
-		while (--argc > 0)
-			parse_file(*++argv);
-
-	HX_exit();
-	return EXIT_SUCCESS;
-}
-
-/*
- * init_maps - generate frequency and lookup tables
- */
-static void init_maps(void)
-{
-#define ADD(k, v) HXmap_add(keymap, (k), reinterpret_cast(const void *, static_cast(long, (v))));
-	int n;
-
-	keymap = HXmap_init(HXMAPT_DEFAULT, HXMAP_SKEY);
-	varmap = HXmap_init(HXMAPT_DEFAULT, HXMAP_SCKEY | HXMAP_SCDATA);
-	if (keymap == NULL || varmap == NULL) {
-		perror("HXmap_init()");
-		exit(EXIT_FAILURE);
-	}
-	for (n = 0; n < MAX_OCTAVES * 12; ++n)
-		notemap[n] = 440 * pow(2, (double)(n - 33) / 12); 
-
-	ADD("c-", -1);
-	ADD("c", 0);
-	ADD("c#", 1);
-	ADD("c+", 1);
-	ADD("d-", 1);
-	ADD("d", 2);
-	ADD("d#", 2);
-	ADD("d+", 3);
-	ADD("e-", 3);
-	ADD("e", 4);
-	ADD("e#", 5);
-	ADD("e+", 5);
-	ADD("f-", 4);
-	ADD("f", 5);
-	ADD("f#", 6);
-	ADD("f+", 6);
-	ADD("g-", 6);
-	ADD("g", 7);
-	ADD("g#", 8);
-	ADD("g+", 8);
-	ADD("a-", 8);
-	ADD("a", 9);
-	ADD("a#", 10);
-	ADD("a+", 10);
-	ADD("b-", 10);
-	ADD("b", 11);
-	ADD("b#", 12);
-	ADD("b+", 12);
-#undef ADD
-}
-
-static void parse_file(const char *fn)
-{
-	char *ln = NULL;
-	FILE *fp;
-
-	if (strcmp(fn, "-") == 0)
-		fp = fdopen(STDIN_FILENO, "r");
-	else
-		fp = fopen(fn, "r");
-
-	if (fp == NULL) {
-		fprintf(stderr, "** Could not open %s: %s\n", fn, strerror(errno));
-		return;
-	}
-
-	while (HX_getl(&ln, fp) != NULL) {
-		HX_chomp(ln);
-		HX_strlower(ln);
-		if (*ln == '#' || *ln == '\0') {
-			continue;
-		} else if (*ln == '$') {
-			parse_var(fp, ln);
-			continue;
-		}
-		parse_str(ln);
-	}
-
-	HXmc_free(ln);
-}
 
 /*
  * parse_arg_ag - parse a note, which is 'a' <= x <= 'g'.
@@ -453,3 +324,119 @@ static void parse_var(FILE *fp, char *line)
 	HXmap_add(varmap, key, val);
 	HXmc_free(ws);
 }
+
+static void parse_file(const char *fn)
+{
+	char *ln = NULL;
+	FILE *fp;
+
+	if (strcmp(fn, "-") == 0)
+		fp = fdopen(STDIN_FILENO, "r");
+	else
+		fp = fopen(fn, "r");
+
+	if (fp == NULL) {
+		fprintf(stderr, "** Could not open %s: %s\n", fn, strerror(errno));
+		return;
+	}
+
+	while (HX_getl(&ln, fp) != NULL) {
+		HX_chomp(ln);
+		HX_strlower(ln);
+		if (*ln == '#' || *ln == '\0') {
+			continue;
+		} else if (*ln == '$') {
+			parse_var(fp, ln);
+			continue;
+		}
+		parse_str(ln);
+	}
+
+	HXmc_free(ln);
+}
+
+/*
+ * init_maps - generate frequency and lookup tables
+ */
+static void init_maps(void)
+{
+#define ADD(k, v) HXmap_add(keymap, (k), reinterpret_cast(const void *, static_cast(long, (v))));
+	int n;
+
+	keymap = HXmap_init(HXMAPT_DEFAULT, HXMAP_SKEY);
+	varmap = HXmap_init(HXMAPT_DEFAULT, HXMAP_SCKEY | HXMAP_SCDATA);
+	if (keymap == NULL || varmap == NULL) {
+		perror("HXmap_init()");
+		exit(EXIT_FAILURE);
+	}
+	for (n = 0; n < MAX_OCTAVES * 12; ++n)
+		notemap[n] = 440 * pow(2, (double)(n - 33) / 12); 
+
+	ADD("c-", -1);
+	ADD("c", 0);
+	ADD("c#", 1);
+	ADD("c+", 1);
+	ADD("d-", 1);
+	ADD("d", 2);
+	ADD("d#", 2);
+	ADD("d+", 3);
+	ADD("e-", 3);
+	ADD("e", 4);
+	ADD("e#", 5);
+	ADD("e+", 5);
+	ADD("f-", 4);
+	ADD("f", 5);
+	ADD("f#", 6);
+	ADD("f+", 6);
+	ADD("g-", 6);
+	ADD("g", 7);
+	ADD("g#", 8);
+	ADD("g+", 8);
+	ADD("a-", 8);
+	ADD("a", 9);
+	ADD("a#", 10);
+	ADD("a+", 10);
+	ADD("b-", 10);
+	ADD("b", 11);
+	ADD("b#", 12);
+	ADD("b+", 12);
+#undef ADD
+}
+
+int main(int argc, const char **argv)
+{
+	static const struct HXoption options_table[] = {
+		{.sh = 'i', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_sine,
+		 .help = "Proportion of sine-wave calculation mixed in"},
+		{.sh = 'q', .type = HXTYPE_DOUBLE, .ptr = &pcsp.prop_square,
+		 .help = "Proportion of square-wave calculation mixed in"},
+		{.sh = 'r', .type = HXTYPE_UINT, .ptr = &pcsp.sample_rate,
+		 .help = "Sample rate (default: 48000)"},
+		HXOPT_AUTOHELP,
+		HXOPT_TABLEEND,
+	};
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+
+	if (HX_getopt(options_table, &argc, &argv, HXOPT_USAGEONERR) <= 0) {
+		HX_exit();
+		return EXIT_FAILURE;
+	}
+
+	pcsp.file_ptr = stdout;
+	init_maps();
+
+	if (argc == 1)
+		parse_file("-");
+	else
+		while (--argc > 0)
+			parse_file(*++argv);
+
+	HX_exit();
+	return EXIT_SUCCESS;
+}
+

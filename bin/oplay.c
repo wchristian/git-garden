@@ -30,22 +30,6 @@
 #define DEVDSP "/dev/dsp"
 #define DEVMIX "/dev/mixer"
 
-/* Functions */
-static void mixer(int, const char **);
-static int mixer_inst_dev(char *, const char *, size_t);
-static void mixer_proc(const char *, const char *);
-static int mixer_read_recsrc(int, int);
-static int mixer_write_recsrc(int, const char *, const char *);
-static void mixer_proc_ctl(int, const char *, const char *);
-static int mixer_display_all(int);
-static void play(int, const char **);
-static int playrec_getopt(int *, const char ***, struct HXdeque *);
-static void getopt_op_K(const struct HXoptcb *);
-static void getopt_op_kjump(const struct HXoptcb *);
-static void playrec_setopt(int);
-static void record(int, const char **);
-
-/* Variables */
 const static char *mixer_ctlname[SOUND_MIXER_NRDEVICES] = SOUND_DEVICE_NAMES;
 static char cdev[MAXFNLEN], *cdevp = cdev;
 static struct HXdeque *dv = NULL;
@@ -73,87 +57,6 @@ static struct {
 	.verbose = VERBOSITY_DEFAULT,
 };
 
-//-----------------------------------------------------------------------------
-static int main2(int argc, const char **argv)
-{
-	char *pp = HX_basename(*argv);
-
-	if (strstr(pp, "mixer") != NULL) {
-		mixer(argc, argv);
-	} else if (strstr(pp, "play") != NULL) {
-		play(argc, argv);
-	} else if (strstr(pp, "rec") != NULL) {
-		record(argc, argv);
-	} else if (argc < 2) {
-		fprintf(stderr, "Syntax: %s { mixer | play | rec } [...]\n",
-		        *argv);
-		return EXIT_FAILURE;
-	} else if (strstr(argv[1], "mixer") != NULL) {
-		mixer(--argc, ++argv);
-	} else if (strstr(argv[1], "play") != NULL) {
-		play(--argc, ++argv);
-	} else if (strstr(argv[1], "rec") != NULL) {
-		record(--argc, ++argv);
-	} else {
-		fprintf(stderr, "%s: No such module \"%s\"\n",
-		        argv[0], argv[1]);
-	}
-	return EXIT_SUCCESS;
-}
-
-int main(int argc, const char **argv)
-{
-	int ret;
-
-	if ((ret = HX_init()) <= 0) {
-		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
-		abort();
-	}
-	ret = main2(argc, argv);
-	HX_exit();
-	return ret;
-}
-
-static void mixer(int argc, const char **argv)
-{
-	if (argc < 2) {
-		fprintf(stderr, "Syntax: %s [device] [control [volume]]\n",
-		        *argv);
-		exit(EXIT_FAILURE);
-	}
-
-	if (argc == 1) {
-		mixer_proc(NULL, NULL);
-	} else if (argc == 2) {
-		if (mixer_inst_dev(cdevp, argv[1], MAXFNLEN)) {
-			/* Show all controls of given device */
-			mixer_proc(NULL, NULL);
-		} else {
-			/*
-			 * Show given control of /dev/mixer (usually ptr to
-			 * /dev/mixer0)
-			 */
-			HX_strlcpy(cdevp, DEVMIX, MAXFNLEN);
-			fprintf(stderr, "Device: %s; ", cdevp);
-			mixer_proc(argv[1], NULL);
-		}
-	} else if (argc == 3) {
-		if (mixer_inst_dev(cdevp, argv[1], MAXFNLEN)) {
-			/* Show given control of given device */
-			mixer_proc(argv[2], NULL);
-		} else {
-			/* Set given volume of given control (of /dev/mixer) */
-			HX_strlcpy(cdevp, DEVMIX, MAXFNLEN);
-			fprintf(stderr, "Device: %s; ", cdevp);
-			mixer_proc(argv[1], argv[2]);
-		}
-	} else if (argc == 4) {
-		/* omixer =/dev/mixer1 vol 80 */
-		mixer_inst_dev(cdevp, argv[1], MAXFNLEN - 1);
-		mixer_proc(argv[2], argv[3]);
-	}
-}
-
 static int mixer_inst_dev(char *ptr, const char *dev, size_t ln)
 {
 	memset(ptr, '\0', ln);
@@ -166,39 +69,6 @@ static int mixer_inst_dev(char *ptr, const char *dev, size_t ln)
 		return 1;
 	}
 	return 0;
-}
-
-static void mixer_proc(const char *ctl, const char *vol)
-{
-	int mixer_fd;
-	if ((mixer_fd = open(cdevp, O_RDWR)) < 0) {
-		fprintf(stderr, "Could not open %s: %s\n",
-		        cdevp, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	if (ctl != NULL && strcmp(ctl, "?r") == 0) {
-		int recsrc;
-		if (ioctl(mixer_fd, SOUND_MIXER_READ_RECSRC, &recsrc) < 0) {
-			perror("SOUND_MIXER_READ_RECSRC");
-			exit(EXIT_FAILURE);
-		}
-		mixer_read_recsrc(mixer_fd, recsrc);
-	} else if (ctl != NULL && (strcmp(ctl, "+r") == 0 ||
-	   strcmp(ctl, "-r") == 0)) {
-		if (vol == NULL) {
-			fprintf(stderr, "You forgot to specify a source\n");
-			exit(EXIT_FAILURE);
-		}
-		mixer_read_recsrc(mixer_fd,
-		                  mixer_write_recsrc(mixer_fd, ctl, vol));
-	} else if (ctl != NULL) {
-		mixer_proc_ctl(mixer_fd, ctl, vol);
-	} else {
-		mixer_display_all(mixer_fd);
-	}
-
-	close(mixer_fd);
 }
 
 static int mixer_read_recsrc(int mixer_fd, int recsrc)
@@ -248,6 +118,33 @@ static int mixer_write_recsrc(int mixer_fd, const char *ctl, const char *vol)
 	}
 
 	return recsrc;
+}
+
+static int mixer_display_all(int mixer_fd)
+{
+	int arg, i, devmask;
+	if (ioctl(mixer_fd, SOUND_MIXER_READ_DEVMASK, &devmask) < 0) {
+		perror("SOUND_MIXER_READ_DEVMASK");
+		exit(EXIT_FAILURE);
+	}
+
+	for (i = 0; i < SOUND_MIXER_NRDEVICES; ++i) {
+		if (devmask & (1 << i)) {
+			if (ioctl(mixer_fd, MIXER_READ(i), &arg) < 0) {
+				if (errno == EINVAL) {
+					fprintf(stderr, "Invalid mixer control: %s\n",
+					        mixer_ctlname[i]);
+				} else {
+					perror("MIXER_READ");
+				}
+				exit(EXIT_FAILURE);
+			}
+
+			printf("%-8s   L=%3d%%   R=%3d%%\n", mixer_ctlname[i],
+			       arg & 0xFF, (arg >> 8) & 0xFF);
+		}
+	}
+	return devmask;
 }
 
 static void mixer_proc_ctl(int mixer_fd, const char *ctl, const char *vol)
@@ -353,31 +250,220 @@ static void mixer_proc_ctl(int mixer_fd, const char *ctl, const char *vol)
 	}
 }
 
-static int mixer_display_all(int mixer_fd)
+static void mixer_proc(const char *ctl, const char *vol)
 {
-	int arg, i, devmask;
-	if (ioctl(mixer_fd, SOUND_MIXER_READ_DEVMASK, &devmask) < 0) {
-		perror("SOUND_MIXER_READ_DEVMASK");
+	int mixer_fd;
+	if ((mixer_fd = open(cdevp, O_RDWR)) < 0) {
+		fprintf(stderr, "Could not open %s: %s\n",
+		        cdevp, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
-	for (i = 0; i < SOUND_MIXER_NRDEVICES; ++i) {
-		if (devmask & (1 << i)) {
-			if (ioctl(mixer_fd, MIXER_READ(i), &arg) < 0) {
-				if (errno == EINVAL) {
-					fprintf(stderr, "Invalid mixer control: %s\n",
-					        mixer_ctlname[i]);
-				} else {
-					perror("MIXER_READ");
-				}
-				exit(EXIT_FAILURE);
-			}
-
-			printf("%-8s   L=%3d%%   R=%3d%%\n", mixer_ctlname[i],
-			       arg & 0xFF, (arg >> 8) & 0xFF);
+	if (ctl != NULL && strcmp(ctl, "?r") == 0) {
+		int recsrc;
+		if (ioctl(mixer_fd, SOUND_MIXER_READ_RECSRC, &recsrc) < 0) {
+			perror("SOUND_MIXER_READ_RECSRC");
+			exit(EXIT_FAILURE);
 		}
+		mixer_read_recsrc(mixer_fd, recsrc);
+	} else if (ctl != NULL && (strcmp(ctl, "+r") == 0 ||
+	   strcmp(ctl, "-r") == 0)) {
+		if (vol == NULL) {
+			fprintf(stderr, "You forgot to specify a source\n");
+			exit(EXIT_FAILURE);
+		}
+		mixer_read_recsrc(mixer_fd,
+		                  mixer_write_recsrc(mixer_fd, ctl, vol));
+	} else if (ctl != NULL) {
+		mixer_proc_ctl(mixer_fd, ctl, vol);
+	} else {
+		mixer_display_all(mixer_fd);
 	}
-	return devmask;
+
+	close(mixer_fd);
+}
+
+static void mixer(int argc, const char **argv)
+{
+	if (argc < 2) {
+		fprintf(stderr, "Syntax: %s [device] [control [volume]]\n",
+		        *argv);
+		exit(EXIT_FAILURE);
+	}
+
+	if (argc == 1) {
+		mixer_proc(NULL, NULL);
+	} else if (argc == 2) {
+		if (mixer_inst_dev(cdevp, argv[1], MAXFNLEN)) {
+			/* Show all controls of given device */
+			mixer_proc(NULL, NULL);
+		} else {
+			/*
+			 * Show given control of /dev/mixer (usually ptr to
+			 * /dev/mixer0)
+			 */
+			HX_strlcpy(cdevp, DEVMIX, MAXFNLEN);
+			fprintf(stderr, "Device: %s; ", cdevp);
+			mixer_proc(argv[1], NULL);
+		}
+	} else if (argc == 3) {
+		if (mixer_inst_dev(cdevp, argv[1], MAXFNLEN)) {
+			/* Show given control of given device */
+			mixer_proc(argv[2], NULL);
+		} else {
+			/* Set given volume of given control (of /dev/mixer) */
+			HX_strlcpy(cdevp, DEVMIX, MAXFNLEN);
+			fprintf(stderr, "Device: %s; ", cdevp);
+			mixer_proc(argv[1], argv[2]);
+		}
+	} else if (argc == 4) {
+		/* omixer =/dev/mixer1 vol 80 */
+		mixer_inst_dev(cdevp, argv[1], MAXFNLEN - 1);
+		mixer_proc(argv[2], argv[3]);
+	}
+}
+
+static void getopt_op_K(const struct HXoptcb *cbi)
+{
+	pri.seekto = strtoll(cbi->data, NULL, 0);
+}
+
+static void getopt_op_kjump(const struct HXoptcb *cbi)
+{
+	char *p, *timespec;
+	unsigned long s;
+
+	if (cbi->data == NULL || strlen(cbi->data) == 0)
+		return;
+
+	timespec = HX_strdup(cbi->data);
+	s = 0;
+
+	if ((p = strchr(cbi->data, ':')) == NULL) {
+		s = strtoul(cbi->data, NULL, 0);
+	} else {
+		*p++ = '\0';
+		s = 60 * strtoul(cbi->data, NULL, 0) + strtoul(p, NULL, 0);
+	}
+
+	pri.seekto = s * pri.smpsize * pri.channels / 8 * pri.smprate;
+	free(timespec);
+}
+
+static int playrec_getopt(int *argc, const char ***argv,
+    struct HXdeque *devlist)
+{
+	unsigned long t_fragsize = 0;
+	struct HXoption options_table[] = {
+		{.sh = 'B', .type = HXTYPE_INT, .ptr = &pri.blksize,
+		 .help = "Sets the block size (bytes to r/w at ocne)",
+		 .htyp = "bytes"},
+		{.sh = 'K', .type = HXTYPE_STRING, .cb = getopt_op_K,
+		 .help = "Jump to position (bytes)", .htyp = "pos"},
+		{.sh = 'M', .type = HXTYPE_VAL, .ptr = &pri.channels,
+		 .val = 1, .help = "Set single-channel input/output"},
+		{.sh = 'Q', .type = HXTYPE_VAL, .ptr = &pri.channels,
+		 .val = 4, .help = "Sets 4 channel input/output"},
+		{.sh = 'T', .type = HXTYPE_LONG, .ptr = &pri.bytelimit,
+		 .help = "Maximum amount of bytes to record/play",
+		 .htyp = "bytes"},
+		{.sh = 'V', .type = HXTYPE_INT, .ptr = &pri.verbose,
+		 .help = "Set verbosity level", .htyp = "level"},
+		{.sh = 'b', .type = HXTYPE_INT, .ptr = &pri.smpsize,
+		 .help = "Sets the sample size (8/16 bit)", .htyp = "bits"},
+		{.sh = 'c', .type = HXTYPE_INT, .ptr = &pri.channels,
+		 .help = "Sets the number of channels", .htyp = "channels"},
+		{.sh = 'd', .type = HXTYPE_STRDQ, .ptr = devlist,
+		 .help = "Uses this DSP device (default: /dev/dsp)",
+		 .htyp = "file"},
+		{.sh = 'f', .type = HXTYPE_INT, .ptr = &t_fragsize,
+		 .help = "Sets the fragment size", .htyp = "bytes"},
+		{.sh = 'k', .type = HXTYPE_STRING, .cb = getopt_op_kjump,
+		 .help = "Jump to position (minutes:seconds)", .htyp = "pos"},
+		{.sh = 'q', .type = HXTYPE_NONE | HXOPT_DEC,
+		 .ptr = &pri.verbose, .help = "Lower verbosity level"},
+		{.sh = 's', .type = HXTYPE_INT, .ptr = &pri.smprate,
+		 .help = "Set the samplerate (11025, 22050, 44100 Hz, etc.)",
+		 .htyp = "bytes"},
+		{.sh = 't', .type = HXTYPE_LONG, .ptr = &pri.timelimit,
+		 .help = "Maximum amount of time to record/play",
+		 .htyp = "seconds"},
+		{.sh = 'v', .type = HXTYPE_NONE | HXOPT_INC,
+		 .ptr = &pri.verbose, .help = "Raise verbosity level"},
+		{.sh = 'w', .type = HXTYPE_NONE, .ptr = &pri.jwarn,
+		 .help = "Do not exit upon ioctl error"},
+		HXOPT_AUTOHELP,
+		HXOPT_TABLEEND,
+	};
+
+	if (HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) <= 0)
+		return 0;
+
+	t_fragsize &= ~0x7FFF0000;
+	t_fragsize |= 0x7FFF0000;
+	return 1;
+}
+
+static void playrec_setopt(int fd)
+{
+	int tmp = pri.fragsize;
+	if ((tmp & 0xFFFF) != 0 && ioctl(fd, SNDCTL_DSP_SETFRAGMENT,
+	    &pri.fragsize) < 0) {
+		perror("ioctl(): Could not set fragment size");
+		if (!pri.jwarn)
+			exit(EXIT_FAILURE);
+	}
+	if (tmp != pri.fragsize)
+		fprintf(stderr, "driver: Could not set fragment size %d, "
+		        "falling back to %d\n", tmp, pri.fragsize);
+
+	tmp = pri.smpsize;
+	if (ioctl(fd, SNDCTL_DSP_SAMPLESIZE, &pri.smpsize) < 0) {
+		perror("ioctl(): Could not set sample size");
+		if (!pri.jwarn)
+			exit(EXIT_FAILURE);
+	}
+	if (tmp != pri.smpsize)
+		fprintf(stderr, "driver: Could not set sample size %d, "
+		        "falling back to %d\n", pri.smpsize, tmp);
+
+	tmp = pri.channels;
+	if (ioctl(fd, SNDCTL_DSP_CHANNELS, &pri.channels) < 0) {
+		perror("ioctl(): Could not set channel count");
+		if (!pri.jwarn)
+			exit(EXIT_FAILURE);
+	}
+	if (tmp != pri.channels)
+		fprintf(stderr, "driver: Could not set %d channels, falling "
+		        "back to %d\n", tmp, pri.channels);
+
+	tmp = pri.smprate;
+	if (ioctl(fd, SNDCTL_DSP_SPEED, &pri.smprate) < 0) {
+		perror("ioctl(): Could not set sample rate");
+		if (!pri.jwarn)
+			exit(EXIT_FAILURE);
+	}
+	if (tmp != pri.smprate)
+		fprintf(stderr, "driver: Could not set sample rate %d, "
+		        "faling back to %d\n", tmp, pri.smprate);
+
+	if (pri.blksize == 0 && (ioctl(fd, SNDCTL_DSP_GETBLKSIZE, &pri.blksize) < 0 ||
+	    pri.blksize < 0)) {
+		perror("SNDCTL_DSP_GETBLKSIZE");
+		if (!pri.jwarn)
+			exit(EXIT_FAILURE);
+	}
+
+	if (pri.verbose > 0)
+		fprintf(stderr, "Device parameters set: %d bit %d channels %d "
+		        "Hz (Block size %d)\n",  pri.smpsize, pri.channels,
+		        pri.smprate, pri.blksize);
+
+	if ((pri.buf = malloc(pri.blksize)) == NULL) {
+		perror("Could not allocate buffer");
+		if (!pri.jwarn)
+			exit(EXIT_FAILURE);
+	}
 }
 
 static void sighandler(int s)
@@ -514,149 +600,6 @@ static void play(int argc, const char **argv)
 	HXdeque_free(dv);
 }
 
-static int playrec_getopt(int *argc, const char ***argv,
-    struct HXdeque *devlist)
-{
-	unsigned long t_fragsize = 0;
-	struct HXoption options_table[] = {
-		{.sh = 'B', .type = HXTYPE_INT, .ptr = &pri.blksize,
-		 .help = "Sets the block size (bytes to r/w at ocne)",
-		 .htyp = "bytes"},
-		{.sh = 'K', .type = HXTYPE_STRING, .cb = getopt_op_K,
-		 .help = "Jump to position (bytes)", .htyp = "pos"},
-		{.sh = 'M', .type = HXTYPE_VAL, .ptr = &pri.channels,
-		 .val = 1, .help = "Set single-channel input/output"},
-		{.sh = 'Q', .type = HXTYPE_VAL, .ptr = &pri.channels,
-		 .val = 4, .help = "Sets 4 channel input/output"},
-		{.sh = 'T', .type = HXTYPE_LONG, .ptr = &pri.bytelimit,
-		 .help = "Maximum amount of bytes to record/play",
-		 .htyp = "bytes"},
-		{.sh = 'V', .type = HXTYPE_INT, .ptr = &pri.verbose,
-		 .help = "Set verbosity level", .htyp = "level"},
-		{.sh = 'b', .type = HXTYPE_INT, .ptr = &pri.smpsize,
-		 .help = "Sets the sample size (8/16 bit)", .htyp = "bits"},
-		{.sh = 'c', .type = HXTYPE_INT, .ptr = &pri.channels,
-		 .help = "Sets the number of channels", .htyp = "channels"},
-		{.sh = 'd', .type = HXTYPE_STRDQ, .ptr = devlist,
-		 .help = "Uses this DSP device (default: /dev/dsp)",
-		 .htyp = "file"},
-		{.sh = 'f', .type = HXTYPE_INT, .ptr = &t_fragsize,
-		 .help = "Sets the fragment size", .htyp = "bytes"},
-		{.sh = 'k', .type = HXTYPE_STRING, .cb = getopt_op_kjump,
-		 .help = "Jump to position (minutes:seconds)", .htyp = "pos"},
-		{.sh = 'q', .type = HXTYPE_NONE | HXOPT_DEC,
-		 .ptr = &pri.verbose, .help = "Lower verbosity level"},
-		{.sh = 's', .type = HXTYPE_INT, .ptr = &pri.smprate,
-		 .help = "Set the samplerate (11025, 22050, 44100 Hz, etc.)",
-		 .htyp = "bytes"},
-		{.sh = 't', .type = HXTYPE_LONG, .ptr = &pri.timelimit,
-		 .help = "Maximum amount of time to record/play",
-		 .htyp = "seconds"},
-		{.sh = 'v', .type = HXTYPE_NONE | HXOPT_INC,
-		 .ptr = &pri.verbose, .help = "Raise verbosity level"},
-		{.sh = 'w', .type = HXTYPE_NONE, .ptr = &pri.jwarn,
-		 .help = "Do not exit upon ioctl error"},
-		HXOPT_AUTOHELP,
-		HXOPT_TABLEEND,
-	};
-
-	if (HX_getopt(options_table, argc, argv, HXOPT_USAGEONERR) <= 0)
-		return 0;
-
-	t_fragsize &= ~0x7FFF0000;
-	t_fragsize |= 0x7FFF0000;
-	return 1;
-}
-
-static void getopt_op_K(const struct HXoptcb *cbi)
-{
-	pri.seekto = strtoll(cbi->data, NULL, 0);
-}
-
-static void getopt_op_kjump(const struct HXoptcb *cbi)
-{
-	char *p, *timespec;
-	unsigned long s;
-
-	if (cbi->data == NULL || strlen(cbi->data) == 0)
-		return;
-
-	timespec = HX_strdup(cbi->data);
-	s = 0;
-
-	if ((p = strchr(cbi->data, ':')) == NULL) {
-		s = strtoul(cbi->data, NULL, 0);
-	} else {
-		*p++ = '\0';
-		s = 60 * strtoul(cbi->data, NULL, 0) + strtoul(p, NULL, 0);
-	}
-
-	pri.seekto = s * pri.smpsize * pri.channels / 8 * pri.smprate;
-	free(timespec);
-}
-
-static void playrec_setopt(int fd)
-{
-	int tmp = pri.fragsize;
-	if ((tmp & 0xFFFF) != 0 && ioctl(fd, SNDCTL_DSP_SETFRAGMENT,
-	    &pri.fragsize) < 0) {
-		perror("ioctl(): Could not set fragment size");
-		if (!pri.jwarn)
-			exit(EXIT_FAILURE);
-	}
-	if (tmp != pri.fragsize)
-		fprintf(stderr, "driver: Could not set fragment size %d, "
-		        "falling back to %d\n", tmp, pri.fragsize);
-
-	tmp = pri.smpsize;
-	if (ioctl(fd, SNDCTL_DSP_SAMPLESIZE, &pri.smpsize) < 0) {
-		perror("ioctl(): Could not set sample size");
-		if (!pri.jwarn)
-			exit(EXIT_FAILURE);
-	}
-	if (tmp != pri.smpsize)
-		fprintf(stderr, "driver: Could not set sample size %d, "
-		        "falling back to %d\n", pri.smpsize, tmp);
-
-	tmp = pri.channels;
-	if (ioctl(fd, SNDCTL_DSP_CHANNELS, &pri.channels) < 0) {
-		perror("ioctl(): Could not set channel count");
-		if (!pri.jwarn)
-			exit(EXIT_FAILURE);
-	}
-	if (tmp != pri.channels)
-		fprintf(stderr, "driver: Could not set %d channels, falling "
-		        "back to %d\n", tmp, pri.channels);
-
-	tmp = pri.smprate;
-	if (ioctl(fd, SNDCTL_DSP_SPEED, &pri.smprate) < 0) {
-		perror("ioctl(): Could not set sample rate");
-		if (!pri.jwarn)
-			exit(EXIT_FAILURE);
-	}
-	if (tmp != pri.smprate)
-		fprintf(stderr, "driver: Could not set sample rate %d, "
-		        "faling back to %d\n", tmp, pri.smprate);
-
-	if (pri.blksize == 0 && (ioctl(fd, SNDCTL_DSP_GETBLKSIZE, &pri.blksize) < 0 ||
-	    pri.blksize < 0)) {
-		perror("SNDCTL_DSP_GETBLKSIZE");
-		if (!pri.jwarn)
-			exit(EXIT_FAILURE);
-	}
-
-	if (pri.verbose > 0)
-		fprintf(stderr, "Device parameters set: %d bit %d channels %d "
-		        "Hz (Block size %d)\n",  pri.smpsize, pri.channels,
-		        pri.smprate, pri.blksize);
-
-	if ((pri.buf = malloc(pri.blksize)) == NULL) {
-		perror("Could not allocate buffer");
-		if (!pri.jwarn)
-			exit(EXIT_FAILURE);
-	}
-}
-
 static void record(int argc, const char **argv)
 {
 	int dsp_fd, ffd;
@@ -752,4 +695,44 @@ static void record(int argc, const char **argv)
 	        static_cast(const char *, dv->first->ptr));
 	close(dsp_fd);
 	HXdeque_free(dv);
+}
+
+static int main2(int argc, const char **argv)
+{
+	char *pp = HX_basename(*argv);
+
+	if (strstr(pp, "mixer") != NULL) {
+		mixer(argc, argv);
+	} else if (strstr(pp, "play") != NULL) {
+		play(argc, argv);
+	} else if (strstr(pp, "rec") != NULL) {
+		record(argc, argv);
+	} else if (argc < 2) {
+		fprintf(stderr, "Syntax: %s { mixer | play | rec } [...]\n",
+		        *argv);
+		return EXIT_FAILURE;
+	} else if (strstr(argv[1], "mixer") != NULL) {
+		mixer(--argc, ++argv);
+	} else if (strstr(argv[1], "play") != NULL) {
+		play(--argc, ++argv);
+	} else if (strstr(argv[1], "rec") != NULL) {
+		record(--argc, ++argv);
+	} else {
+		fprintf(stderr, "%s: No such module \"%s\"\n",
+		        argv[0], argv[1]);
+	}
+	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) <= 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(-ret));
+		abort();
+	}
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }

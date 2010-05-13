@@ -126,7 +126,7 @@ static int zerossh_setup(int argc, const char **argv)
 	return zerossh_exec(pipe_fd, &argv[1]);
 }
 
-/*
+/**
  * zerossh_askpass - askpass part of the program
  * @in_fd:	inherited pipe (from zerossh_exec) to read password from
  * @out_fd:	pipe to the ssh parent process wanting our password

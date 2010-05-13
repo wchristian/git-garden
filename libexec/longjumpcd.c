@@ -22,14 +22,38 @@
 #define MAX_DOWN_DEPTH 5
 #define MAXFNLEN 256
 
-/* Functions */
-static ino_t get_inode(const char *);
-static int try_path(const char *, const char *, ino_t);
-
-/* Variables */
 static ino_t Base_inode, Root_inode;
 
-//-----------------------------------------------------------------------------
+static ino_t get_inode(const char *path)
+{
+	struct stat sb;
+	int fd;
+
+	if ((fd = open(path, O_RDONLY | O_DIRECTORY)) < 0) {
+		fprintf(stderr, PREFIX "Could not open \"%s\": %s\n",
+		        path, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	fstat(fd, &sb);
+	return sb.st_ino;
+}
+
+static int try_path(const char *base, const char *path, ino_t ino)
+{
+	char fullname[MAXFNLEN];
+	struct stat sb;
+
+	snprintf(fullname, MAXFNLEN, "%s/%s", base, path);
+
+	if (stat(fullname, &sb) == 0 && sb.st_ino != ino &&
+	    S_ISDIR(sb.st_mode) && sb.st_ino != Root_inode) {
+		printf("%s\n", fullname);
+		return 1;
+	}
+	return 0;
+}
+
 static int main2(int argc, const char **argv)
 {
 	struct HXdeque *dq;
@@ -136,34 +160,4 @@ int main(int argc, const char **argv)
 	ret = main2(argc, argv);
 	HX_exit();
 	return ret;
-}
-
-static ino_t get_inode(const char *path)
-{
-	struct stat sb;
-	int fd;
-
-	if ((fd = open(path, O_RDONLY | O_DIRECTORY)) < 0) {
-		fprintf(stderr, PREFIX "Could not open \"%s\": %s\n",
-		        path, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	fstat(fd, &sb);
-	return sb.st_ino;
-}
-
-static int try_path(const char *base, const char *path, ino_t ino)
-{
-	char fullname[MAXFNLEN];
-	struct stat sb;
-
-	snprintf(fullname, MAXFNLEN, "%s/%s", base, path);
-
-	if (stat(fullname, &sb) == 0 && sb.st_ino != ino &&
-	    S_ISDIR(sb.st_mode) && sb.st_ino != Root_inode) {
-		printf("%s\n", fullname);
-		return 1;
-	}
-	return 0;
 }
