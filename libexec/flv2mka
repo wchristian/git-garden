@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+#	flv2mka - extract audio stream from FLV/MP4 files
+#	written by Jan Engelhardt, 2009
+#	http://jengelh.medozas.de/
+#	released into the Public Domain
+#
+if [ "$#" -lt 2 ]; then
+	echo "Usage: flv2mka inputfile outputfile";
+	exit 1;
+fi;
+if [ -n "$3" ]; then
+	off="-ss $3";
+fi;
+if [ -n "$4" ]; then
+	endpos="-endpos $4";
+fi;
+
+tmpfile=$(mktemp /tmp/mkvXXXXX)
+mencoder -oac copy -ovc copy -fafmttag 0xff -fps 10 -o "$tmpfile" "$1" $off $endpos;
+mkvmerge -o "$2" -d "99" "$tmpfile" || :;
+rm -f "$tmpfile";
