@@ -30,7 +30,8 @@
 #define DEVDSP "/dev/dsp"
 #define DEVMIX "/dev/mixer"
 
-const static char *mixer_ctlname[SOUND_MIXER_NRDEVICES] = SOUND_DEVICE_NAMES;
+static const char *const mixer_ctlname[SOUND_MIXER_NRDEVICES] =
+	SOUND_DEVICE_NAMES;
 static char cdev[MAXFNLEN], *cdevp = cdev;
 static struct HXdeque *dv = NULL;
 
@@ -47,13 +48,14 @@ static struct {
 	.smprate   = 44100,
 	.smpsize   = 16,
 	.timelimit = 0,
-	/* verbosity levels: 
-	   0 nothing
-	   1 filename
-	   2 filename and dots
-	   3 filename and times
-	   4 filename and times and byte positions
-	*/
+	/*
+	 * verbosity levels: 
+	 * 0 nothing
+	 * 1 filename
+	 * 2 filename and dots
+	 * 3 filename and times
+	 * 4 filename and times and byte positions
+	 */
 	.verbose = VERBOSITY_DEFAULT,
 };
 

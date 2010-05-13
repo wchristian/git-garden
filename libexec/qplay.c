@@ -34,7 +34,7 @@ static struct pcspkr pcsp = {
 	.prop_sine   = 1,
 };
 
-/*
+/**
  * parse_arg_ag - parse a note, which is 'a' <= x <= 'g'.
  */
 static unsigned int parse_arg_ag(const char *origptr)
@@ -83,7 +83,7 @@ static unsigned int parse_arg_ag(const char *origptr)
 	return ptr - origptr;
 }
 
-/*
+/**
  * parse_arg_l - set default note length
  */
 static unsigned int parse_arg_l(const char *origptr)
@@ -101,7 +101,7 @@ static unsigned int parse_arg_l(const char *origptr)
 	return 1;
 }
 
-/*
+/**
  * parse_arg_m - set mode and playing style
  * @origptr:	data
  *
@@ -135,7 +135,7 @@ static unsigned int parse_arg_m(const char *origptr)
 	return ++ptr - origptr;
 }
 
-/*
+/**
  * parse_arg_n - play a note value
  */
 static unsigned int parse_arg_n(const char *origptr)
@@ -161,7 +161,7 @@ static unsigned int parse_arg_n(const char *origptr)
 	return ptr - origptr;
 }
 
-/*
+/**
  * parse_arg_o - set octave
  */
 static unsigned int parse_arg_o(const char *origptr)
@@ -179,7 +179,7 @@ static unsigned int parse_arg_o(const char *origptr)
 	return ptr - origptr;
 }
 
-/*
+/**
  * parse_arg_p - pause for a while
  */
 static unsigned int parse_arg_p(const char *origptr)
@@ -195,7 +195,7 @@ static unsigned int parse_arg_p(const char *origptr)
 	return ptr - origptr;
 }
 
-/*
+/**
  * parse_arg_t - set playing tempo
  */
 static unsigned int parse_arg_t(const char *origptr)
@@ -212,7 +212,7 @@ static unsigned int parse_arg_t(const char *origptr)
 	return ptr - origptr;
 }
 
-/*
+/**
  * parse_arg_x - parse QPF-VARPTR style commands
  */
 static unsigned int parse_arg_x(const char *origptr)
@@ -307,7 +307,7 @@ static void parse_str(const char *ptr)
 	}
 }
 
-/*
+/**
  * parse_var - parse a variable definition ("$x o2...")
  */
 static void parse_var(FILE *fp, char *line)
@@ -355,7 +355,7 @@ static void parse_file(const char *fn)
 	HXmc_free(ln);
 }
 
-/*
+/**
  * init_maps - generate frequency and lookup tables
  */
 static void init_maps(void)

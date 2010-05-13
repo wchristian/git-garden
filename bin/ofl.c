@@ -267,7 +267,7 @@ static bool ofl(const char *mnt, unsigned int signum)
 static unsigned int parse_signal(const char *str)
 {
 	static const char *signames[] = {
-		[SIGHUP] = "HUP",	[SIGINT] = "INT",
+		[SIGHUP]  = "HUP",	[SIGINT]  = "INT",
 		[SIGQUIT] = "QUIT",	[SIGKILL] = "KILL",
 		[SIGTERM] = "TERM",	[SIGALRM] = "ALRM",
 		[SIGPIPE] = "PIPE",

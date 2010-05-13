@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "pcspkr.h"
 
-/*
+/**
  * dynamic_qi
  * @pcsp:	pc speaker struct
  * @x:		time
@@ -63,7 +63,7 @@ static void pcm_s16(const struct pcspkr *pcsp, long frequency,
 		fwrite(&value, sizeof(value), 1, pcsp->file_ptr);
 }
 
-/*
+/**
  * pcspkr_output - produce waves
  * @state:	pcspkr state
  * @frequency:	tone frequency

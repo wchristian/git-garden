@@ -40,14 +40,12 @@
 #include <libHX/option.h>
 #include <libHX/string.h>
 
-/* Definitions */
 struct node {
 	char *name;
 	struct node *parent;
 	struct HXdeque *children;
 };
 
-/* Variables */
 static unsigned int fan_height = 8;
 static unsigned int rt_node_counter;
 static struct HXmap *nodename_map;
