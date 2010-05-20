@@ -1,6 +1,5 @@
 
 AC_INIT([hxtools], [20100129])
-AC_PREFIX_DEFAULT([/usr/local/hxtools])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_INSTALL
 AM_INIT_AUTOMAKE([-Wall])
@@ -12,20 +11,20 @@ PKG_CHECK_MODULES([libHX], [libHX >= 3.4])
 AC_CHECK_LIB([cap], [cap_get_flag], [have_libcap="yes"])
 AM_CONDITIONAL([HAVE_LIBCAP], [test "$have_libcap" = "yes"])
 
-kbddir='${prefix}/kbd';
+kbddir='${pkgdatadir}/kbd';
 keymapdir='${kbddir}';
 vgafontdir='${kbddir}';
 x11fontdir='${kbddir}';
 AC_ARG_WITH([keymapdir], AS_HELP_STRING([--with-keymapdir=PATH],
-	[Path to the keymap directory [[PREFIX/kbd]].
+	[Path to the keymap directory.
 	Most likely /usr/share/kbd/keymaps.]),
 	[keymapdir="$withval"])
 AC_ARG_WITH([vgafontdir], AS_HELP_STRING([--with-vgafontdir=PATH],
-	[Path to the VGA font directory [[PREFIX/kbd]].
+	[Path to the VGA font directory.
 	Most likely /usr/share/kbd/consolefonts.]),
 	[vgafontdir="$withval"])
 AC_ARG_WITH([x11fontdir], AS_HELP_STRING([--with-x11fontdir=PATH],
-	[Path to the X11 font directory [[PREFIX/kbd]].
+	[Path to the X11 font directory.
 	Most likely /usr/share/fonts.]),
 	[x11fontdir="$withval"])
 AC_SUBST([kbddir])

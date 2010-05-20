@@ -2,15 +2,15 @@
 
 AM_CFLAGS = ${regular_CFLAGS} ${libHX_CFLAGS}
 
-libexec_PROGRAMS = bsvplay cctypeinfo fd0ssh graph-fanout \
+pkglibexec_PROGRAMS = bsvplay cctypeinfo fd0ssh graph-fanout \
 	graph-lchain longjumpcd proc_iomem_count \
 	qplay testdl utmp_register wavdiff vfontas xcp \
 	xfs_irecover
 if HAVE_LIBCAP
-libexec_PROGRAMS += printcaps
+pkglibexec_PROGRAMS += printcaps
 endif
 
-libexec_SCRIPTS  = diff2php doxygen-kerneldoc-filter extract_dxhog \
+pkglibexec_SCRIPTS = diff2php doxygen-kerneldoc-filter extract_dxhog \
 	extract_d3pkg extract_f3pod \
                 extract_qupak filenameconv flv2avi flv2mka fnt2bdf \
                 git-blame-stats git-new-root git-revert-stats \
