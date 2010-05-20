@@ -41,6 +41,8 @@ sub main
 			$packer = "gzip";
 		} elsif (substr($archive, -4, 4) eq ".tar") {
 			$packer = undef;
+		} else {
+			$packer = "xz";
 		}
 	}
 
