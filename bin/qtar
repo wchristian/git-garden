@@ -39,6 +39,8 @@ sub main
 			$packer = "bzip2";
 		} elsif (substr($archive, -3, 3) eq ".gz") {
 			$packer = "gzip";
+		} elsif (substr($archive, -4, 4) eq ".tar") {
+			$packer = undef;
 		}
 	}
 
@@ -86,10 +88,14 @@ sub collect
 sub push_files
 {
 	local *COUT;
+	my @args = (
+		"tar", "-T-", "--null",
+		defined($packer) ? "--use=$packer" : (),
+		"--no-recursion", "--owner=root", "--group=root",
+		"-cvf", $_[0], @{$_[2]},
+	);
 
-	if (!open(\*COUT, "|-", "tar", "-T-", "--null", "--use=$packer",
-	    "--no-recursion", "--owner=root", "--group=root",
-	    "-cvf", $_[0], @{$_[2]})) {
+	if (!open(\*COUT, "|-", @args)) {
 		die "Could not run tar: $!\n";
 	}
 	print COUT join("\x00", @{$_[1]});
