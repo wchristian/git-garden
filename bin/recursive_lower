@@ -6,7 +6,7 @@
 #	released in the Public Domain
 #
 
-function descend_into()
+descend_into()
 {
 	for src in "$@"; do
 		dest="`echo -en \"$src\" | tr A-Z a-z`";

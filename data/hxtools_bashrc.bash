@@ -9,7 +9,7 @@ if [ "$HXPREF_ENABLE" == "yes" ]; then
 isroot=0;
 [ "$UID" -eq 0 ] && isroot=1;
 
-function hxpref_pushd()
+hxpref_pushd()
 {
 	local path;
 	if [ $# -eq 0 ]; then
@@ -21,7 +21,7 @@ function hxpref_pushd()
 	fi;
 }
 
-function hxpref_beautify_path()
+hxpref_beautify_path()
 {
 	# Show at most the last two path components, if the whole depth of a
 	# normalized $PATH is more than 3 levels, e.g.
@@ -57,7 +57,7 @@ function hxpref_beautify_path()
 	);
 }
 
-function xd()
+xd()
 {
 	local result;
 	if [ -z "$1" ]; then
@@ -73,7 +73,7 @@ function xd()
 	return $?;
 }
 
-function _complete_noop()
+_complete_noop()
 {
 	return 0
 }
@@ -88,7 +88,7 @@ set +C;
 export PS1_ROOT="\A \h:\$(hxpref_beautify_path) # ";
 export PS1_USER="\A \h:\$(hxpref_beautify_path) > ";
 export PS1_XROOT="\[\e[1;30m\]\A \[\e[0;31m\]\h:\$(hxpref_beautify_path) \[\e[1m\]#\[\e[0m\] ";
-export PS1_XUSER="\[\e[1;30m\]\A \[\e[0;32m\]\h:\$(hxpref_beautify_path) \[\e[1;37m\]>\[\e[0m\] ";
+export PS1_XUSER="\[\e[1;30m\]\A \[\e[0;32m\]\h:\$(hxpref_beautify_path) \[\e[0;1m\]>\[\e[0m\] ";
 
 # Find out what options this machine's "ls" supports
 # Same option finding for "less"
@@ -112,19 +112,21 @@ fi;
 
 export LESS;
 export LS_OPTIONS;
+# Remove PS1 from export list
+unset PS1;
 
 if [ "$HXPREF_COLORS" == yes ]; then
 	if [ "$isroot" -eq 1 ]; then
-		export PS1="$PS1_XROOT";
+		PS1="$PS1_XROOT";
 	else
-		export PS1="$PS1_XUSER";
+		PS1="$PS1_XUSER";
 	fi;
 else
 	unset LS_COLORS;
 	if [ "$isroot" -eq 1 ]; then
-		export PS1="$PS1_ROOT";
+		PS1="$PS1_ROOT";
 	else
-		export PS1="$PS1_USER";
+		PS1="$PS1_USER";
 	fi;
 fi;
 

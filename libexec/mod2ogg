@@ -9,12 +9,12 @@
 #	but at least an OGG player was affordable.
 #
 
-function usage()
+usage()
 {
 	echo "Usage:   mod2ogg [-qQUALITY] inputfile[...]";
 	echo "Example: mod2ogg -q6 this.it";
 	exit 1;
-};
+}
 
 qual="-q2";
 if [ "${1:0:2}" == "-q" ]; then
