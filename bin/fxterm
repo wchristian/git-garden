@@ -28,8 +28,42 @@ while [[ "$#" -gt 0 ]]; do
 done;
 
 if [[ -n "$font" ]]; then
-	opts="-fn $font -fb ${font}_b";
+	opts="-fn $font -fb $font";
 fi;
 
-exec xterm -ls -fg gray -bg "#001020" -geometry 80x25 -vb +bdc +fbx \
-	+sb $opts "$@";
+exec xterm \
+	-xrm '*XTerm*loginShell: true' \
+	-xrm '*XTerm*geometry: 80x25' \
+	-xrm '*XTerm*scrollBar: false' \
+	-xrm '*XTerm*visualBell: on' \
+	-xrm '*XTerm*foreground: #AAAAAA' \
+	-xrm '*XTerm*background: #000000' \
+	-xrm '*XTerm*cursorBlink: on' \
+	-xrm '*XTerm*cursorUnderLine: on' \
+	-xrm '*XTerm*cursorOnTime: 1000' \
+	-xrm '*XTerm*cursorOffTime: 1000' \
+	-xrm '*XTerm*cursorColor: #C0C0E0' \
+	-xrm '*XTerm*color0: #000000' \
+	-xrm '*XTerm*color1: #AA0000' \
+	-xrm '*XTerm*color2: #00AA00' \
+	-xrm '*XTerm*color3: #AA6600' \
+	-xrm '*XTerm*color4: #000090' \
+	-xrm '*XTerm*color5: #AA00AA' \
+	-xrm '*XTerm*color6: #00AAAA' \
+	-xrm '*XTerm*color7: #AAAAAA' \
+	-xrm '*XTerm*color8: #555555' \
+	-xrm '*XTerm*color9: #FF0000' \
+	-xrm '*XTerm*color10: #00FF00' \
+	-xrm '*XTerm*color11: #FFFF00' \
+	-xrm '*XTerm*color12: #0000FF' \
+	-xrm '*XTerm*color13: #FF00FF' \
+	-xrm '*XTerm*color14: #00FFFF' \
+	-xrm '*XTerm*color15: #FFFFFF' \
+	-xrm '*XTerm*boldMode: false' \
+	-xrm '*XTerm*alwaysBoldMode: false' \
+	-xrm '*XTerm*veryBoldColors: 6' \
+	-xrm '*XTerm*colorBDMode: on' \
+	-xrm '*XTerm*colorBD: #FFFFFF' \
+	-xrm '*XTerm*colorULMode: on' \
+	-xrm '*XTerm*colorUL: #60AAAA' \
+	$opts "$@";
