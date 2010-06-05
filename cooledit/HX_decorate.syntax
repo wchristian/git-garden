@@ -1,0 +1,36 @@
+# -*- cooleditsyntax -*-
+
+context default
+	keyword whole actor white
+	keyword whole bright white
+	keyword whole goto white
+	keyword whole loop white
+	keyword whole states white
+	keyword whole stop white
+
+	keyword /\* yellow
+	keyword \*/ yellow
+
+	keyword ( brightcyan
+	keyword ) brightcyan
+	keyword [ brightcyan
+	keyword ] brightcyan
+	keyword { brightcyan
+	keyword } brightcyan
+	keyword , brightcyan
+	keyword : brightcyan
+	keyword | white
+	keyword \+ white
+	keyword - white
+	keyword // yellow
+	keyword . brightcyan
+
+context exclusive /\* \*/ yellow
+	spellcheck
+
+context exclusive // \n yellow
+	spellcheck
+
+context " " green
+	keyword \\\\ brightgreen
+	keyword \\" brightgreen
