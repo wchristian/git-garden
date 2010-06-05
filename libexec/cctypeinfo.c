@@ -43,10 +43,13 @@ q(void *, voidptr);
 q(void (*)(void), funcptr);
 p(intptr_t);
 p(wchar_t);
+p(off_t);
+p(loff_t);
 p(uint8_t);
 p(uint16_t);
 p(uint32_t);
 p(uint64_t);
+p(mode_t);
 q(struct x16, x16);
 q(struct x32, x32);
 q(struct x64, x64);
@@ -67,6 +70,8 @@ int main(void)
 	t(void (*)(void));
 	t(intptr_t);
 	t(wchar_t);
+	t(off_t);
+	t(loff_t);
 	t(uint8_t);
 	t(uint16_t);
 	t(uint32_t);
@@ -74,6 +79,7 @@ int main(void)
 	t(struct x16);
 	t(struct x32);
 	t(struct x64);
+	t(mode_t);
 	return EXIT_SUCCESS;
 }
 #endif
