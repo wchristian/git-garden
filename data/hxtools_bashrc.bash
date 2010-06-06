@@ -2,12 +2,14 @@
 
 . /etc/hxloginpref.conf &>/dev/null || :;
 
-if [ "$HXPREF_ENABLE" == "yes" ]; then
+if [[ "$HXPREF_ENABLE" == "yes" ]]; then
 
 # --- main big block ---
 
 isroot=0;
-[ "$UID" -eq 0 ] && isroot=1;
+if [[ "$UID" -eq 0 ]]; then
+	isroot=1;
+fi;
 
 hxpref_cd()
 {
@@ -29,7 +31,7 @@ hxpref_popd()
 hxpref_pushd()
 {
 	local path;
-	if [ $# -eq 0 ]; then
+	if [[ "$#" -eq 0 ]]; then
 		pushd .;
 	else
 		for path in "$@"; do
@@ -76,7 +78,7 @@ hxpref_beautify_path()
 
 _complete_noop()
 {
-	return 0
+	return 0;
 }
 
 # Use smart directory completion
@@ -99,7 +101,7 @@ unset PS1_XTERM
 # Find out what options this machine's "ls" supports
 # Same option finding for "less"
 #
-if [ "`uname -s`" == Linux ]; then
+if [[ "$(uname -s)" == Linux ]]; then
 	LESS="-Mi";
 	LS_OPTIONS="-NT0";
 	for i in --color=auto --group-dir; do
@@ -121,15 +123,15 @@ export LS_OPTIONS;
 # Remove PS1 from export list
 unset PS1;
 
-if [ "$HXPREF_COLORS" == yes ]; then
-	if [ "$isroot" -eq 1 ]; then
+if [[ "$HXPREF_COLORS" == yes ]]; then
+	if [[ "$isroot" -eq 1 ]]; then
 		PS1="$PS1_XROOT";
 	else
 		PS1="$PS1_XUSER";
 	fi;
 else
 	unset LS_COLORS;
-	if [ "$isroot" -eq 1 ]; then
+	if [[ "$isroot" -eq 1 ]]; then
 		PS1="$PS1_ROOT";
 	else
 		PS1="$PS1_USER";
@@ -153,4 +155,4 @@ alias rm="command rm -i";
 
 # --- end big main block ---
 
-fi; # if [ "$HXPREF_ENABLE" == "yes" ];
+fi; # if [[ "$HXPREF_ENABLE" == "yes" ]];
