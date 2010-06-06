@@ -9,6 +9,23 @@ if [ "$HXPREF_ENABLE" == "yes" ]; then
 isroot=0;
 [ "$UID" -eq 0 ] && isroot=1;
 
+hxpref_cd()
+{
+	local d="$1";
+	if [[ -z "$d" ]]; then
+		d="$HOME";
+	fi;
+	if [[ "${#DIRSTACK[@]}" -ge "$HXPREF_DIRSTACK" ]]; then
+		popd -0 2>/dev/null;
+	fi;
+	pushd "$d" >/dev/null;
+}
+
+hxpref_popd()
+{
+	popd >/dev/null;
+}
+
 hxpref_pushd()
 {
 	local path;
@@ -119,9 +136,8 @@ else
 	fi;
 fi;
 
-unalias cd.. dir la ll ls-l you 2>/dev/null;
-alias -- +="hxpref_pushd";
-alias -- -="popd";
+unalias -- + cd.. dir la ll ls-l you 2>/dev/null;
+alias -- -="hxpref_popd";
 alias ..="cd ../";
 alias ...="cd ../../";
 alias cp="cp -ip";
