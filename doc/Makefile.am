@@ -27,7 +27,6 @@ man_MANS = \
 	hxtools.7 \
 	kps.1 \
 	logontime.8 \
-	longjumpcd.1 \
 	mailsplit.1 \
 	man2html.1 \
 	mod2ogg.1 \

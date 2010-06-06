@@ -57,22 +57,6 @@ hxpref_beautify_path()
 	);
 }
 
-xd()
-{
-	local result;
-	if [ -z "$1" ]; then
-		builtin cd -;
-		return $?;
-	fi;
-	result="`longjumpcd \"$1\" \"$2\"`";
-	if [ -z "$result" ]; then
-		echo -e "longjumpcd: no suitable path found";
-		return 2;
-	fi;
-	builtin cd "$result";
-	return $?;
-}
-
 _complete_noop()
 {
 	return 0
