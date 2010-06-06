@@ -142,6 +142,7 @@ unalias -- + cd.. dir la ll ls-l you 2>/dev/null;
 alias -- -="hxpref_popd";
 alias ..="cd ../";
 alias ...="cd ../../";
+alias cd="hxpref_cd";
 alias cp="cp -ip";
 alias e='$EDITOR';
 alias ls='command ls $LS_OPTIONS';
