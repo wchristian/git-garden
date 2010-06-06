@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20100520
+Version:	20100606
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
@@ -72,10 +72,10 @@ find opt/hxtools -type f -print0 | \
 find opt/hxtools -type f -print0 | \
 	xargs -0 grep -L ELF | perl -ne 'print"/$_"' >"$o/data.lst";
 chmod a+x "$b/%_sysconfdir"/hx*.bash;
+ln "$b/%_sysconfdir/hxtools_dircolors" "$b/%_sysconfdir/DIR_COLORS";
 
 %clean
 rm -Rf "%buildroot";
-echo -en "\e[1;32m""Now rebuild aaa_base if you changed DIR_COLORS!""\e[0m\n";
 
 %files -f binary.lst
 %defattr(-,root,root)
@@ -86,6 +86,7 @@ echo -en "\e[1;32m""Now rebuild aaa_base if you changed DIR_COLORS!""\e[0m\n";
 %files data -f data.lst
 %defattr(-,root,root)
 %config %_sysconfdir/hx*
+%config %_sysconfdir/DIR_COLORS
 %dir %_sysconfdir/openldap
 %dir %_sysconfdir/openldap/schema
 %config %_sysconfdir/openldap/schema/*
