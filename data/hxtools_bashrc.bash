@@ -85,7 +85,8 @@ complete -o nospace -o dirnames -F _complete_noop \
 # Allow truncation via > operator
 set +C;
 
-if [[ "$TERM" == "xterm" ]]; then
+if [[ "$TERM" == "xterm" ]] && [[ -z "$MC_SID" ]]; then
+	# Do not use Xterm title inside mc
 	PS1_XTERM="\[\e]0;Xterm - \w\a\]";
 fi;
 export PS1_ROOT="$PS1_XTERM\A \h:\$(hxpref_beautify_path) # ";
