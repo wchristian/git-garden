@@ -90,7 +90,7 @@ set +C;
 
 if [[ "$TERM" == "xterm" ]] && [[ -z "$MC_SID" ]]; then
 	# Do not use Xterm title inside mc
-	PS1_XTERM="\[\e]0;Xterm - \w\a\]";
+	PS1_XTERM="\[\e]0;Xterm - \h:\w\a\]";
 fi;
 export PS1_ROOT="$PS1_XTERM\A \h:\$(hxpref_beautify_path) # ";
 export PS1_USER="$PS1_XTERM\A \h:\$(hxpref_beautify_path) > ";
