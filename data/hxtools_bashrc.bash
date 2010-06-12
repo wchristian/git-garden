@@ -18,7 +18,7 @@ hxpref_cd()
 		d="$HOME";
 	fi;
 	if [[ "${#DIRSTACK[@]}" -ge "$HXPREF_DIRSTACK" ]]; then
-		popd -0 2>/dev/null;
+		popd -0 >/dev/null 2>/dev/null;
 	fi;
 	pushd "$d" >/dev/null;
 }
