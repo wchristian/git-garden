@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20100611
+Version:	20100625
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/
@@ -13,7 +13,11 @@ BuildRequires:	libHX-devel >= 3.4, freetype2, libcap-devel
 BuildRequires:	xorg-x11, pkg-config, xz
 BuildRoot:	%_tmppath/%name-%version-build
 Recommends:	hxtools-data = %version
+
+%define use_fhs_paths 1
+%if !%{?use_fhs_paths}
 Prefix:		/opt/hxtools
+%endif
 
 %if "%{?vendor_uuid}" != ""
 Provides:	%name(vendor:%vendor_uuid) = %version-%release
@@ -36,8 +40,9 @@ Architecture-indepent data for hxtools.
 %setup -q
 
 %build
-%if "%{?use_fhs_paths}"
+%if %{?use_fhs_paths}
 %configure \
+	--datadir=%_datadir/%name \
 	--with-keymapdir=%_datadir/kbd/keymaps \
 	--with-vgafontdir=%_datadir/kbd/consolefonts \
 	--with-x11fontdir=%_datadir/fonts
@@ -47,6 +52,7 @@ Architecture-indepent data for hxtools.
 	--exec-prefix=%prefix \
 	--bindir=%prefix/bin \
 	--libexecdir=%prefix/libexec \
+	--datadir=%prefix/share \
 	--with-keymapdir=%_datadir/kbd/keymaps \
 	--with-vgafontdir=%_datadir/kbd/consolefonts \
 	--with-x11fontdir=%_datadir/fonts
@@ -58,7 +64,7 @@ o="$PWD";
 b="%buildroot";
 rm -Rf "$b";
 mkdir "$b";
-%if "%{?use_fhs_paths}"
+%if %{?use_fhs_paths}
 make install DESTDIR="$b";
 %else
 make install DESTDIR="$b" pkglibexecdir="%prefix/libexec";
@@ -67,9 +73,9 @@ install -dm0755 "$b/%_sysconfdir/openldap/schema" "$b/%_datadir/mc/syntax";
 install -pm0644 cooledit/*.syntax "$b/%_datadir/mc/syntax/";
 install -pm0644 data/rfc2307bis-utf8.schema "$b/%_sysconfdir/openldap/schema/";
 cd "$b";
-find opt/hxtools -type f -print0 | \
+find * -type f ! -wholename "usr/share/man*" -print0 | \
 	xargs -0 grep -l ELF | perl -ne 'print"/$_"' >"$o/binary.lst";
-find opt/hxtools -type f -print0 | \
+find * -type f ! -wholename "usr/share/man*" -print0 | \
 	xargs -0 grep -L ELF | perl -ne 'print"/$_"' >"$o/data.lst";
 chmod a+x "$b/%_sysconfdir"/hx*.bash;
 ln "$b/%_sysconfdir/hxtools_dircolors" "$b/%_sysconfdir/DIR_COLORS";
@@ -79,9 +85,11 @@ rm -Rf "%buildroot";
 
 %files -f binary.lst
 %defattr(-,root,root)
+%if !%{?use_fhs_paths}
 %dir %prefix
 %dir %prefix/bin
 %dir %prefix/libexec
+%endif
 
 %files data -f data.lst
 %defattr(-,root,root)
@@ -90,9 +98,16 @@ rm -Rf "%buildroot";
 %dir %_sysconfdir/openldap
 %dir %_sysconfdir/openldap/schema
 %config %_sysconfdir/openldap/schema/*
+
+%if %{?use_fhs_paths}
+%_datadir/%name
+%else
 %dir %prefix
 %dir %prefix/bin
 %dir %prefix/libexec
+%prefix/share
+%endif
+
 %_datadir/kbd
 %_datadir/fonts/misc
 %_datadir/mc
