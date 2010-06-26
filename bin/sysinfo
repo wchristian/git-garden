@@ -46,6 +46,8 @@ sub do_cpuinfo
 			$cpu_model =~ s/\@?\s*\d+\.\d+[GM]Hz//s;
 		} elsif ($l =~ /^cpu mhz\s+:\s+(.*)/i) {
 			$cpu_mhz = $1;
+		} elsif ($l =~ /^ncpus active\s+:\s+(\d+)/i) {
+			$cpu_num = $1;
 		}
 	}
 	$cpu_mhz =~ s/\..*//;
@@ -153,9 +155,12 @@ sub do_gfx
 
 	my $dev;
 	chomp($dev = <IN>);
+	close IN;
+	if (!defined($dev)) {
+		return;
+	}
 	$dev =~ s/^.*VGA compatible controller:\s+//;
 	print " | Gfx: $dev";
-	close IN;
 
 	my($scr_res, $scr_virt);
 
