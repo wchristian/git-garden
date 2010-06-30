@@ -31,39 +31,42 @@ if [[ -n "$font" ]]; then
 	opts="-fn $font -fb $font";
 fi;
 
-exec xterm \
-	-xrm '*VT100*loginShell: true' \
-	-xrm '*VT100*geometry: 80x25' \
-	-xrm '*VT100*scrollBar: false' \
-	-xrm '*VT100*visualBell: on' \
-	-xrm '*VT100*foreground: #AAAAAA' \
-	-xrm '*VT100*background: #000000' \
-	-xrm '*VT100*cursorBlink: on' \
-	-xrm '*VT100*cursorUnderLine: on' \
-	-xrm '*VT100*cursorOnTime: 1000' \
-	-xrm '*VT100*cursorOffTime: 1000' \
-	-xrm '*VT100*cursorColor: #C0C0E0' \
-	-xrm '*VT100*color0: #000000' \
-	-xrm '*VT100*color1: #AA0000' \
-	-xrm '*VT100*color2: #00AA00' \
-	-xrm '*VT100*color3: #AA6600' \
-	-xrm '*VT100*color4: #000090' \
-	-xrm '*VT100*color5: #AA00AA' \
-	-xrm '*VT100*color6: #00AAAA' \
-	-xrm '*VT100*color7: #AAAAAA' \
-	-xrm '*VT100*color8: #555555' \
-	-xrm '*VT100*color9: #FF0000' \
-	-xrm '*VT100*color10: #00FF00' \
-	-xrm '*VT100*color11: #FFFF00' \
-	-xrm '*VT100*color12: #0000FF' \
-	-xrm '*VT100*color13: #FF00FF' \
-	-xrm '*VT100*color14: #00FFFF' \
-	-xrm '*VT100*color15: #FFFFFF' \
-	-xrm '*VT100*boldMode: false' \
-	-xrm '*VT100*alwaysBoldMode: false' \
-	-xrm '*VT100*veryBoldColors: 6' \
-	-xrm '*VT100*colorBDMode: on' \
-	-xrm '*VT100*colorBD: #FFFFFF' \
-	-xrm '*VT100*colorULMode: on' \
-	-xrm '*VT100*colorUL: #60AAAA' \
-	$opts "$@";
+if [[ ! -e /usr/share/X11/app-defaults/XTerm-color.jng ]]; then
+	par=(
+	-xrm '*VT100*loginShell: true'
+	-xrm '*VT100*geometry: 80x25'
+	-xrm '*VT100*scrollBar: false'
+	-xrm '*VT100*visualBell: on'
+	-xrm '*VT100*foreground: #AAAAAA'
+	-xrm '*VT100*background: #000000'
+	-xrm '*VT100*cursorBlink: on'
+	-xrm '*VT100*cursorUnderLine: on'
+	-xrm '*VT100*cursorOnTime: 1000'
+	-xrm '*VT100*cursorOffTime: 1000'
+	-xrm '*VT100*cursorColor: #C0C0E0'
+	-xrm '*VT100*color0: #000000'
+	-xrm '*VT100*color1: #AA0000'
+	-xrm '*VT100*color2: #00AA00'
+	-xrm '*VT100*color3: #AA6600'
+	-xrm '*VT100*color4: #000090'
+	-xrm '*VT100*color5: #AA00AA'
+	-xrm '*VT100*color6: #00AAAA'
+	-xrm '*VT100*color7: #AAAAAA'
+	-xrm '*VT100*color8: #555555'
+	-xrm '*VT100*color9: #FF0000'
+	-xrm '*VT100*color10: #00FF00'
+	-xrm '*VT100*color11: #FFFF00'
+	-xrm '*VT100*color12: #0000FF'
+	-xrm '*VT100*color13: #FF00FF'
+	-xrm '*VT100*color14: #00FFFF'
+	-xrm '*VT100*color15: #FFFFFF'
+	-xrm '*VT100*boldMode: false'
+	-xrm '*VT100*alwaysBoldMode: false'
+	-xrm '*VT100*veryBoldColors: 6'
+	-xrm '*VT100*colorBDMode: on'
+	-xrm '*VT100*colorBD: #FFFFFF'
+	-xrm '*VT100*colorULMode: on'
+	-xrm '*VT100*colorUL: #60AAAA'
+	);
+fi;
+exec xterm "${par[@]}" $opts "$@";
