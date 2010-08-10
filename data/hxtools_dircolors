@@ -77,6 +77,7 @@ EXEC		1;31
 .hpp	0;32	# C++ include files
 .js	0;32	# JavaScript file
 .ph	0;32	# Perl include files
+.php	0;32	# PHP
 .pl	0;32	# Perl programs
 .pm	0;32	# Perl modules
 .py	0;32	# Python
@@ -93,7 +94,6 @@ EXEC		1;31
 .htm	0;36	# HTML file
 .html	0;36	# HTML file
 .pdf	0;36	# Acrobat
-.php	0;36	# Personal/Professional Homepage Processor
 .po	0;36	# Translations
 .pps	0;36	# Powerpoint Pack&Go presentation/document
 .ppt	0;36	# Powerpoint presentation/document
