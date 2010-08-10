@@ -13,7 +13,8 @@ BLOCK		1;33	# block device
 CHAR		1;33	# character device
 EXEC		1;31
 # the following remain empty! (their color depends on above types then)
-# regular coreutils does not get it right, so this needs coreutils-ccj to work
+# regular coreutils does not get it right, so this needs
+# coreutils(vendor:jengelh) to work
 #SUID
 #SGID
 #STICKY
@@ -109,6 +110,7 @@ EXEC		1;31
 .aif	0;36	# Macintosh AIFF
 .aiff	0;36	# Macintosh AIFF
 .asf	0;36	# Active Streaming Format
+.asx	0;36	# Active Streaming Format
 .avi	0;36	# Audio-Video Interleaved
 .au	0;36	# Sun Audio
 .bmp	0;36	# Windows bitmap
@@ -150,6 +152,7 @@ EXEC		1;31
 .tiff	0;36
 .ttc	0;36	# TrueType font
 .ttf	0;36	# TrueType font
+.VOB	0;36	# MPEG-2 DVD Video
 .vob	0;36	# MPEG-2 DVD Video
 #.voc	0;36	# Soundblaster VOC file
 .wav	0;36	# RIFF Wave file
