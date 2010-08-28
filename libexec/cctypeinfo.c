@@ -49,10 +49,12 @@ p(uint8_t);
 p(uint16_t);
 p(uint32_t);
 p(uint64_t);
-p(mode_t);
 q(struct x16, x16);
 q(struct x32, x32);
 q(struct x64, x64);
+p(mode_t);
+p(time_t);
+q(struct timespec, timespec);
 
 #ifndef WITHOUT_MAIN
 int main(void)
@@ -80,6 +82,8 @@ int main(void)
 	t(struct x32);
 	t(struct x64);
 	t(mode_t);
+	t(time_t);
+	t(struct timespec);
 	return EXIT_SUCCESS;
 }
 #endif
