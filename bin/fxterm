@@ -31,7 +31,7 @@ if [[ -n "$font" ]]; then
 	opts="-fn $font -fb $font";
 fi;
 
-if [[ ! -e /usr/share/X11/app-defaults/XTerm-color.jng ]]; then
+if [[ ! -e /usr/share/X11/app-defaults/XTerm.jng ]]; then
 	par=(
 	-xrm '*VT100*loginShell: true'
 	-xrm '*VT100*geometry: 80x25'
