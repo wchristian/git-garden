@@ -21,6 +21,9 @@ hxpref_cd()
 		popd -0 >/dev/null 2>/dev/null;
 	fi;
 	pushd "$d" >/dev/null;
+	if [[ "$PWD" == "${DIRSTACK[1]}" ]]; then
+		popd -0 >/dev/null 2>/dev/null;
+	fi;
 }
 
 hxpref_popd()
