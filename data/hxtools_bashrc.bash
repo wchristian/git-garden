@@ -32,7 +32,7 @@ hxpref_cd()
 
 hxpref_popd()
 {
-	popd >/dev/null;
+	popd >/dev/null || popd +1 >/dev/null 2>/dev/null;
 }
 
 hxpref_pushd()
