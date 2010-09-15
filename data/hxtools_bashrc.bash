@@ -17,6 +17,10 @@ hxpref_cd()
 	if [[ -z "$d" ]]; then
 		d="$HOME";
 	fi;
+	if [[ "$d" == "-" ]]; then
+		# The path will be pushed again right away
+		popd +1 >/dev/null 2>/dev/null;
+	fi;
 	pushd "$d" >/dev/null;
 	if [[ "$PWD" == "${DIRSTACK[1]}" ]]; then
 		popd -0 >/dev/null 2>/dev/null;
