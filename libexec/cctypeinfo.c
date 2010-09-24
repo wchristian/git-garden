@@ -43,6 +43,7 @@ q(void *, voidptr);
 q(void (*)(void), funcptr);
 p(intptr_t);
 p(wchar_t);
+p(size_t);
 p(off_t);
 p(loff_t);
 p(uint8_t);
@@ -71,6 +72,7 @@ int main(void)
 	t(void *);
 	t(void (*)(void));
 	t(intptr_t);
+	t(size_t);
 	t(wchar_t);
 	t(off_t);
 	t(loff_t);
