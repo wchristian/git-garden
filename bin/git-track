@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_branch=$(pcregrep -o '(?<=^ref: refs/heads/)[^/]+$' .git/HEAD);
+current_branch=$(pcregrep -o '(?<=^ref: refs/heads/).+$' .git/HEAD);
 if [[ -z "$current_branch" ]]; then
 	echo You do not seem to be on a branch >&2;
 	exit 1;
