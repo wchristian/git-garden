@@ -14,9 +14,9 @@ if [[ "$1" == "--tsvn" ]]; then
 fi;
 
 j=0;
-for i in `git rev-list --reverse "$@"`; do
+for i in $(git rev-list --reverse "$@"); do
 	let ++j;
-	f="`printf %04u.diff $j`";
+	f="$(printf %04u.diff $j)";
 	echo -en "[$f] ";
 
 	# The rationale behind this seemingly stupid invocation of cat is
@@ -25,7 +25,7 @@ for i in `git rev-list --reverse "$@"`; do
 	git log -1 --abbrev-commit --pretty=oneline "$i" | cat;
 	p=$(git rev-parse "$i^");
 	echo "parent $p ("$(git describe "$i^" 2>/dev/null)")" >"$f";
-	git log -1 -C -M -p --stat=72 --summary "$i" | \
+	git log -1 -C -M -p --stat=72 --summary --patience "$i" | \
 	perl -lpe '$s=1 if/^---/;s/^ {4}// if!$s' >>"$f";
 	if [[ -z "$tsvn" ]]; then
 		echo -en "-- \n# Created with git-export-patch\n" >>"$f";
