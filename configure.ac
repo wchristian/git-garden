@@ -11,6 +11,8 @@ PKG_CHECK_MODULES([libHX], [libHX >= 3.4])
 AC_SEARCH_LIBS([cap_get_flag], [cap], [libcap_LIBS="-lcap"])
 AM_CONDITIONAL([HAVE_LIBCAP], [test -n "$have_libcap"])
 LIBS=""
+AC_SEARCH_LIBS([dlopen], [dl], [libdl_LIBS="-ldl"])
+LIBS=""
 
 kbddir='${pkgdatadir}/kbd';
 keymapdir='${kbddir}';
