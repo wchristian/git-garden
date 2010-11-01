@@ -240,8 +240,8 @@ static void vf_extract_cpi2(const void *_data, const char *directory)
 	     cpeh = _data + cpeh->next_cpeh_offset)
 	{
 		printf("CPEH #%u: Name: %.*s, Codepage: %u\n",
-		       i, sizeof(cpeh->device_name), cpeh->device_name,
-		       cpeh->codepage);
+		       i, static_cast(int, sizeof(cpeh->device_name)),
+		       cpeh->device_name, cpeh->codepage);
 
 		if (cpeh->device_type != 1)
 			/* non-screen */
