@@ -8,8 +8,9 @@ AM_PROG_CC_C_O
 
 AC_CHECK_HEADERS([lastlog.h paths.h])
 PKG_CHECK_MODULES([libHX], [libHX >= 3.4])
-AC_SEARCH_LIBS([cap_get_flag], [cap], [have_libcap="yes"])
-AM_CONDITIONAL([HAVE_LIBCAP], [test "$have_libcap" = "yes"])
+AC_SEARCH_LIBS([cap_get_flag], [cap], [libcap_LIBS="-lcap"])
+AM_CONDITIONAL([HAVE_LIBCAP], [test -n "$have_libcap"])
+LIBS=""
 
 kbddir='${pkgdatadir}/kbd';
 keymapdir='${kbddir}';
