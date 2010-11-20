@@ -54,10 +54,16 @@ sub process_generic
 	s</usr/share/man$PSTOP> <\%_mandir>g;
 	s</usr/share/info$PSTOP> <\%_infodir>g;
 	s</usr/share$PSTOP> <\%_datadir>g;
-	if (m</lib$PSTOP>) {
-		print STDERR "$s->{pos}: Seen \"/lib\". Consider replacing with \%_libdir or \%_libexecdir as appropriate.\n";
+	if (m</usr/lib$PSTOP>) {
+		print STDERR "$s->{pos}: Seen \"/usr/lib\". Consider replacing with \%_libdir or \%_libexecdir as appropriate.\n";
 	}
-	if (m</lib64$PSTOP>) {
+	if (m</usr/lib64$PSTOP>) {
+		print STDERR "$s->{pos}: Seen \"/usr/lib64\". Consider fixing it.";
+	}
+	if (m{(?<!/usr)/lib$PSTOP}) {
+		print STDERR "$s->{pos}: Seen \"/lib\". Consider replacing with \%_lib as appropriate.\n";
+	}
+	if (m{(?<!/usr)/lib64$PSTOP}) {
 		print STDERR "$s->{pos}: Seen \"/lib64\". Consider fixing it.";
 	}
 
