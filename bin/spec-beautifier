@@ -128,7 +128,7 @@ sub process_pkglist
 	$line =~ s<[ \t]+>< >gs;
 	$line =~ s<^ +><>gs;
 	$line =~ s< +$><>gs;
-	my @list = split(/\s+/, $line);
+	my @list = split(/,?\s+/, $line);
 	my $i = 0;
 
 	while ($i < scalar(@list)) {
