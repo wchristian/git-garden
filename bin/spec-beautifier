@@ -55,10 +55,10 @@ sub process_generic
 	s</usr/share/info$PSTOP> <\%_infodir>g;
 	s</usr/share$PSTOP> <\%_datadir>g;
 	if (m</lib$PSTOP>) {
-		print STDERR "Seen \"/lib\". Consider replacing with \%_libdir or \%_libexecdir as appropriate.\n";
+		print STDERR "$s->{pos}: Seen \"/lib\". Consider replacing with \%_libdir or \%_libexecdir as appropriate.\n";
 	}
 	if (m</lib64$PSTOP>) {
-		print STDERR "Seen \"/lib64\". Consider fixing it.";
+		print STDERR "$s->{pos}: Seen \"/lib64\". Consider fixing it.";
 	}
 
 	# Temporarily add {} to reduce following regexes
@@ -66,7 +66,7 @@ sub process_generic
 
 	# Upgrade macros to newer forms
 	if (s<\%{_initrddir}> <\%{_initddir}>g) {
-		print STDERR "Do not use \%_initrddir (typo) anymore, use \%_initddir.\n";
+		print STDERR "$s->{pos}: Do not use \%_initrddir (typo) anymore, use \%_initddir.\n";
 	}
 	s<\%{_usr}> <\%{_prefix}>g;
 	s<\%{_var}> <\%{_localstatedir}>g;
@@ -175,11 +175,15 @@ sub process_package
 sub process_master
 {
 	local *FH = shift @_;
-	my $s = {state => "package"};
+	my $s = shift @_;
 	my $repl = [];
 	my $old;
 
+	$s->{line} = 0;
+	$s->{state} = "package";
 	while (<FH>) {
+		++$s->{line};
+		$s->{pos} = $s->{file}.":".$s->{line};
 		$old = $_;
 		if (m<^\%(package|description|files)\b>) {
 			$s->{sectype} = $s->{section} = $1;
@@ -206,6 +210,7 @@ sub process_master
 sub process_file
 {
 	my $file = shift @_;
+	my $state = {"file" => $file};
 	local *FH;
 
 	if (!open(FH, "< $file")) {
@@ -213,7 +218,7 @@ sub process_file
 		return;
 	}
 
-	my $repl = &process_master(\*FH);
+	my $repl = &process_master(\*FH, $state);
 	close FH;
 
 	if (!$opt_diff_mode && $opt_replace_inline) {
