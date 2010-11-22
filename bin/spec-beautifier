@@ -71,8 +71,8 @@ sub process_generic
 	s<\%($IDNAME)> <\%{$1}>g;
 
 	# Upgrade macros to newer forms
-	if (s<\%{_initrddir}> <\%{_initddir}>g) {
-		print STDERR "$s->{pos}: Do not use \%_initrddir (typo) anymore, use \%_initddir.\n";
+	if (m<\%{_initrddir}>g) {
+		print STDERR "$s->{pos}: Try not to use \%_initrddir (typo) anymore, use \%_initddir. NOTE: SLES11 does not know the new variable yet.\n";
 	}
 	s<\%{_usr}> <\%{_prefix}>g;
 	s<\%{_var}> <\%{_localstatedir}>g;
