@@ -72,7 +72,7 @@ sub process_generic
 
 	# Upgrade macros to newer forms
 	if (m<\%{_initrddir}>g) {
-		print STDERR "$s->{pos}: Try not to use \%_initrddir (typo) anymore, use \%_initddir. NOTE: SLES11 does not know the new variable yet.\n";
+		print STDERR "$s->{pos}: Try not to use \%_initrddir (this was a typo introduced in rpm) anymore, use \%_initddir. NOTE: SLES11 does not know the new variable yet.\n";
 	}
 	s<\%{_usr}> <\%{_prefix}>g;
 	s<\%{_var}> <\%{_localstatedir}>g;
