@@ -60,10 +60,10 @@ sub process_generic
 	if (m</usr/lib64$PSTOP>) {
 		print STDERR "$s->{pos}: Seen \"/usr/lib64\". Consider fixing it.";
 	}
-	if (m{(?<!/usr)/lib$PSTOP}) {
+	if (m{(?:^|\s)/lib$PSTOP}) {
 		print STDERR "$s->{pos}: Seen \"/lib\". Consider replacing with \%_lib as appropriate.\n";
 	}
-	if (m{(?<!/usr)/lib64$PSTOP}) {
+	if (m{(?:^|\s)/lib64$PSTOP}) {
 		print STDERR "$s->{pos}: Seen \"/lib64\". Consider fixing it.";
 	}
 
