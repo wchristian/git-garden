@@ -169,7 +169,7 @@ static bool ofl_taskfd(const char *mnt, const char *path,
 {
 	const char *de;
 	char tmp[256];
-	void *dir;
+	struct HXdir *dir;
 	bool ret;
 
 	dir = HXdir_open(path);
@@ -197,7 +197,7 @@ static void ofl_task(const char *mnt, const char *path,
 {
 	const char *de;
 	char tmp[256];
-	void *dir;
+	struct HXdir *dir;
 
 	dir = HXdir_open(path);
 	if (dir == NULL)
@@ -223,7 +223,7 @@ static bool ofl(const char *mnt, unsigned int signum)
 	struct ofl_compound data = {.signal = signum};
 	const char *de;
 	char tmp[256];
-	void *dir;
+	struct HXdir *dir;
 
 	dir = HXdir_open("/proc");
 	if (dir == NULL)

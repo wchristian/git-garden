@@ -90,7 +90,7 @@ static void tdl_read_ldso_conf(void)
 {
 	const char *dentry;
 	char buf[MAXFNLEN];
-	void *dirp;
+	struct HXdir *dirp;
 
 	tdl_read_ldso_conf1("/etc/ld.so.conf");
 	if ((dirp = HXdir_open("/etc/ld.so.conf.d")) == NULL)

@@ -151,7 +151,7 @@ static void kps_proc_read(struct HXmap *tree)
 {
 	const char *dentry;
 	char buf[64];
-	void *dproc, *dthr;
+	struct HXdir *dproc, *dthr;
 
 	if ((dproc = HXdir_open("/proc")) == NULL) {
 		fprintf(stderr, "Could not open /proc: %s\n", strerror(errno));
