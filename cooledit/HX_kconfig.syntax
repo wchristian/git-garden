@@ -68,6 +68,21 @@ context linestart \s*depends \n
 context linestart select \n
 	keyword whole linestart select white
 
+context linestart \t*select \n
+	keyword whole linestart select white
+
+context linestart \s*select \n
+	keyword whole linestart select white
+
+context linestart help \n
+	keyword whole linestart help white
+
+context linestart \t*help \n
+	keyword whole linestart help white
+
+context linestart \s*help \n
+	keyword whole linestart help white
+
 context linestart ---help--- \n white
 context linestart \t*---help--- \n white
 context linestart \s*---help--- \n white
