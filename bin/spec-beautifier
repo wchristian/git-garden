@@ -31,8 +31,11 @@ sub process_generic
 
 	my($s) = shift @_;
 
-	# Shell variables to RPM macros
 	if ($s->{sectype} eq "shell") {
+		# Undo crimes on shell vars
+		s<\${($IDNAME)}$VSTOP> <\$$1>g;
+
+		# Shell variables to RPM macros
 		#s<\$RPM_SOURCE_DIR> <\%_sourcedir>g;
 		#s<\$RPM_BUILD_DIR> <\%_builddir>g;
 		s<\$RPM_OPT_FLAGS$VSTOP> <\%optflags>g;
@@ -122,11 +125,8 @@ sub process_generic
 		s<\%{${re}_version}><0\%{?${re}_version}>g;
 	}
 
-	# Undo crimes
+	# Undo crimes on RPM macros
 	s<\%{($IDNAME)}$VRSTOP> <\%$1>g;
-	if ($s->{sectype} eq "shell") {
-		s<\${($IDNAME)}$VSTOP> <\$$1>g;
-	}
 }
 
 sub process_pkglist
