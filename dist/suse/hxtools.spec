@@ -1,6 +1,6 @@
 
 Name:		hxtools
-Version:	20101005
+Version:	20101201
 Release:	0
 Group:		System/Base
 URL:		http://jengelh.medozas.de/projects/hxtools/

@@ -30,7 +30,6 @@ man_MANS = \
 	mailsplit.1 \
 	man2html.1 \
 	mod2ogg.1 \
-	mpl.1 \
 	mpg2ogg.1 \
 	netload.8 \
 	newns.8 \
@@ -44,6 +43,7 @@ man_MANS = \
 	raregetty.8 \
 	recursive_lower.1 \
 	sourcefuncsize.1 \
+	spec-beautifier.1 \
 	stxdb.1 \
 	sysinfo.1 \
 	tailhex.1 \
