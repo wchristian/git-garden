@@ -106,7 +106,7 @@ sub queue_play
 				$file = &workaround_mp3vbr($file);
 			}
 			system "mplayer", "-vo", "null",
-				$file, "-ss", $entry->{ofs};
+				$file, "-ss", $entry->{ofs} - 1;
 		}
 		sleep(.3);
 	}
