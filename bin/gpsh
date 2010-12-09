@@ -37,6 +37,10 @@ sub main
 		"q" => \$opt_quiet,
 	);
 	print "[$$] Main program\n";
+	if (scalar(@ARGV) == 0) {
+		@ARGV = ("");
+	}
+
 	if ($rebuild_index || !-e $opt_idxfile) {
 		$index = &index_rebuild($opt_idxfile);
 	} elsif (-M _ > 86400) {
