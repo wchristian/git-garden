@@ -245,7 +245,6 @@ sub index_rebuild
 		die "[$$] Could not write to $idxfile: $!\n";
 	}
 	my $dd = Data::Dumper->new([$FB]);
-	$dd->Indent(0);
 	print DB $dd->Dump();
 	close DB;
 	return $FB;
