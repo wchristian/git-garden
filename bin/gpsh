@@ -199,11 +199,11 @@ sub index_rebuild
 
 	print "[$$] Rebuilding index\n";
 	foreach my $file (@audio) {
-		my $ext = substr($file, 0, -4);
+		my $ext = substr($file, -4, -4);
 		if ($ext eq ".txt" || $ext eq ".m3u") {
 			next;
 		}
-		push(@$FB, {title => $file, file => $file, ofs => 0});
+		push(@$FB, {title => substr($file, 0, -4), file => $file, ofs => 0});
 	}
 
 	foreach my $file (grep(/\.txt$/, @audio)) {
@@ -216,6 +216,8 @@ sub index_rebuild
 		if (!open(FH, "< $file")) {
 			next;
 		}
+		my $bf = $af;
+		$bf =~ s{(.*)\..+$}{$1};
 		while (defined(my $line = <FH>)) {
 			chomp $line;
 			if ($line =~ m{^<<VBR>>}) {
@@ -229,7 +231,7 @@ sub index_rebuild
 			}
 			$s = $h * 3600 + $m * 60 + $s;
 			my $entry = {
-				title => "$af $title",
+				title => "$bf,$title",
 				file => $af,
 				ofs => $s,
 			};
