@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
+#include <netinet/in.h>
 
 struct x16 {
 	uint8_t a;
@@ -56,6 +57,9 @@ q(struct x64, x64);
 p(mode_t);
 p(time_t);
 q(struct timespec, timespec);
+q(struct sockaddr, sockaddr);
+q(struct sockaddr_in, sockaddr_in);
+q(struct sockaddr_in6, sockaddr_in6);
 
 #ifndef WITHOUT_MAIN
 int main(void)
@@ -86,6 +90,9 @@ int main(void)
 	t(mode_t);
 	t(time_t);
 	t(struct timespec);
+	t(struct sockaddr);
+	t(struct sockaddr_in);
+	t(struct sockaddr_in6);
 	return EXIT_SUCCESS;
 }
 #endif
