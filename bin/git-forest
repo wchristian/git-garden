@@ -635,6 +635,6 @@ sub UNTIE
 	my $self = shift @_;
 	my $fh   = $self->{fh};
 
-	print $fh join($/, reverse split(/\n/s, $self->{saved}));
+	print $fh join($/, reverse split(/\n/s, $self->{saved})), "\n";
 	undef $self->{saved};
 }
