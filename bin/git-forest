@@ -202,8 +202,12 @@ sub ref_print
 		print $Color{at}, "[";
 		if ($symbol eq "HEAD" || $symbol =~ m{^rebase/}) {
 			print $Color{hhead}, $symbol;
-		} elsif ($symbol =~ m{^refs/(remotes/[^/]+)/(.*)}s) {
-			print $Color{remote}, "$1/", $Color{head}, "$2";
+		} elsif ($symbol =~ m{^refs/remotes/([^/]+)/(.*)}s) {
+			if ($Color{remote} eq "") {
+				print "remotes/$1/$2";
+			} else {
+				print $Color{remote}, "$1/", $Color{head}, "$2";
+			}
 		} elsif ($symbol =~ m{^refs/heads/(.*)}s) {
 			print $Color{head}, $1;
 		} elsif ($symbol =~ m{^refs/tags/(.*)}s) {
