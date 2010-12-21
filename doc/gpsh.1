@@ -4,7 +4,7 @@
 gpsh \(em grep and play my audio files from shell
 .SH Syntax
 .PP
-\fBgpsh\fP [\fB\-F\fP \fIindex.m9u\fP] [\fB\-bqz\fP] \fIpatterns\fP...
+\fBgpsh\fP [\fB\-F\fP \fIindex.m9u\fP] [\fB\-bqxz\fP] \fIpatterns\fP...
 .SH Description
 .PP
 Greps the master index file by the specified patterns and plays back any
@@ -24,6 +24,9 @@ Do index rebuild in foreground.
 .TP
 \fB\-q\fP
 Do not print time position while playing (only timidity).
+.TP
+\fB\-x\fP
+Force creating MKA-indexed files everytime.
 .TP
 \fB\-z\fP
 Do not shuffle the play queue.
