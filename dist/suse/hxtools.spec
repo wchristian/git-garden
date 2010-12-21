@@ -67,6 +67,7 @@ rm -Rf "%buildroot";
 
 %files -f binary.lst
 %defattr(-,root,root)
+%dir %_libexecdir/%name
 
 %files data -f data.lst
 %defattr(-,root,root)
@@ -76,6 +77,7 @@ rm -Rf "%buildroot";
 %dir %_sysconfdir/openldap
 %dir %_sysconfdir/openldap/schema
 %config %_sysconfdir/openldap/schema/*
+%dir %_libexecdir/%name
 %_datadir/%name
 %_datadir/kbd
 %_datadir/fonts/misc
