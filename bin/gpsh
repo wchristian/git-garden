@@ -188,7 +188,11 @@ sub schedule
 
 sub audio_file_for
 {
-	my($dir, $file) = (shift(@_) =~ m{(.*)/(.*)\.txt$});
+	my($file) = (shift(@_) =~ m{([^/]*)\.txt$});
+	my $dir = $`;
+	if ($dir eq "") {
+		$dir = ".";
+	}
 	my @a = File::Find::Rule->file()->not_name("*.txt")->
 	        not_name("*.m3u")->name("$file.*")->in($dir);
 	return shift @a;
