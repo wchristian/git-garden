@@ -203,7 +203,7 @@ sub index_rebuild
 
 	print "[$$] Rebuilding index\n";
 	foreach my $file (@audio) {
-		my $ext = substr($file, -4, -4);
+		my $ext = substr($file, -4, 4);
 		if ($ext eq ".txt" || $ext eq ".m3u") {
 			next;
 		}
