@@ -188,13 +188,14 @@ sub schedule
 
 sub audio_file_for
 {
-	my($file) = (shift(@_) =~ m{([^/]*)\.txt$});
+	my($file) = (shift(@_) =~ m{([^/]*)\.tls$});
 	my $dir = $`;
 	if ($dir eq "") {
 		$dir = ".";
 	}
 	my @a = File::Find::Rule->file()->not_name("*.txt")->
-	        not_name("*.m3u")->name("$file.*")->in($dir);
+	        not_name("*.m3u")->not_name("*.lyr")->
+	        not_name("*.tls")->name("$file.*")->in($dir);
 	return shift @a;
 }
 
@@ -208,13 +209,14 @@ sub index_rebuild
 	print "[$$] Rebuilding index\n";
 	foreach my $file (@audio) {
 		my $ext = substr($file, -4, 4);
-		if ($ext eq ".txt" || $ext eq ".m3u") {
+		if ($ext eq ".txt" || $ext eq ".m3u" || $ext eq ".tls" ||
+		    $ext eq ".lyr") {
 			next;
 		}
 		push(@$FB, {title => substr($file, 0, -4), file => $file, ofs => 0});
 	}
 
-	foreach my $file (grep(/\.txt$/, @audio)) {
+	foreach my $file (grep(/\.tls$/, @audio)) {
 		my $af = &audio_file_for($file);
 		my $vbr;
 		if (!defined($af)) {
