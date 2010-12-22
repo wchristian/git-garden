@@ -100,6 +100,7 @@ sub queue_play
 		my($ext) = ($file =~ /(\.[^\.]+)$/);
 		$ext = lc $ext;
 
+		print STDERR "\e[1;31m", $entry->{title}, "\e[0m\n"; # ]]
 		if ($ext eq ".mid" || $ext eq ".mus" || $ext eq ".mod" ||
 		    $ext eq ".669" || $ext eq ".s3m" || $ext eq ".xm" ||
 		    $ext eq ".it") {
