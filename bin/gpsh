@@ -91,13 +91,23 @@ sub queue_select
 	return $queue;
 }
 
+sub filename_nonext
+{
+	return (shift(@_) =~ /^(.*)\.[^\.]+$/);
+}
+
+sub filename_ext
+{
+	return (shift(@_) =~ /(\.[^\.]+)$/);
+}
+
 sub queue_play
 {
 	my $queue = shift @_;
 
 	foreach my $entry (@$queue) {
 		my $file = $entry->{file};
-		my($ext) = ($file =~ /(\.[^\.]+)$/);
+		my $ext = &filename_ext($file);
 		$ext = lc $ext;
 
 		print STDERR "\e[1;31m", $entry->{title}, "\e[0m\n"; # ]]
@@ -208,12 +218,13 @@ sub index_rebuild
 
 	print "[$$] Rebuilding index\n";
 	foreach my $file (@audio) {
-		my $ext = substr($file, -4, 4);
+		my $ext = &filename_ext($file);
 		if ($ext eq ".txt" || $ext eq ".m3u" || $ext eq ".tls" ||
 		    $ext eq ".lyr") {
 			next;
 		}
-		push(@$FB, {title => substr($file, 0, -4), file => $file, ofs => 0});
+		push(@$FB, {title => &filename_nonext($file),
+		     file => $file, ofs => 0});
 	}
 
 	foreach my $file (grep(/\.tls$/, @audio)) {
