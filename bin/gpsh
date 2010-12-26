@@ -101,6 +101,20 @@ sub filename_ext
 	return (shift(@_) =~ /(\.[^\.]+)$/);
 }
 
+my @meta_exts = qw(.txt .m3u .tls .lyr);
+
+sub filename_meta
+{
+	my $ext = shift @_;
+
+	foreach my $t (@meta_exts) {
+		if ($ext eq $t) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 sub queue_play
 {
 	my $queue = shift @_;
@@ -203,9 +217,11 @@ sub audio_file_for
 	if ($dir eq "") {
 		$dir = ".";
 	}
-	my @a = File::Find::Rule->file()->not_name("*.txt")->
-	        not_name("*.m3u")->not_name("*.lyr")->
-	        not_name("*.tls")->name("$file.*")->in($dir);
+	my $obj = File::Find::Rule->file();
+	foreach my $t (@meta_exts) {
+		$obj->not_name($t);
+	}
+	my @a = $obj->name("$file.*")->in($dir);
 	return shift @a;
 }
 
@@ -219,8 +235,7 @@ sub index_rebuild
 	print "[$$] Rebuilding index\n";
 	foreach my $file (@audio) {
 		my $ext = &filename_ext($file);
-		if ($ext eq ".txt" || $ext eq ".m3u" || $ext eq ".tls" ||
-		    $ext eq ".lyr") {
+		if (&filename_meta($ext)) {
 			next;
 		}
 		push(@$FB, {title => &filename_nonext($file),
