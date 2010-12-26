@@ -115,6 +115,18 @@ sub filename_meta
 	return 0;
 }
 
+sub filename_timidity
+{
+	my $ext = shift @_;
+
+	foreach my $t (qw(.mid .mus .mod .669 .s3m .xm .it)) {
+		if ($ext eq $t) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 sub queue_play
 {
 	my $queue = shift @_;
@@ -125,9 +137,7 @@ sub queue_play
 		$ext = lc $ext;
 
 		print STDERR "\e[1;31m", $entry->{title}, "\e[0m\n"; # ]]
-		if ($ext eq ".mid" || $ext eq ".mus" || $ext eq ".mod" ||
-		    $ext eq ".669" || $ext eq ".s3m" || $ext eq ".xm" ||
-		    $ext eq ".it") {
+		if (&filename_timidity($ext)) {
 			my $t = $opt_quiet ? "" : "t";
 			system "timidity", "-Os", "-id$t", $file;
 		} elsif ($file eq ".umx") {
