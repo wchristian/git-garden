@@ -98,7 +98,8 @@ sub filename_nonext
 
 sub filename_ext
 {
-	return (shift(@_) =~ /(\.[^\.]+)$/);
+	my($ext) = (shift(@_) =~ /(\.[^\.]+)$/);
+	return $ext;
 }
 
 my @meta_exts = qw(.txt .m3u .tls .lyr);
