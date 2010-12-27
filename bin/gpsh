@@ -229,7 +229,7 @@ sub audio_file_for
 	}
 	my $obj = File::Find::Rule->file();
 	foreach my $t (@meta_exts) {
-		$obj->not_name($t);
+		$obj->not_name("*$t");
 	}
 	my @a = $obj->name("$file.*")->in($dir);
 	return shift @a;
