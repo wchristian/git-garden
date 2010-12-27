@@ -17,6 +17,7 @@ use Getopt::Long;
 use strict;
 my $opt_quiet;
 my $opt_mka;
+my @meta_exts = qw(.txt .m3u .tls .lyr);
 
 &main();
 
@@ -101,8 +102,6 @@ sub filename_ext
 	my($ext) = (shift(@_) =~ /(\.[^\.]+)$/);
 	return $ext;
 }
-
-my @meta_exts = qw(.txt .m3u .tls .lyr);
 
 sub filename_meta
 {
