@@ -93,6 +93,7 @@ int main(void)
 	t(struct sockaddr);
 	t(struct sockaddr_in);
 	t(struct sockaddr_in6);
+	t(struct sockaddr_storage);
 	return EXIT_SUCCESS;
 }
 #endif
