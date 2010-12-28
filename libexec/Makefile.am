@@ -1,5 +1,6 @@
 # -*- Makefile -*-
 
+AM_CPPFLAGS = ${regular_CPPFLAGS}
 AM_CFLAGS = ${regular_CFLAGS} ${libHX_CFLAGS}
 
 pkglibexec_PROGRAMS = bsvplay cctypeinfo fd0ssh graph-fanout \
