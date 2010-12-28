@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <libHX/ctype_helper.h>
 #include <libHX/defs.h>
+#include <libHX/init.h>
 #include <libHX/misc.h>
 #include <libHX/option.h>
 #include <libHX/proc.h>
@@ -532,7 +533,7 @@ static bool ir_get_options(int *argc, const char ***argv,
 	return true;
 }
 
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	struct work_info work_info;
 
@@ -554,4 +555,18 @@ int main(int argc, const char **argv)
 	kill(xdb_proc.p_pid, SIGTERM); /* just in case */
 	HXproc_wait(&xdb_proc);
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) < 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(errno));
+		return EXIT_FAILURE;
+	}
+
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }

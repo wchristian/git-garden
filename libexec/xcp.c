@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libHX/init.h>
 #include <libHX/option.h>
 
 enum {
@@ -124,7 +125,7 @@ static int xcp_mmap(const char *input, const char *output)
 	return EXIT_SUCCESS;
 }
 
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	if (!xcp_get_options(&argc, &argv))
 		return EXIT_FAILURE;
@@ -139,4 +140,18 @@ int main(int argc, const char **argv)
 	else if (xcp_mode == XCP_MMAP)
 		return xcp_mmap(argv[1], argv[2]);
 	return EXIT_FAILURE;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) < 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(errno));
+		return EXIT_FAILURE;
+	}
+
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }

@@ -9,9 +9,10 @@
 #include <string.h>
 #include <libHX/ctype_helper.h>
 #include <libHX/defs.h>
+#include <libHX/init.h>
 #include <libHX/string.h>
 
-int main(int argc, const char **argv)
+static int main2(int argc, const char **argv)
 {
 	const char *file = "/proc/iomem";
 	uint64_t start, end;
@@ -49,4 +50,18 @@ int main(int argc, const char **argv)
 	HXmc_free(ln);
 	fclose(fp);
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, const char **argv)
+{
+	int ret;
+
+	if ((ret = HX_init()) < 0) {
+		fprintf(stderr, "HX_init: %s\n", strerror(errno));
+		return EXIT_FAILURE;
+	}
+
+	ret = main2(argc, argv);
+	HX_exit();
+	return ret;
 }
