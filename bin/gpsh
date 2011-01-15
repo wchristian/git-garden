@@ -8,6 +8,7 @@
 #
 # -F	specifies index file to use
 # -b	Force synchronous index rebuild
+# -l	Only do lookup
 # -q	Try to be quiet
 # -z	Disable shuffle
 #
@@ -25,6 +26,7 @@ sub main
 {
 	my $opt_idxfile = "index.m9u",
 	my $opt_shuffle = 1;
+	my $opt_listonly;
 	my $rebuild_index;
 	my $index;
 	my $queue;
@@ -35,6 +37,7 @@ sub main
 	&GetOptions(
 		"F" => \$opt_idxfile,
 		"b" => \$rebuild_index,
+		"l" => \$opt_listonly,
 		"z" => sub { $opt_shuffle = 0 },
 		"q" => \$opt_quiet,
 		"x" => \$opt_mka,
@@ -61,6 +64,9 @@ sub main
 
 	if (!defined($queue)) {
 		$queue = &queue_select($index, \@ARGV);
+	}
+	if ($opt_listonly) {
+		return;
 	}
 	if ($opt_shuffle) {
 		@$queue = sort s_random @$queue;
