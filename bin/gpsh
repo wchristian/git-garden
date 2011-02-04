@@ -17,7 +17,6 @@ use File::Find::Rule;
 use Getopt::Long;
 use strict;
 my $opt_quiet;
-my $opt_mka;
 my @meta_exts = qw(.txt .m3u .tls .lyr);
 
 &main();
@@ -40,7 +39,6 @@ sub main
 		"l" => \$opt_listonly,
 		"z" => sub { $opt_shuffle = 0 },
 		"q" => \$opt_quiet,
-		"x" => \$opt_mka,
 	);
 	print "[$$] Main program\n";
 	if (scalar(@ARGV) == 0) {
@@ -149,8 +147,7 @@ sub queue_play
 		} elsif ($file eq ".umx") {
 			&play_umx($file);
 		} else {
-			if ((defined($entry->{vbr}) && $entry->{ofs} != 0) ||
-			    $opt_mka) {
+			if (defined($entry->{vbr})) {
 				$file = &workaround_mp3vbr($file);
 			}
 			system "mplayer", "-vo", "null",
