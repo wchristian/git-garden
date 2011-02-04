@@ -5,7 +5,7 @@ AM_CFLAGS = ${regular_CFLAGS} ${libHX_CFLAGS}
 
 pkglibexec_PROGRAMS = bsvplay cctypeinfo fd0ssh graph-fanout \
 	graph-lchain proc_iomem_count \
-	qplay testdl utmp_register wavdiff vfontas xcp \
+	qplay utmp_register wavdiff vfontas xcp \
 	xfs_irecover
 if HAVE_LIBCAP
 pkglibexec_PROGRAMS += printcaps
@@ -29,7 +29,6 @@ qplay_SOURCES       = qplay.c pcspkr_pcm.c
 qplay_LDADD         = ${libHX_LIBS} -lm
 printcaps_LDADD     = ${libcap_LIBS}
 proc_iomem_count_LDADD = ${libHX_LIBS}
-testdl_LDADD        = ${libHX_LIBS} ${libdl_LIBS}
 utmp_register_LDADD = ${libHX_LIBS}
 wavdiff_LDADD       = ${libHX_LIBS}
 vfontas_LDADD       = ${libHX_LIBS}

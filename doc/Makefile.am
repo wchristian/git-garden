@@ -47,7 +47,6 @@ man_MANS = \
 	stxdb.1 \
 	sysinfo.1 \
 	tailhex.1 \
-	testdl.1 \
 	utmp_register.8 \
 	vcsaview.8 \
 	vfontas.1 \
