@@ -100,8 +100,6 @@ substitutions)
 .PP
 \fBtailhex\fP(1) \(en hex dumper with tail\-following support
 .PP
-\fBtruncate\fP(1) \(en truncate files to specific size
-.PP
 \fButmp_register\fP(1) \(en make entries in the utmp/wtmp database
 .PP
 \fBvcsaview\fP(8) \(en display a screen dump in VCSA format
@@ -119,6 +117,8 @@ Some helpers have been recently removed because they have found better
 equivalents.
 .PP
 \fBflv2mka\fP. Replacable by `ffmpeg -i input -vn -acodec copy out.mka`.
+.PP
+\fBhtruncate\fP. Replacable by truncate(1) in coreutils 7.x and up.
 .PP
 \fBln2\fP. Replacable by `cp -l`.
 .PP

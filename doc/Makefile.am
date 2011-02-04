@@ -23,7 +23,6 @@ man_MANS = \
 	git-lemon.1 \
 	git-revert-stats.1 \
 	git-track.1 \
-	htruncate.1 \
 	hxtools.7 \
 	kps.1 \
 	logontime.8 \
