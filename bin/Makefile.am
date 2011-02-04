@@ -7,7 +7,7 @@ CLEANFILES       = omixer orec
 bin_PROGRAMS     = declone htruncate kps newns ofl oplay tailhex
 bin_SCRIPTS      = checkbrack cwdiff fduphl \
                    fxterm git-author-stat git-export-patch \
-                   git-forest git-lemon git-track gpsh man2html ln2 \
+                   git-forest git-lemon git-track gpsh man2html \
                    omixer orec pesubst pmap_dirty qtar recursive_lower \
                    spec-beautifier su1 sysinfo wktimer
 kps_LDADD        = ${libHX_LIBS}
