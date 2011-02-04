@@ -28,6 +28,7 @@ sub main
 	my $opt_listonly;
 	my $rebuild_index;
 	my $index;
+	my $vbr_map;
 	my $queue;
 
 	$SIG{INT} = $SIG{QUIT} = sub { exit(0); };
@@ -46,9 +47,9 @@ sub main
 	}
 
 	if ($rebuild_index || !-e $opt_idxfile) {
-		$index = &index_rebuild($opt_idxfile);
+		($index, $vbr_map) = &index_rebuild($opt_idxfile);
 	} elsif (-M $opt_idxfile > 1) {
-		$index = &index_read($opt_idxfile);
+		($index, $vbr_map) = &index_read($opt_idxfile);
 		$queue = &queue_select($index, \@ARGV);
 		# Avoid backgrounding if we have nothing to play
 		if (scalar(@$queue) > 0) {
@@ -57,7 +58,7 @@ sub main
 			&index_rebuild($opt_idxfile);
 		}
 	} else {
-		$index = &index_read($opt_idxfile);
+		($index, $vbr_map) = &index_read($opt_idxfile);
 	}
 
 	if (!defined($queue)) {
@@ -69,7 +70,7 @@ sub main
 	if ($opt_shuffle) {
 		@$queue = sort s_random @$queue;
 	}
-	&queue_play($queue);
+	&queue_play($queue, $vbr_map);
 }
 
 sub basename
@@ -134,6 +135,7 @@ sub filename_timidity
 sub queue_play
 {
 	my $queue = shift @_;
+	my $vbr_map = shift @_;
 
 	foreach my $entry (@$queue) {
 		my $file = $entry->{file};
@@ -147,7 +149,7 @@ sub queue_play
 		} elsif ($file eq ".umx") {
 			&play_umx($file);
 		} else {
-			if (defined($entry->{vbr})) {
+			if (exists $vbr_map->{$file}) {
 				$file = &workaround_mp3vbr($file);
 			}
 			system "mplayer", "-vo", "null",
@@ -243,7 +245,8 @@ sub index_rebuild
 	my $idxfile = shift @_;
 	local(*DB, *FH);
 	my @audio = File::Find::Rule->file()->in(".");
-	my $FB = [];
+	my $track_list = [];
+	my $vbr_map = {};
 
 	print "[$$] Rebuilding index\n";
 	foreach my $file (@audio) {
@@ -251,13 +254,12 @@ sub index_rebuild
 		if (&filename_meta($ext)) {
 			next;
 		}
-		push(@$FB, {title => &filename_nonext($file),
+		push(@$track_list, {title => &filename_nonext($file),
 		     file => $file, ofs => 0});
 	}
 
 	foreach my $file (grep(/\.tls$/, @audio)) {
 		my $af = &audio_file_for($file);
-		my $vbr;
 		if (!defined($af)) {
 			print "[$$]  \\__ No audio for $file\n";
 			next;
@@ -270,7 +272,9 @@ sub index_rebuild
 		while (defined(my $line = <FH>)) {
 			chomp $line;
 			if ($line =~ m{^<<VBR>>}) {
-				$vbr = 1;
+				# vivify hash entry, but don't waste
+				# memory for a value like 1
+				$vbr_map->{$af} = undef;
 				next;
 			}
 			my($h, $m, $s, $title) =
@@ -284,10 +288,7 @@ sub index_rebuild
 				file => $af,
 				ofs => $s,
 			};
-			if ($vbr) {
-				$entry->{vbr} = 1;
-			}
-			push(@$FB, $entry);
+			push(@$track_list, $entry);
 		}
 		close FH;
 	}
@@ -295,10 +296,10 @@ sub index_rebuild
 	if (!open(DB, "> $idxfile")) {
 		die "[$$] Could not write to $idxfile: $!\n";
 	}
-	my $dd = Data::Dumper->new([$FB]);
+	my $dd = Data::Dumper->new([$track_list, $vbr_map]);
 	print DB $dd->Dump();
 	close DB;
-	return $FB;
+	return ($track_list, $vbr_map);
 }
 
 sub index_read
@@ -306,13 +307,14 @@ sub index_read
 	my $idxfile = shift @_;
 	local *DB;
 	my $VAR1;
+	my $VAR2;
 
 	if (!open(DB, "< $idxfile")) {
 		die "[$$] Could not read from $idxfile: $!\n";
 	}
 	eval join("", <DB>);
 	close DB;
-	return $VAR1;
+	return ($VAR1, $VAR2);
 }
 
 sub s_random
