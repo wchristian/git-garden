@@ -24,7 +24,6 @@ man_MANS = \
 	git-revert-stats.1 \
 	git-track.1 \
 	hxtools.7 \
-	kps.1 \
 	logontime.8 \
 	mailsplit.1 \
 	man2html.1 \
@@ -39,6 +38,7 @@ man_MANS = \
 	pesubst.1 \
 	png2wx.1 \
 	qplay.1 \
+	psthreads.1 \
 	raregetty.8 \
 	recursive_lower.1 \
 	sourcefuncsize.1 \

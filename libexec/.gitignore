@@ -8,6 +8,7 @@
 /printcaps
 /qplay
 /proc_iomem_count
+/psthreads
 /socketpty
 /utmp_register
 /wavdiff
