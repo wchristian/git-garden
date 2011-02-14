@@ -105,6 +105,8 @@ export PS1_XROOT="$PS1_XTERM\[\e[1;30m\]\A \[\e[0;31m\]\h:\$(hxpref_beautify_pat
 export PS1_XUSER="$PS1_XTERM\[\e[1;30m\]\A \[\e[0;32m\]\h:\$(hxpref_beautify_path) \[\e[0;1m\]>\[\e[0m\] ";
 unset PS1_XTERM
 
+eval "$(/usr/bin/dircolors -b /usr/share/hxtools/hxtools_dircolors)";
+
 # Find out what options this machine's "ls" supports
 # Same option finding for "less"
 #
