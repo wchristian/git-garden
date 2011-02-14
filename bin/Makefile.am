@@ -8,7 +8,7 @@ bin_PROGRAMS     = declone newns ofl oplay tailhex
 bin_SCRIPTS      = checkbrack cwdiff fduphl \
                    fxterm git-author-stat git-export-patch \
                    git-forest git-lemon git-track gpsh man2html \
-                   omixer orec pesubst pmap_dirty qtar recursive_lower \
+                   pesubst pmap_dirty qtar recursive_lower \
                    spec-beautifier su1 sysinfo wktimer
 ofl_LDADD        = ${libHX_LIBS}
 oplay_LDADD      = ${libHX_LIBS}
@@ -19,3 +19,10 @@ omixer${EXEEXT}: oplay${EXEEXT}
 
 orec${EXEEXT}: oplay${EXEEXT}
 	if [ ! -e orec ]; then ln -s oplay orec; fi;
+
+all-local: omixer${EXEEXT} orec${EXEEXT}
+
+install-exec-local:
+	test -z "${bindir}" || ${MKDIR_P} "${DESTDIR}${bindir}";
+	ln -s "oplay${EXEEXT}" "${DESTDIR}${bindir}/orec${EXEEXT}";
+	ln -s "oplay${EXEEXT}" "${DESTDIR}${bindir}/omixer${EXEEXT}";
