@@ -67,6 +67,7 @@ sub main
 	if ($opt_listonly) {
 		return;
 	}
+	@$queue = sort { $a->{title} cmp $b->{title} } @$queue;
 	if ($opt_shuffle) {
 		@$queue = sort s_random @$queue;
 	}
