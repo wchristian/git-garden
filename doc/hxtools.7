@@ -41,8 +41,6 @@ understand KernelDoc
 .PP
 \fBfilenameconv\fP(1) \(en convert file name encoding
 .PP
-\fBflv2avi\fP(1) \(en repackage Flash video into an AVI container with PCM audio
-.PP
 \fBfnt2bdf\fP(1) \(en convert VGA raw fonts to X11 BDF
 .PP
 \fBfxterm\fP(1) \(en start xterm with sane settings
@@ -153,6 +151,9 @@ display
 .PP
 Some helpers have been recently removed because they have found better
 equivalents.
+.PP
+\fBflv2avi\fP. MPlayer-1.0rc4_r32749 (perhaps earlier) no longer shows the
+issue. For affected versions, try using ffmpeg for remuxing.
 .PP
 \fBflv2mka\fP. Replacable by `ffmpeg -i input -vn -acodec copy out.mka`.
 .PP
