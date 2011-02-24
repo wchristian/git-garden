@@ -24,6 +24,14 @@ if [[ "$HXPREF_COLORS" == yes ]]; then
 	export PCREGREP_COLOR="36;7";
 fi;
 
+#
+# Retain language across sudo and `bash --login` (which would otherwise
+# re-source /etc/sysconfig/language)
+#
+if [[ -n "$HX_LC_MESSAGES" ]]; then
+	export LC_MESSAGES="$HX_LC_MESSAGES";
+fi;
+
 # --- end big main block ---
 
 fi; # if [ "$HXPREF_ENABLE" == "yes" ];
