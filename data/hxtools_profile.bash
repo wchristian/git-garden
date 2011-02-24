@@ -12,17 +12,6 @@ isroot=0;
 export CVS_RSH="ssh";
 [ -n "$EDITOR" ] && export EDITOR;
 
-# The typical SUSE path is cluttered with too much crap
-
-# /usr/local comes first, naturally because that's the overriding things
-if [ "$HXPREF_SET_PATH" == yes ]; then
-	PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/X11R6/bin:/opt/hxtools/bin";
-	for i in gnome2 gnome kde3; do
-		[ -d "/opt/$i/bin" ] && PATH="$PATH:/opt/$i/bin";
-	done;
-	export PATH;
-fi;
-
 if [ "$HXPREF_COLORS" == yes ]; then
 	#
 	# See if grep knows about --color, and set inverse-cyan
@@ -33,16 +22,6 @@ if [ "$HXPREF_COLORS" == yes ]; then
 	[ "$?" -ne 2 ] && alias pcregrep="command pcregrep --color=auto";
 	export GREP_COLOR="36;7";
 	export PCREGREP_COLOR="36;7";
-fi;
-
-# Paths. Honors local setup.
-#
-if [ -e /etc/sysconfig/suseconfig ]; then
-	. /etc/sysconfig/suseconfig;
-	[ "$CWD_IN_ROOT_PATH" == yes -a "$isroot" -ne 0 ] && \
-		export PATH="$PATH:.";
-	[ "$CWD_IN_USER_PATH" == yes -a "$isroot" -eq 0 ] && \
-		export PATH="$PATH:.";
 fi;
 
 # --- end big main block ---
