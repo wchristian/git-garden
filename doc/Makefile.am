@@ -14,7 +14,6 @@ man_MANS = \
 	fd0ssh.1 \
 	fduphl.1 \
 	filenameconv.1 \
-	flv2avi.1 \
 	fnt2bdf.1 \
 	fxterm.1 \
 	git-author-stat.1 \
