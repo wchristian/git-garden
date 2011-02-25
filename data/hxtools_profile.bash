@@ -30,6 +30,8 @@ fi;
 #
 if [[ -n "$HX_LC_MESSAGES" ]]; then
 	export LC_MESSAGES="$HX_LC_MESSAGES";
+else
+	export HX_LC_MESSAGES="$LC_MESSAGES";
 fi;
 
 # --- end big main block ---
