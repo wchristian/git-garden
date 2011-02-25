@@ -9,6 +9,7 @@
  *	2.1 of the License, or (at your option) any later version. 
  *	For details, see the file named "LICENSE.GPL2".
  */
+#define _GNU_SOURCE 1
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <utmp.h>
+#include <utmpx.h>
 #include <libHX/init.h>
 #include <libHX/option.h>
 #include <libHX/string.h>
@@ -104,7 +105,7 @@ static bool get_options(int *argc, const char ***argv)
 	return true;
 }
 
-static void update_lastlog(const char *file, const struct utmp *utmp)
+static void update_lastlog(const char *file, const struct utmpx *utmp)
 {
 #ifdef HAVE_LASTLOG_H
 	struct lastlog entry = {};
@@ -134,7 +135,7 @@ static void update_lastlog(const char *file, const struct utmp *utmp)
 
 static int main2(int argc, const char **argv)
 {
-	struct utmp entry = {};
+	struct utmpx entry = {0};
 	struct timeval tv;
 
 	if (!get_options(&argc, &argv))
@@ -174,11 +175,11 @@ static int main2(int argc, const char **argv)
 
 	if (Opt.op_add) {
 		if (Opt.op_utmp) {
-			setutent();
-			pututline(&entry);
+			setutxent();
+			pututxline(&entry);
 		}
 		if (Opt.op_wtmp)
-			updwtmp(Opt.fwtmp, &entry);
+			updwtmpx(Opt.fwtmp, &entry);
 		if (Opt.op_lastlog)
 			update_lastlog(Opt.flastlog, &entry);
 	}
@@ -186,11 +187,11 @@ static int main2(int argc, const char **argv)
 	entry.ut_type = DEAD_PROCESS;
 	if (Opt.op_del) {
 		if (Opt.op_utmp) {
-			setutent();
-			pututline(&entry);
+			setutxent();
+			pututxline(&entry);
 		}
 		if (Opt.op_wtmp)
-			updwtmp(Opt.fwtmp, &entry);
+			updwtmpx(Opt.fwtmp, &entry);
 	}
 
 	endutent();
