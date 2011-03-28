@@ -41,6 +41,7 @@ regular_CFLAGS="-Wall -Waggregate-return -Wmissing-declarations \
 	-Winline -pipe"
 AC_SUBST([regular_CPPFLAGS])
 AC_SUBST([regular_CFLAGS])
-AC_CONFIG_FILES([Makefile bin/Makefile data/Makefile doc/Makefile
-	kbd/GNUmakefile libexec/Makefile])
+AC_CONFIG_FILES([Makefile data/Makefile doc/Makefile
+	kbd/GNUmakefile sadmin/Makefile sdevel/Makefile smath/Makefile
+	smm/Makefile suser/Makefile])
 AC_OUTPUT

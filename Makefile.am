@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 AUTOMAKE_OPTIONS = foreign subdir-objects
-SUBDIRS          = bin data doc kbd libexec
+SUBDIRS          = data doc kbd sadmin sdevel smath smm suser
 
 tmpdir := $(shell mktemp -dtu)
 packer  = xz
