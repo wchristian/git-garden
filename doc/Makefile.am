@@ -19,7 +19,6 @@ man_MANS = \
 	git-author-stat.1 \
 	git-export-patch.1 \
 	git-forest.1 \
-	git-lemon.1 \
 	git-revert-stats.1 \
 	git-track.1 \
 	hxtools.7 \

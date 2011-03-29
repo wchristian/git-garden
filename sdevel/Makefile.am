@@ -6,7 +6,6 @@ bin_SCRIPTS = \
 	git-author-stat \
 	git-export-patch \
 	git-forest \
-	git-lemon \
 	git-track \
 	man2html \
 	spec-beautifier 

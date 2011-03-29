@@ -1,5 +1,0 @@
-#!/bin/bash
-
-for i in `git rev-list --reverse "$@"`; do
-	git cherry-pick "$i" || break;
-done;
