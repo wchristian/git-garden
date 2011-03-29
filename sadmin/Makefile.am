@@ -9,7 +9,6 @@ bin_PROGRAMS = \
 
 bin_SCRIPTS = \
 	pmap_dirty \
-	recursive_lower \
 	su1
 
 pkglibexec_PROGRAMS = \
@@ -17,16 +16,21 @@ pkglibexec_PROGRAMS = \
 	printcaps \
 	proc_iomem_count \
 	psthreads \
-	utmp_register \
-	xfs_irecover
+	utmp_register
 
 pkglibexec_SCRIPTS = \
-	filenameconv \
 	logontime \
 	netload \
-	raregetty \
-	rpmdep.pl \
+	recursive_lower \
 	vcsaview
+
+noinst_PROGRAMS = \
+	xfs_irecover
+
+noinst_SCRIPTS = \
+	filenameconv \
+	raregetty \
+	rpmdep.pl
 
 ofl_LDADD              = ${libHX_LIBS}
 printcaps_LDADD        = ${libcap_LIBS}

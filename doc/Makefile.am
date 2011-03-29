@@ -13,7 +13,6 @@ man_MANS = \
 	extract_qupak.1 \
 	fd0ssh.1 \
 	fduphl.1 \
-	filenameconv.1 \
 	fnt2bdf.1 \
 	fxterm.1 \
 	git-author-stat.1 \
@@ -37,7 +36,6 @@ man_MANS = \
 	png2wx.1 \
 	qplay.1 \
 	psthreads.1 \
-	raregetty.8 \
 	recursive_lower.1 \
 	sourcefuncsize.1 \
 	spec-beautifier.1 \
