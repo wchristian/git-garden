@@ -12,6 +12,37 @@ isroot=0;
 export CVS_RSH="ssh";
 [[ -n "$EDITOR" ]] && export EDITOR;
 
+hxtools_profile_setsbin ()
+{
+	local IFS=":";
+	local path;
+	local sbin;
+
+	set -- $PATH;
+	PATH="";
+
+	for path; do
+		sbin="";
+		if [[ ! -d "$path" ]]; then
+			continue;
+		fi;
+		PATH="$PATH:$path";
+		if [[ "$path" == "/bin" || "$path" == "/usr/bin" ||
+		      "$path" == "/usr/local/bin" ]]; then
+			path="${path/bin/sbin}";
+			if [[ -d "$path" ]]; then
+				PATH="$PATH:$path";
+			fi;
+		fi;
+	done;
+	PATH="${PATH:1}";
+}
+
+if [[ "$HXPREF_SBIN" == yes ]]; then
+	hxtools_profile_setsbin;
+fi;
+unset hxtools_profile_setsbin;
+
 if [[ "$HXPREF_COLORS" == yes ]]; then
 	#
 	# See if grep knows about --color, and set inverse-cyan
