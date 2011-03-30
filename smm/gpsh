@@ -57,7 +57,8 @@ sub main
 		if (scalar(@$queue) > 0) {
 			&schedule(\&index_rebuild, $opt_idxfile);
 		} else {
-			&index_rebuild($opt_idxfile);
+			($index, $vbr_map) = &index_rebuild($opt_idxfile);
+			$queue = &queue_select($index, \@ARGV);
 		}
 	} else {
 		($index, $vbr_map) = &index_read($opt_idxfile);
