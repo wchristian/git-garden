@@ -48,6 +48,8 @@ sub main
 
 	if ($rebuild_index || !-e $opt_idxfile) {
 		($index, $vbr_map) = &index_rebuild($opt_idxfile);
+	} elsif (-M $opt_idxfile > 1 && $opt_listonly) {
+		($index, $vbr_map) = &index_rebuild($opt_idxfile);
 	} elsif (-M $opt_idxfile > 1) {
 		($index, $vbr_map) = &index_read($opt_idxfile);
 		$queue = &queue_select($index, \@ARGV);
