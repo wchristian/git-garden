@@ -163,3 +163,4 @@ EXEC		1;31
 .xbm	0;36	# X Bitmap
 .xm	0;36	# Fast Tracker Module
 .xpm	0;36	# X Pixmap
+.xvid	0;36	# XviD
