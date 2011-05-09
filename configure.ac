@@ -1,5 +1,5 @@
 
-AC_INIT([hxtools], [20110308])
+AC_INIT([hxtools], [20110509])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_INSTALL
 AM_INIT_AUTOMAKE([-Wall])
