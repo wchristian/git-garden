@@ -8,6 +8,7 @@
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation; either version 2 or 3 of the license.
 #
+use lib 'c:/Programme/Git/lib/perl5/site_perl';
 use Getopt::Long;
 use Git;
 use strict;
