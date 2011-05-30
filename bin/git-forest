@@ -9,6 +9,7 @@
 #	the Free Software Foundation; either version 2 or 3 of the license.
 #
 use strict;
+use warnings;
 
 use Getopt::Long;
 use encoding "utf8";
@@ -61,7 +62,7 @@ sub process {
         my $line = $shas[$i];
         last if !defined $line;
 
-        my @next_sha = @shas[ $i .. $i + $Subvine_depth ];
+        my @next_sha = grep $_, @shas[ $i .. $i + $Subvine_depth ];
 
         my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
         @next_sha = map { ( $_ ) = /^\{(.*?)\}/ } @next_sha;
@@ -200,7 +201,7 @@ sub vine_branch {
         ++$matched;
     }
 
-    return if $matched < 2;
+    return '' if $matched < 2;
 
     remove_trailing_blanks( $vine );
     return vis_post( vis_fan( $ret, "branch" ) ) . "\n";
@@ -214,7 +215,7 @@ sub vine_branch {
 #
 sub vine_commit {
     my ( $vine, $rev, $parents ) = @_;
-    my $ret;
+    my $ret = '';
 
     for my $i ( 0 .. $#$vine ) {
         if ( !defined( $vine->[$i] ) ) {
@@ -273,6 +274,7 @@ sub vine_merge {
     my ( $ret, $max );
 
     for my $i ( 0 .. $#$vine ) {
+        next if !$vine->[$i];
         next if $vine->[$i] ne $rev;
 
         $orig_vine = $i;
@@ -288,7 +290,7 @@ sub vine_merge {
         #
         $vine->[$orig_vine] = $parents->[0];
         remove_trailing_blanks( $vine );
-        return;
+        return '';
     }
 
     #
@@ -297,8 +299,12 @@ sub vine_merge {
     #
     for ( my $j = 0 ; $j <= $#$parents and $#$parents > 0 ; ++$j ) {
         for my $idx ( 0 .. $#$vine ) {
-            next if $vine->[$idx] ne $parents->[$j] or !grep { my $z = $vine->[$idx]; /^\Q$z\E$/ } @$next_rev;
+            next if !$vine->[$idx];
+            next if $vine->[$idx] ne $parents->[$j];
+            next if !grep { my $z = $vine->[$idx]; /^\Q$z\E$/ } @$next_rev;
+
             die "Should not really happen" if $idx == $orig_vine;
+
             if ( $idx < $orig_vine ) {
                 my $p = $idx + 1;
                 $p = $idx - 1 if defined $vine->[$p];
@@ -315,6 +321,7 @@ sub vine_merge {
                 str_expand( \$ret, $p + 1 );
                 substr( $ret, $p, 1 ) = "s";
             }
+
             splice @$parents, $j, 1;
             --$j;    # outer loop
             last;    # inner loop
@@ -483,8 +490,8 @@ sub vis_post {
     my $f = shift @_;
 
     $s = vis_xfrm( $s, defined $f );
-    $f =~ s/^([^\x1b]+)/vis_xfrm($1)/e;
-    $f =~ s/(\x1b.*?m)([^\x1b]+)/$1.vis_xfrm($2)/eg;
+    $f =~ s/^([^\x1b]+)/vis_xfrm($1)/e if defined $f;
+    $f =~ s/(\x1b.*?m)([^\x1b]+)/$1.vis_xfrm($2)/eg if defined $f;
     if ( defined $f ) {
         $s =~ s/\*/$f/g;
         $s .= $f;
@@ -511,5 +518,6 @@ sub str_expand {
     my $r = shift @_;
     my $l = shift @_;
 
+    $$r = '' if !defined $$r;
     $$r .= " " x ( $l - length $$r ) if length $$r < $l;
 }
