@@ -8,12 +8,14 @@
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation; either version 2 or 3 of the license.
 #
-use lib 'c:/Programme/Git/lib/perl5/site_perl';
-use Getopt::Long;
-use Git;
 use strict;
+
+use Getopt::Long;
 use encoding "utf8";
-my $Repo          = Git->repository( $ENV{"GIT_DIR"} || "." );
+use Git::Class::Cmd;
+
+sub git { Git::Class::Cmd->new }
+
 my $Pretty_fmt    = "format:%s";
 my $Reverse_order = 0;
 my $Show_all      = 0;
@@ -86,14 +88,16 @@ sub get_line_block {
 sub process {
     my ( @vine );
     my $refs = get_refs();
-    my ( $fh, $fhc ) = $Repo->command_output_pipe( "log", "--date-order", "--pretty=\"format:<%H><%h><%P>$Pretty_fmt\"", @ARGV );
+    my @shas = git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}$Pretty_fmt", @ARGV );
 
-    while ( my ( $line, @next_sha ) = get_line_block( $fh, $Subvine_depth ) ) {
+    for my $i ( 0 .. $#shas ) {
+        my $line = $shas[$i];
         last if !defined $line;
 
-        chomp $line;
-        my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^<(.*?)><(.*?)><(.*?)>(.*)/s );
-        my @next_sha = map { ( $_ ) = /^<(.*?)>/ } @next_sha;
+        my @next_sha = @shas[ $i .. $i + $Subvine_depth ];
+
+        my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
+        @next_sha = map { ( $_ ) = /^\{(.*?)\}/ } @next_sha;
         my @parents = split " ", $parents;
 
         vine_branch( \@vine, $sha );
@@ -106,6 +110,7 @@ sub process {
         else {
             print vis_post( vis_commit( $ra, " " ) );
         }
+
         if ( $With_sha ) {
             print $msg, $Color{at}, "──(", $Color{sha}, $mini_sha, $Color{at}, ")", $Color{default}, "\n";
         }
@@ -115,18 +120,14 @@ sub process {
 
         vine_merge( \@vine, $sha, \@next_sha, \@parents );
     }
-    $Repo->command_close_pipe( $fh, $fhc );
 }
 
 sub get_refs {
-    my ( $fh, $c ) = $Repo->command_output_pipe( "show-ref" );
-    my @commits = <$fh>;
-    $Repo->command_close_pipe( $fh, $c );
+    my @commits = git()->git( "show-ref" );
 
     my $ret = {};
 
     for my $ln ( @commits ) {
-        chomp $ln;
         next if !$ln;
 
         my ( $sha, $name ) = ( $ln =~ /^(\S+)\s+(.*)/s );
@@ -134,31 +135,31 @@ sub get_refs {
         push @{ $ret->{$sha} }, $name;
         next if $name !~ m{^refs/tags/};
 
-        my $sub_sha = $Repo->command( "log", "-1", "--pretty=format:%H", $name );
-        chomp $sub_sha;
-        push @{ $ret->{$sub_sha} }, $name if $sha ne $sub_sha;
+        my $sub_sha = git()->log( "-1", "--pretty=format:%H", $name );
+        next if $sha eq $sub_sha;
+        push @{ $ret->{$sub_sha} }, $name;
     }
 
-    my $rebase = 1 if -e $Repo->repo_path . "/rebase-merge/git-rebase-todo" and $Show_rebase;
+    my $rebase = 1 if -e git()->_cwd . "/rebase-merge/git-rebase-todo" and $Show_rebase;
     if ( $rebase ) {
-        if ( open my $act_fh, $Repo->repo_path . "/rebase-merge/git-rebase-todo" ) {
+        if ( open my $act_fh, git()->_cwd . "/rebase-merge/git-rebase-todo" ) {
             my ( $curr ) = ( <$act_fh> =~ /^\S+\s+(\S+)/ );
-            $curr = $Repo->command( "rev-parse", $curr );
+            $curr = git()->git( "rev-parse", $curr );
             chomp $curr;
             unshift @{ $ret->{$curr} }, "rebase/next";
             close $act_fh;
         }
 
         #		chomp(my $up   = $Repo->command("rev-parse", "rebase-merge/upstream"));
-        chomp( my $onto = $Repo->command( "rev-parse", "rebase-merge/onto" ) );
-        chomp( my $old  = $Repo->command( "rev-parse", "rebase-merge/head" ) );
+        chomp( my $onto = git()->git( "rev-parse", "rebase-merge/onto" ) );
+        chomp( my $old  = git()->git( "rev-parse", "rebase-merge/head" ) );
 
         #		unshift(@{$ret->{$up}}, "rebase/upstream");
         unshift @{ $ret->{$onto} }, "rebase/onto";
         unshift @{ $ret->{$old} },  "rebase/saved-HEAD";
     }
 
-    my $head = $Repo->command( "rev-parse", "HEAD" );
+    my $head = git()->git( "rev-parse", "HEAD" );
     chomp $head;
     unshift @{ $ret->{$head} }, "rebase/new" if $rebase;
     unshift @{ $ret->{$head} }, "HEAD";
