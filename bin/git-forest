@@ -56,26 +56,25 @@ sub main {
 sub process {
     my ( @vine );
     my $refs = get_refs();
-    my @shas = git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}$Pretty_fmt", @ARGV );
+    my @commits = git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}$Pretty_fmt", @ARGV );
 
-    for my $i ( 0 .. $#shas ) {
-        my $line = $shas[$i];
+    for my $i ( 0 .. $#commits ) {
+        my $line = $commits[$i];
         last if !defined $line;
 
         my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
-        my @parents = split " ", $parents;
 
         my $commit = '';
-
         $commit .= vine_branch( \@vine, $sha );
 
+        my @parents = split " ", $parents;
         my $graph_line = insert_commit_and_get_graph_line( \@vine, $sha, \@parents );
         $commit .= graph_lines( $refs, $sha, $graph_line );
 
         $msg .= "──($mini_sha)" if $With_sha;
         $commit .= $msg . "\n";
 
-        my @next_sha = grep $_, @shas[ $i .. $i + $Subvine_depth ];
+        my @next_sha = grep $_, @commits[ $i .. $i + $Subvine_depth ];
         @next_sha = map { ( $_ ) = /^\{(.*?)\}/ } @next_sha;
         $commit .= vine_merge( \@vine, $sha, \@next_sha, \@parents );
 
