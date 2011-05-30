@@ -87,7 +87,7 @@ sub graph_lines {
 
     return vis_post( vis_commit( $graph_line, " " ) ) if !exists $refs->{$sha};
 
-    return vis_post( vis_commit( $graph_line ), "m" ) . ref_print( $refs->{$sha} );
+    return vis_post( vis_commit( $graph_line ), " " ) . ref_print( $refs->{$sha} );
 }
 
 sub get_refs {
