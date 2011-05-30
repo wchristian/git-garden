@@ -54,7 +54,7 @@ sub main {
 }
 
 sub process {
-    my ( @vine );
+    my ( @vines );
     my $refs = get_refs();
     my @commits = git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}$Pretty_fmt", @ARGV );
 
@@ -65,10 +65,10 @@ sub process {
         my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
 
         my $commit = '';
-        $commit .= vine_branch( \@vine, $sha );
+        $commit .= vine_branch( \@vines, $sha );
 
         my @parents = split " ", $parents;
-        my $graph_line = insert_commit_and_get_graph_line( \@vine, $sha, \@parents );
+        my $graph_line = insert_commit_and_get_graph_line( \@vines, $sha, \@parents );
         $commit .= asciify( $graph_line );
         $commit .= format_refs( $refs->{$sha} ) if $refs->{$sha};
 
@@ -77,7 +77,7 @@ sub process {
 
         my @next_sha = grep $_, @commits[ $i .. $i + $Subvine_depth ];
         @next_sha = map { ( $_ ) = /^\{(.*?)\}/ } @next_sha;
-        $commit .= vine_merge( \@vine, $sha, \@next_sha, \@parents );
+        $commit .= vine_merge( \@vines, $sha, \@next_sha, \@parents );
 
         print $commit;
     }
@@ -158,18 +158,18 @@ sub format_refs {
 # Draws the branching vine matrix between a commit K and K^ (@rev).
 #
 sub vine_branch {
-    my ( $vine, $rev ) = @_;
+    my ( $vines, $rev ) = @_;
 
     my ( $matched, $master ) = ( 0, 0 );
     my $ret;
 
     # Transform array into string
-    for my $idx ( 0 .. $#$vine ) {
-        if ( !defined( $vine->[$idx] ) ) {
+    for my $idx ( 0 .. $#$vines ) {
+        if ( !defined( $vines->[$idx] ) ) {
             $ret .= " ";
             next;
         }
-        elsif ( $vine->[$idx] ne $rev ) {
+        elsif ( $vines->[$idx] ne $rev ) {
             $ret .= "I";
             next;
         }
@@ -179,14 +179,14 @@ sub vine_branch {
         }
         else {
             $ret .= "s";
-            $vine->[$idx] = undef;
+            $vines->[$idx] = undef;
         }
         ++$matched;
     }
 
     return '' if $matched < 2;
 
-    remove_trailing_blanks( $vine );
+    remove_trailing_blanks( $vines );
     return asciify( vis_fan( $ret, "branch" ) ) . "\n";
 }
 
@@ -238,12 +238,12 @@ sub insert_branch_tip_into_rightmost_empty_even_vine_slot {
 }
 
 sub find_orig_vine_id {
-    my ( $vine, $rev ) = @_;
+    my ( $vines, $rev ) = @_;
 
-    for my $i ( 0 .. $#{$vine} ) {
-        next if !$vine->[$i];
+    for my $i ( 0 .. $#{$vines} ) {
+        next if !$vines->[$i];
 
-        return $i if $vine->[$i] eq $rev;
+        return $i if $vines->[$i] eq $rev;
     }
 
     die "vine_commit() did not add this vine.";
@@ -259,17 +259,17 @@ sub find_orig_vine_id {
 # Draws the merging vine matrix between a commit K (@rev) and K^ (@parents).
 #
 sub vine_merge {
-    my ( $vine, $rev, $next_rev, $parents ) = @_;
+    my ( $vines, $rev, $next_rev, $parents ) = @_;
 
-    my $orig_vine_id = find_orig_vine_id( $vine, $rev );
+    my $orig_vine_id = find_orig_vine_id( $vines, $rev );
 
     if ( @$parents <= 1 ) {
 
         #
         # A single parent does not need a visual. Update and return.
         #
-        $vine->[$orig_vine_id] = $parents->[0];
-        remove_trailing_blanks( $vine );
+        $vines->[$orig_vine_id] = $parents->[0];
+        remove_trailing_blanks( $vines );
         return '';
     }
 
@@ -280,25 +280,25 @@ sub vine_merge {
     # Need to keep at least one parent for the slot algorithm below.
     #
     for ( my $j = 0 ; $j <= $#$parents and $#$parents > 0 ; ++$j ) {
-        for my $idx ( 0 .. $#$vine ) {
-            next if !$vine->[$idx];
-            next if $vine->[$idx] ne $parents->[$j];
-            next if !grep { my $z = $vine->[$idx]; /^\Q$z\E$/ } @$next_rev;
+        for my $idx ( 0 .. $#$vines ) {
+            next if !$vines->[$idx];
+            next if $vines->[$idx] ne $parents->[$j];
+            next if !grep { my $z = $vines->[$idx]; /^\Q$z\E$/ } @$next_rev;
 
             die "Should not really happen" if $idx == $orig_vine_id;
 
             my $p = $idx;
             if ( $idx < $orig_vine_id ) {
                 $p++;
-                $p = $idx - 1 if defined $vine->[$p];
+                $p = $idx - 1 if defined $vines->[$p];
             }
             else {
                 $p--;
-                $p = $idx + 1 if defined $vine->[$p] or $p < 0;
+                $p = $idx + 1 if defined $vines->[$p] or $p < 0;
             }
 
-            last if defined $vine->[$p];
-            $vine->[$p] = $parents->[$j];
+            last if defined $vines->[$p];
+            $vines->[$p] = $parents->[$j];
             $ret = str_expand( $ret, $p + 1 );
             substr( $ret, $p, 1 ) = "s";
 
@@ -315,21 +315,21 @@ sub vine_merge {
     my @slot   = ( $orig_vine_id );
     my $parent = 0;
 
-    for ( my $seeker = 2 ; $parent < $#$parents and $seeker < 2 + $#$vine ; ++$seeker ) {
+    for ( my $seeker = 2 ; $parent < $#$parents and $seeker < 2 + $#$vines ; ++$seeker ) {
         my $idx = ( $seeker % 2 == 0 ) ? -1 : 1;
         $idx *= int( $seeker / 2 );
         $idx *= 2;
         $idx += $orig_vine_id;
 
-        if ( $idx >= 0 and $idx <= $#$vine and !defined $vine->[$idx] ) {
+        if ( $idx >= 0 and $idx <= $#$vines and !defined $vines->[$idx] ) {
             push @slot, $idx;
-            $vine->[$idx] = "0" x 40;
+            $vines->[$idx] = "0" x 40;
             ++$parent;
         }
     }
 
     for ( my $idx = $orig_vine_id + 2 ; $parent < $#$parents ; $idx += 2 ) {
-        if ( !defined( $vine->[$idx] ) ) {
+        if ( !defined( $vines->[$idx] ) ) {
             push @slot, $idx;
             ++$parent;
         }
@@ -338,19 +338,19 @@ sub vine_merge {
     die "Serious internal problem" if @slot != @$parents;
 
     @slot = sort { $a <=> $b } @slot;
-    my $max = @$vine + 2 * @slot;
+    my $max = @$vines + 2 * @slot;
 
     for my $i ( 0 .. $max - 1 ) {
         $ret = str_expand( $ret, $i + 1 );
         if ( $#slot >= 0 and $i == $slot[0] ) {
             shift @slot;
-            $vine->[$i] = shift @$parents;
+            $vines->[$i] = shift @$parents;
             substr( $ret, $i, 1 ) = ( $i == $orig_vine_id ) ? "S" : "s";
         }
         elsif ( substr( $ret, $i, 1 ) eq "s" ) {
             ;    # keep existing fanouts
         }
-        elsif ( defined $vine->[$i] ) {
+        elsif ( defined $vines->[$i] ) {
             substr( $ret, $i, 1 ) = "I";
         }
         else {
