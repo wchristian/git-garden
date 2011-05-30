@@ -315,7 +315,7 @@ sub vine_merge {
     # Find some good spots to split out into and record columns
     # that will be used soon in the @slot list.
     #
-    my @slot   = ( $orig_vine_id );
+    my @slots   = ( $orig_vine_id );
     my $parent = 0;
 
     for ( my $seeker = 2 ; $parent < $#$parents and $seeker < 2 + $#$vines ; ++$seeker ) {
@@ -325,7 +325,7 @@ sub vine_merge {
         $idx += $orig_vine_id;
 
         if ( $idx >= 0 and $idx <= $#$vines and !defined $vines->[$idx] ) {
-            push @slot, $idx;
+            push @slots, $idx;
             $vines->[$idx] = "0" x 40;
             ++$parent;
         }
@@ -333,20 +333,20 @@ sub vine_merge {
 
     for ( my $idx = $orig_vine_id + 2 ; $parent < $#$parents ; $idx += 2 ) {
         if ( !defined( $vines->[$idx] ) ) {
-            push @slot, $idx;
+            push @slots, $idx;
             ++$parent;
         }
     }
 
-    die "Serious internal problem" if @slot != @$parents;
+    die "Serious internal problem" if @slots != @$parents;
 
-    @slot = sort { $a <=> $b } @slot;
-    my $max = @$vines + 2 * @slot;
+    @slots = sort { $a <=> $b } @slots;
+    my $max = @$vines + 2 * @slots;
 
     for my $i ( 0 .. $max - 1 ) {
         $ret = str_expand( $ret, $i + 1 );
-        if ( $#slot >= 0 and $i == $slot[0] ) {
-            shift @slot;
+        if ( $#slots >= 0 and $i == $slots[0] ) {
+            shift @slots;
             $vines->[$i] = shift @$parents;
             substr( $ret, $i, 1 ) = ( $i == $orig_vine_id ) ? "S" : "s";
         }
