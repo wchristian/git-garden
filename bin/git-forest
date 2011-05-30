@@ -21,7 +21,7 @@ my $Pretty_fmt    = "format:%s";
 my $Show_all      = 1;
 my $Show_rebase   = 1;
 my $Style         = 1;
-my $Subvine_depth = 2;
+my $Subvine_depth = 40;
 my $With_sha      = 1;
 
 main();
