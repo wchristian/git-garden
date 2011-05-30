@@ -69,7 +69,7 @@ sub process {
 
         my @parents = split " ", $parents;
         my $graph_line = insert_commit_and_get_graph_line( \@vine, $sha, \@parents );
-        $commit .= vis_post( $graph_line );
+        $commit .= asciify( $graph_line );
         $commit .= ref_print( $refs->{$sha} ) if $refs->{$sha};
 
         $msg .= "──($mini_sha)" if $With_sha;
@@ -197,7 +197,7 @@ sub vine_branch {
     return '' if $matched < 2;
 
     remove_trailing_blanks( $vine );
-    return vis_post( vis_fan( $ret, "branch" ) ) . "\n";
+    return asciify( vis_fan( $ret, "branch" ) ) . "\n";
 }
 
 sub vine_character {
@@ -368,7 +368,7 @@ sub vine_merge {
         }
     }
 
-    return vis_post( vis_fan( $ret, "merge" ) ) . "\n";
+    return asciify( vis_fan( $ret, "merge" ) ) . "\n";
 }
 
 #
@@ -426,54 +426,31 @@ sub vis_fan3 {
     return "${l}K$r";
 }
 
-sub vis_xfrm {
+#
+# asciify - post-process/transform vine graphic
+#
+# A: branch to right
+# B: branch to right
+# C: commit
+# D:
+# e: merge visual left (╔)
+# f: merge visual center (╦)
+# g: merge visual right (╗)
+# I: straight line (║)
+# K: branch visual split (╬)
+# m: single line (─)
+# O: overpass (≡)
+# r: root (╙)
+# t: tip (╓)
+# x: branch visual left (╚)
+# y: branch visual center (╩)
+# z: branch visual right (╝)
+# *: filler
 
-    # A: branch to right
-    # B: branch to right
-    # C: commit
-    # D:
-    # e: merge visual left (╔)
-    # f: merge visual center (╦)
-    # g: merge visual right (╗)
-    # I: straight line (║)
-    # K: branch visual split (╬)
-    # m: single line (─)
-    # O: overpass (≡)
-    # r: root (╙)
-    # t: tip (╓)
-    # x: branch visual left (╚)
-    # y: branch visual center (╩)
-    # z: branch visual right (╝)
-    # *: filler
-
-    my $s   = shift @_;
-    my $spc = shift @_;
-    if ( $spc ) {
-        $s =~ s{[Ctr].*}{
-            $_ = $&;
-            $_ =~ s{ }{\*}g;
-            $_;
-        }esg;
-    }
+sub asciify {
+    my ( $s ) = @_;
 
     $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤╞─.┌┬┐.│┼≡.─╘╒.└┴┘/;
-
-    return $s;
-}
-
-#
-# vis_post - post-process/transform vine graphic
-# Apply user-specific style transformation.
-#
-sub vis_post {
-    my $s = shift @_;
-    my $f = shift @_;
-
-    $s = vis_xfrm( $s, defined $f );
-    if ( defined $f ) {
-        $s =~ s/\*/$f/g;
-        $s .= $f;
-    }
 
     return $s;
 }
