@@ -33,11 +33,11 @@ my %Color         = (
     "tree"    => "\e[0;33m",    # ]
 );
 
-&main();
+main();
 
 sub main {
-    &Getopt::Long::Configure( qw(bundling pass_through) );
-    &GetOptions(
+    Getopt::Long::Configure( qw(bundling pass_through) );
+    GetOptions(
         "all"       => \$Show_all,
         "no-color"  => sub { %Color = (); },
         "no-rebase" => sub { $Show_rebase = 0; },
@@ -69,7 +69,7 @@ sub main {
     if ( $Reverse_order ) {
         tie( *STDOUT, "ReverseOutput" );
     }
-    &process();
+    process();
     if ( $Reverse_order ) {
         untie *STDOUT;
     }
@@ -97,7 +97,7 @@ sub get_line_block {
 
 sub process {
     my ( @vine );
-    my $refs = &get_refs();
+    my $refs = get_refs();
     my ( $fh, $fhc ) = $Repo->command_output_pipe( "log", "--date-order", "--pretty=\"format:<%H><%h><%P>$Pretty_fmt\"", @ARGV );
 
     while ( my ( $line, @next_sha ) = get_line_block( $fh, $Subvine_depth ) ) {
@@ -109,15 +109,15 @@ sub process {
         my @next_sha = map { ( $_ ) = /^<(.*?)>/ } @next_sha;
         my @parents = split( " ", $parents );
 
-        &vine_branch( \@vine, $sha );
-        my $ra = &vine_commit( \@vine, $sha, \@parents );
+        vine_branch( \@vine, $sha );
+        my $ra = vine_commit( \@vine, $sha, \@parents );
 
         if ( exists( $refs->{$sha} ) ) {
-            print &vis_post( &vis_commit( $ra ), $Color{at} . "m" . $Color{default} );
-            &ref_print( $refs->{$sha} );
+            print vis_post( vis_commit( $ra ), $Color{at} . "m" . $Color{default} );
+            ref_print( $refs->{$sha} );
         }
         else {
-            print &vis_post( &vis_commit( $ra, " " ) );
+            print vis_post( vis_commit( $ra, " " ) );
         }
         if ( $With_sha ) {
             print $msg, $Color{at}, "──(", $Color{sha}, $mini_sha, $Color{at}, ")", $Color{default}, "\n";
@@ -126,7 +126,7 @@ sub process {
             print $msg, "\n";
         }
 
-        &vine_merge( \@vine, $sha, \@next_sha, \@parents );
+        vine_merge( \@vine, $sha, \@next_sha, \@parents );
     }
     $Repo->command_close_pipe( $fh, $fhc );
 }
@@ -258,8 +258,8 @@ sub vine_branch {
         return;
     }
 
-    &remove_trailing_blanks( $vine );
-    print &vis_post( &vis_fan( $ret, "branch" ) ), "\n";
+    remove_trailing_blanks( $vine );
+    print vis_post( vis_fan( $ret, "branch" ) ), "\n";
 }
 
 #
@@ -288,7 +288,7 @@ sub vine_commit {
 
         # Not having produced a C before means this is a tip
         my $i;
-        for ( $i = &round_down2( $#$vine ) ; $i >= 0 ; $i -= 2 ) {
+        for ( $i = round_down2( $#$vine ) ; $i >= 0 ; $i -= 2 ) {
             if ( substr( $ret, $i, 1 ) eq " " ) {
                 substr( $ret, $i, 1 ) = "t";
                 $vine->[$i] = $rev;
@@ -305,7 +305,7 @@ sub vine_commit {
         }
     }
 
-    &remove_trailing_blanks( $vine );
+    remove_trailing_blanks( $vine );
 
     if ( scalar( @$parents ) == 0 ) {
 
@@ -348,7 +348,7 @@ sub vine_merge {
         # A single parent does not need a visual. Update and return.
         #
         $vine->[$orig_vine] = $parents->[0];
-        &remove_trailing_blanks( $vine );
+        remove_trailing_blanks( $vine );
         return;
     }
 
@@ -447,7 +447,7 @@ sub vine_merge {
         }
     }
 
-    print &vis_post( &vis_fan( $ret, "merge" ) ), "\n";
+    print vis_post( vis_fan( $ret, "merge" ) ), "\n";
 }
 
 #
