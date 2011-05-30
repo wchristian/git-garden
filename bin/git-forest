@@ -17,7 +17,6 @@ use Git::Class::Cmd;
 sub git { Git::Class::Cmd->new }
 
 my $Pretty_fmt    = "format:%s";
-my $Reverse_order = 0;
 my $Show_all      = 0;
 my $Show_rebase   = 1;
 my $Style         = 1;
@@ -45,7 +44,6 @@ sub main {
         "no-rebase" => sub { $Show_rebase = 0; },
         "a"         => sub { $Pretty_fmt = "format:\e[1;30m(\e[0;32m%an\e[1;30m)\e[0m %s"; },    # ]]]]
         "pretty=s"  => \$Pretty_fmt,
-        "reverse"   => \$Reverse_order,
         "svdepth=i" => \$Subvine_depth,
         "style=i"   => \$Style,
         "sha"       => \$With_sha,
@@ -63,26 +61,7 @@ sub main {
     #
     unshift( @ARGV, "--all", "HEAD" ) if $Show_all;
 
-    tie *STDOUT, "ReverseOutput" if $Reverse_order;
     process();
-    untie *STDOUT if $Reverse_order;
-}
-
-sub get_line_block {
-    my ( $fh, $max ) = @_;
-
-    while ( scalar( @h::ist ) < $max ) {
-        my $x;
-
-        $x = <$fh>;
-        last if !defined $x;
-        push @h::ist, $x;
-    }
-
-    my @ret = ( shift @h::ist );
-    push @ret, $h::ist[ $_ - 2 ] for 2 .. $max;
-
-    return @ret;
 }
 
 sub process {
@@ -499,8 +478,6 @@ sub vis_xfrm {
         }esg;
     }
 
-    $s =~ tr/efg.rt.xyz/xyz.tr.efg/ if $Reverse_order;
-
     $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.┌┬┐.│┼≡.─└┌.└┴┘/ if $Style == 1;
     $s =~ tr/ABCD.efg.IKO.mrt.xyz/╠╣╟═.╔╦╗.║╬═.─╙╓.╚╩╝/ if $Style == 2;
     $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.╭┬╮.│┼≡.─└┌.╰┴╯/ if $Style == 10;
@@ -548,33 +525,4 @@ sub str_expand {
     my $l = shift @_;
 
     $$r .= " " x ( $l - length $$r ) if length $$r < $l;
-}
-
-package ReverseOutput;
-require Tie::Handle;
-@ReverseOutput::ISA = qw(Tie::Handle);
-
-sub TIEHANDLE {
-    my $class = shift @_;
-    my $self  = {};
-
-    open( $self->{fh}, ">&STDOUT" );
-    binmode $self->{fh}, ":utf8";
-
-    return bless $self, $class;
-}
-
-sub PRINT {
-    my $self = shift @_;
-    my $fh   = $self->{fh};
-
-    $self->{saved} .= join $\, @_;
-}
-
-sub UNTIE {
-    my $self = shift @_;
-    my $fh   = $self->{fh};
-
-    print $fh join( $/, reverse( split /\n/s, $self->{saved} ) ), "\n";
-    undef $self->{saved};
 }
