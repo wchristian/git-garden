@@ -49,30 +49,21 @@ sub main {
         "sha"       => \$With_sha,
     );
     ++$Subvine_depth;
-    if ( substr( $Pretty_fmt, 0, 7 ) ne "format:" ) {
-        die "If you use --pretty, it must be in the form of --pretty=format:";
-    }
+    die "If you use --pretty, it must be in the form of --pretty=format:" if substr( $Pretty_fmt, 0, 7 ) ne "format:";
     $Pretty_fmt = substr( $Pretty_fmt, 7 );
     while ( $Pretty_fmt =~ /\%./g ) {
-        if ( $& eq "\%b" || $& eq "\%n" || ( $& . $' ) =~ /^\%x0a/i ) {
-            die "Cannot use \%b, \%n or \%x0a in --pretty=format:";
-        }
+        die "Cannot use \%b, \%n or \%x0a in --pretty=format:" if $& eq '%b' or $& eq '%n' or ( $& . $' ) =~ /^\%x0a/i;
     }
-    if ( $Show_all ) {
 
-        #
-        # Give --all back. And add HEAD to include commits
-        # in the rev list that belong to a detached HEAD.
-        #
-        unshift( @ARGV, "--all", "HEAD" );
-    }
-    if ( $Reverse_order ) {
-        tie( *STDOUT, "ReverseOutput" );
-    }
+    #
+    # Give --all back. And add HEAD to include commits
+    # in the rev list that belong to a detached HEAD.
+    #
+    unshift( @ARGV, "--all", "HEAD" ) if $Show_all;
+
+    tie *STDOUT, "ReverseOutput" if $Reverse_order;
     process();
-    if ( $Reverse_order ) {
-        untie *STDOUT;
-    }
+    untie *STDOUT if $Reverse_order;
 }
 
 sub get_line_block {
@@ -82,16 +73,13 @@ sub get_line_block {
         my $x;
 
         $x = <$fh>;
-        if ( !defined( $x ) ) {
-            last;
-        }
-        push( @h::ist, $x );
+        last if !defined $x;
+        push @h::ist, $x;
     }
 
     my @ret = ( shift @h::ist );
-    foreach ( 2 .. $max ) {
-        push( @ret, $h::ist[ $_ - 2 ] );
-    }
+    push @ret, $h::ist[ $_ - 2 ] for 2 .. $max;
+
     return @ret;
 }
 
@@ -101,19 +89,18 @@ sub process {
     my ( $fh, $fhc ) = $Repo->command_output_pipe( "log", "--date-order", "--pretty=\"format:<%H><%h><%P>$Pretty_fmt\"", @ARGV );
 
     while ( my ( $line, @next_sha ) = get_line_block( $fh, $Subvine_depth ) ) {
-        if ( !defined( $line ) ) {
-            last;
-        }
+        last if !defined $line;
+
         chomp $line;
         my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^<(.*?)><(.*?)><(.*?)>(.*)/s );
         my @next_sha = map { ( $_ ) = /^<(.*?)>/ } @next_sha;
-        my @parents = split( " ", $parents );
+        my @parents = split " ", $parents;
 
         vine_branch( \@vine, $sha );
         my $ra = vine_commit( \@vine, $sha, \@parents );
 
-        if ( exists( $refs->{$sha} ) ) {
-            print vis_post( vis_commit( $ra ), $Color{at} . "m" . $Color{default} );
+        if ( exists $refs->{$sha} ) {
+            print vis_post( vis_commit( $ra ), "$Color{at}m$Color{default}" );
             ref_print( $refs->{$sha} );
         }
         else {
@@ -140,32 +127,25 @@ sub get_refs {
 
     for my $ln ( @commits ) {
         chomp $ln;
-        if ( length( $ln ) == 0 ) {
-            next;
-        }
+        next if !$ln;
 
         my ( $sha, $name ) = ( $ln =~ /^(\S+)\s+(.*)/s );
-        if ( !exists( $ret->{$sha} ) ) {
-            $ret->{$sha} = [];
-        }
-        push( @{ $ret->{$sha} }, $name );
-        if ( $name =~ m{^refs/tags/} ) {
-            my $sub_sha = $Repo->command( "log", "-1", "--pretty=format:%H", $name );
-            chomp $sub_sha;
-            if ( $sha ne $sub_sha ) {
-                push( @{ $ret->{$sub_sha} }, $name );
-            }
-        }
+        $ret->{$sha} = [] if !exists $ret->{$sha};
+        push @{ $ret->{$sha} }, $name;
+        next if $name !~ m{^refs/tags/};
+
+        my $sub_sha = $Repo->command( "log", "-1", "--pretty=format:%H", $name );
+        chomp $sub_sha;
+        push @{ $ret->{$sub_sha} }, $name if $sha ne $sub_sha;
     }
 
-    my $rebase = -e $Repo->repo_path() . "/rebase-merge/git-rebase-todo"
-      && $Show_rebase;
+    my $rebase = 1 if -e $Repo->repo_path . "/rebase-merge/git-rebase-todo" and $Show_rebase;
     if ( $rebase ) {
-        if ( open( my $act_fh, $Repo->repo_path() . "/rebase-merge/git-rebase-todo" ) ) {
+        if ( open my $act_fh, $Repo->repo_path . "/rebase-merge/git-rebase-todo" ) {
             my ( $curr ) = ( <$act_fh> =~ /^\S+\s+(\S+)/ );
             $curr = $Repo->command( "rev-parse", $curr );
             chomp $curr;
-            unshift( @{ $ret->{$curr} }, "rebase/next" );
+            unshift @{ $ret->{$curr} }, "rebase/next";
             close $act_fh;
         }
 
@@ -174,16 +154,14 @@ sub get_refs {
         chomp( my $old  = $Repo->command( "rev-parse", "rebase-merge/head" ) );
 
         #		unshift(@{$ret->{$up}}, "rebase/upstream");
-        unshift( @{ $ret->{$onto} }, "rebase/onto" );
-        unshift( @{ $ret->{$old} },  "rebase/saved-HEAD" );
+        unshift @{ $ret->{$onto} }, "rebase/onto";
+        unshift @{ $ret->{$old} },  "rebase/saved-HEAD";
     }
 
     my $head = $Repo->command( "rev-parse", "HEAD" );
     chomp $head;
-    if ( $rebase ) {
-        unshift( @{ $ret->{$head} }, "rebase/new" );
-    }
-    unshift( @{ $ret->{$head} }, "HEAD" );
+    unshift @{ $ret->{$head} }, "rebase/new" if $rebase;
+    unshift @{ $ret->{$head} }, "HEAD";
 
     return $ret;
 }
@@ -193,7 +171,7 @@ sub get_refs {
 # @s:	ref name
 #
 sub ref_print {
-    foreach my $symbol ( @{ shift @_ } ) {
+    for my $symbol ( @{ shift @_ } ) {
         print $Color{at}, "[";
         if ( $symbol eq "HEAD" || $symbol =~ m{^rebase/} ) {
             print $Color{hhead}, $symbol;
@@ -243,7 +221,7 @@ sub vine_branch {
             $ret .= "I";
             next;
         }
-        if ( !$master && $idx % 2 == 0 ) {
+        if ( !$master and $idx % 2 == 0 ) {
             $ret .= "S";
             $master = 1;
         }
@@ -254,9 +232,7 @@ sub vine_branch {
         ++$matched;
     }
 
-    if ( $matched < 2 ) {
-        return;
-    }
+    return if $matched < 2;
 
     remove_trailing_blanks( $vine );
     print vis_post( vis_fan( $ret, "branch" ) ), "\n";
@@ -289,29 +265,26 @@ sub vine_commit {
         # Not having produced a C before means this is a tip
         my $i;
         for ( $i = round_down2( $#$vine ) ; $i >= 0 ; $i -= 2 ) {
-            if ( substr( $ret, $i, 1 ) eq " " ) {
-                substr( $ret, $i, 1 ) = "t";
-                $vine->[$i] = $rev;
-                last;
-            }
+            next if substr( $ret, $i, 1 ) ne " ";
+
+            substr( $ret, $i, 1 ) = "t";
+            $vine->[$i] = $rev;
+            last;
         }
         if ( $i < 0 ) {
             if ( scalar( @$vine ) % 2 != 0 ) {
-                push( @$vine, undef );
+                push @$vine, undef;
                 $ret .= " ";
             }
             $ret .= "t";
-            push( @$vine, $rev );
+            push @$vine, $rev;
         }
     }
 
     remove_trailing_blanks( $vine );
 
-    if ( scalar( @$parents ) == 0 ) {
-
-        # tree root
-        $ret =~ tr/C/r/;
-    }
+    # tree root
+    $ret =~ tr/C/r/ if !@$parents;
 
     return $ret;
 }
@@ -332,17 +305,15 @@ sub vine_merge {
     my ( $ret, $max );
 
     for ( my $i = 0 ; $i <= $#$vine ; ++$i ) {
-        if ( $vine->[$i] eq $rev ) {
-            $orig_vine = $i;
-            last;
-        }
+        next if $vine->[$i] ne $rev;
+
+        $orig_vine = $i;
+        last;
     }
 
-    if ( $orig_vine == -1 ) {
-        die "vine_commit() did not add this vine.";
-    }
+    die "vine_commit() did not add this vine." if $orig_vine == -1;
 
-    if ( scalar( @$parents ) <= 1 ) {
+    if ( @$parents <= 1 ) {
 
         #
         # A single parent does not need a visual. Update and return.
@@ -356,41 +327,27 @@ sub vine_merge {
     # Put previously seen branches in the vine subcolumns
     # Need to keep at least one parent for the slot algorithm below.
     #
-    for ( my $j = 0 ; $j <= $#$parents && $#$parents > 0 ; ++$j ) {
+    for ( my $j = 0 ; $j <= $#$parents and $#$parents > 0 ; ++$j ) {
         for ( my $idx = 0 ; $idx <= $#$vine ; ++$idx ) {
-            if ( $vine->[$idx] ne $parents->[$j]
-                || !grep { my $z = $vine->[$idx]; /^\Q$z\E$/ } @$next_rev )
-            {
-                next;
-            }
-            if ( $idx == $orig_vine ) {
-                die "Should not really happen";
-            }
+            next if $vine->[$idx] ne $parents->[$j] or !grep { my $z = $vine->[$idx]; /^\Q$z\E$/ } @$next_rev;
+            die "Should not really happen" if $idx == $orig_vine;
             if ( $idx < $orig_vine ) {
                 my $p = $idx + 1;
-                if ( defined( $vine->[$p] ) ) {
-                    $p = $idx - 1;
-                }
-                if ( defined( $vine->[$p] ) ) {
-                    last;
-                }
+                $p = $idx - 1 if defined $vine->[$p];
+                last if defined $vine->[$p];
                 $vine->[$p] = $parents->[$j];
                 str_expand( \$ret, $p + 1 );
                 substr( $ret, $p, 1 ) = "s";
             }
             else {
                 my $p = $idx - 1;
-                if ( defined( $vine->[$p] ) || $p < 0 ) {
-                    $p = $idx + 1;
-                }
-                if ( defined( $vine->[$p] ) ) {
-                    last;
-                }
+                $p = $idx + 1 if defined $vine->[$p] or $p < 0;
+                last if defined $vine->[$p];
                 $vine->[$p] = $parents->[$j];
                 str_expand( \$ret, $p + 1 );
                 substr( $ret, $p, 1 ) = "s";
             }
-            splice( @$parents, $j, 1 );
+            splice @$parents, $j, 1;
             --$j;    # outer loop
             last;    # inner loop
         }
@@ -403,35 +360,33 @@ sub vine_merge {
     push( @slot, $orig_vine );
     my $parent = 0;
 
-    for ( my $seeker = 2 ; $parent < $#$parents && $seeker < 2 + $#$vine ; ++$seeker ) {
+    for ( my $seeker = 2 ; $parent < $#$parents and $seeker < 2 + $#$vine ; ++$seeker ) {
         my $idx = ( $seeker % 2 == 0 ) ? -1 : 1;
         $idx *= int( $seeker / 2 );
         $idx *= 2;
         $idx += $orig_vine;
 
-        if ( $idx >= 0 && $idx <= $#$vine && !defined( $vine->[$idx] ) ) {
-            push( @slot, $idx );
+        if ( $idx >= 0 and $idx <= $#$vine and !defined $vine->[$idx] ) {
+            push @slot, $idx;
             $vine->[$idx] = "0" x 40;
             ++$parent;
         }
     }
     for ( my $idx = $orig_vine + 2 ; $parent < $#$parents ; $idx += 2 ) {
         if ( !defined( $vine->[$idx] ) ) {
-            push( @slot, $idx );
+            push @slot, $idx;
             ++$parent;
         }
     }
 
-    if ( scalar( @slot ) != scalar( @$parents ) ) {
-        die "Serious internal problem";
-    }
+    die "Serious internal problem" if @slot != @$parents;
 
     @slot = sort { $a <=> $b } @slot;
-    $max = scalar( @$vine ) + 2 * scalar( @slot );
+    $max = @$vine + 2 * @slot;
 
     for ( my $i = 0 ; $i < $max ; ++$i ) {
         str_expand( \$ret, $i + 1 );
-        if ( $#slot >= 0 && $i == $slot[0] ) {
+        if ( $#slot >= 0 and $i == $slot[0] ) {
             shift @slot;
             $vine->[$i] = shift @$parents;
             substr( $ret, $i, 1 ) = ( $i == $orig_vine ) ? "S" : "s";
@@ -439,7 +394,7 @@ sub vine_merge {
         elsif ( substr( $ret, $i, 1 ) eq "s" ) {
             ;    # keep existing fanouts
         }
-        elsif ( defined( $vine->[$i] ) ) {
+        elsif ( defined $vine->[$i] ) {
             substr( $ret, $i, 1 ) = "I";
         }
         else {
@@ -462,9 +417,7 @@ sub vis_commit {
     my $s = shift @_;
     my $f = shift @_;
     $s =~ s/ +$//gs;
-    if ( defined $f ) {
-        $s .= $f;
-    }
+    $s .= $f if defined $f;
     return $s;
 }
 
@@ -487,9 +440,7 @@ sub vis_fan {
       || $s =~ s{S(.*s)}{"A".&vis_fan2R($1)}es
       || die "Should not come here";
 
-    if ( $b ) {
-        $s =~ tr/efg/xyz/;
-    }
+    $s =~ tr/efg/xyz/ if $b;
 
     return $s;
 }
@@ -547,22 +498,13 @@ sub vis_xfrm {
         }esg;
     }
 
-    if ( $Reverse_order ) {
-        $s =~ tr/efg.rt.xyz/xyz.tr.efg/;
-    }
+    $s =~ tr/efg.rt.xyz/xyz.tr.efg/ if $Reverse_order;
 
-    if ( $Style == 1 ) {
-        $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.┌┬┐.│┼≡.─└┌.└┴┘/;
-    }
-    elsif ( $Style == 2 ) {
-        $s =~ tr/ABCD.efg.IKO.mrt.xyz/╠╣╟═.╔╦╗.║╬═.─╙╓.╚╩╝/;
-    }
-    elsif ( $Style == 10 ) {
-        $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.╭┬╮.│┼≡.─└┌.╰┴╯/;
-    }
-    elsif ( $Style == 15 ) {
-        $s =~ tr/ABCD.efg.IKO.mrt.xyz/┣┫┣━.┏┳┓.┃╋☰.━┗┏.┗┻┛/;
-    }
+    $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.┌┬┐.│┼≡.─└┌.└┴┘/ if $Style == 1;
+    $s =~ tr/ABCD.efg.IKO.mrt.xyz/╠╣╟═.╔╦╗.║╬═.─╙╓.╚╩╝/ if $Style == 2;
+    $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.╭┬╮.│┼≡.─└┌.╰┴╯/ if $Style == 10;
+    $s =~ tr/ABCD.efg.IKO.mrt.xyz/┣┫┣━.┏┳┓.┃╋☰.━┗┏.┗┻┛/ if $Style == 15;
+
     return $s;
 }
 
@@ -589,16 +531,14 @@ sub vis_post {
 sub remove_trailing_blanks {
     my $a = shift @_;
 
-    while ( scalar( @$a ) > 0 && !defined( $a->[$#$a] ) ) {
+    while ( @$a > 0 and !defined $a->[$#$a] ) {
         pop( @$a );
     }
 }
 
 sub round_down2 {
     my $i = shift @_;
-    if ( $i < 0 ) {
-        return $i;
-    }
+    return $i if $i < 0;
     return $i & ~1;
 }
 
@@ -606,9 +546,7 @@ sub str_expand {
     my $r = shift @_;
     my $l = shift @_;
 
-    if ( length( $$r ) < $l ) {
-        $$r .= " " x ( $l - length( $$r ) );
-    }
+    $$r .= " " x ( $l - length $$r ) if length $$r < $l;
 }
 
 package ReverseOutput;
@@ -629,13 +567,13 @@ sub PRINT {
     my $self = shift @_;
     my $fh   = $self->{fh};
 
-    $self->{saved} .= join( $\, @_ );
+    $self->{saved} .= join $\, @_;
 }
 
 sub UNTIE {
     my $self = shift @_;
     my $fh   = $self->{fh};
 
-    print $fh join( $/, reverse split( /\n/s, $self->{saved} ) ), "\n";
+    print $fh join( $/, reverse( split /\n/s, $self->{saved} ) ), "\n";
     undef $self->{saved};
 }
