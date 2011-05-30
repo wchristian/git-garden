@@ -472,7 +472,7 @@ sub vis_xfrm {
         }esg;
     }
 
-    $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.┌┬┐.│┼≡.─└┌.└┴┘/ if $Style == 1;
+    $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤╞─.┌┬┐.│┼≡.─╘╒.└┴┘/ if $Style == 1;
     $s =~ tr/ABCD.efg.IKO.mrt.xyz/╠╣╟═.╔╦╗.║╬═.─╙╓.╚╩╝/ if $Style == 2;
     $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.╭┬╮.│┼≡.─└┌.╰┴╯/ if $Style == 10;
     $s =~ tr/ABCD.efg.IKO.mrt.xyz/┣┫┣━.┏┳┓.┃╋☰.━┗┏.┗┻┛/ if $Style == 15;
