@@ -67,26 +67,28 @@ sub process {
         @next_sha = map { ( $_ ) = /^\{(.*?)\}/ } @next_sha;
         my @parents = split " ", $parents;
 
-        vine_branch( \@vine, $sha );
+        my $commit = '';
+
+        $commit .= vine_branch( \@vine, $sha );
+
         my $ra = vine_commit( \@vine, $sha, \@parents );
+        $commit .= graph_lines( $refs, $sha, $ra );
 
-        if ( exists $refs->{$sha} ) {
-            print vis_post( vis_commit( $ra ), "m" );
-            print ref_print( $refs->{$sha} );
-        }
-        else {
-            print vis_post( vis_commit( $ra, " " ) );
-        }
+        $msg .= "──($mini_sha)" if $With_sha;
+        $commit .= $msg . "\n";
 
-        if ( $With_sha ) {
-            print $msg, "──(", $mini_sha, ")", "\n";
-        }
-        else {
-            print $msg, "\n";
-        }
+        $commit .= vine_merge( \@vine, $sha, \@next_sha, \@parents );
 
-        vine_merge( \@vine, $sha, \@next_sha, \@parents );
+        print $commit;
     }
+}
+
+sub graph_lines {
+    my ( $refs, $sha, $ra ) = @_;
+
+    return vis_post( vis_commit( $ra, " " ) ) if !exists $refs->{$sha};
+
+    return vis_post( vis_commit( $ra ), "m" ) . ref_print( $refs->{$sha} )
 }
 
 sub get_refs {
@@ -202,7 +204,7 @@ sub vine_branch {
     return if $matched < 2;
 
     remove_trailing_blanks( $vine );
-    print vis_post( vis_fan( $ret, "branch" ) ), "\n";
+    return vis_post( vis_fan( $ret, "branch" ) ) . "\n";
 }
 
 #
@@ -369,7 +371,7 @@ sub vine_merge {
         }
     }
 
-    print vis_post( vis_fan( $ret, "merge" ) ), "\n";
+    return vis_post( vis_fan( $ret, "merge" ) ) . "\n";
 }
 
 #
