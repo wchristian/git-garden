@@ -1,0 +1,8 @@
+0000000000000000000000000000000000000000 6a1c7b0d3423db25757974f5926a8ddfd82f4b8d Christian Walde <walde.christian@googlemail.com> 1304843261 +0200	clone: from git@github.com:wchristian/CPAN--Mini--Inject.git
+6a1c7b0d3423db25757974f5926a8ddfd82f4b8d be5249bc272dadd2a3a34d3e151558a21c9a5e29 Christian Walde <walde.christian@googlemail.com> 1304843635 +0200	be5249bc272dadd2a3a34d3e151558a21c9a5e29: updating HEAD
+be5249bc272dadd2a3a34d3e151558a21c9a5e29 3fa7bdd36dc0ad5ac1f2fc65f7969d98308253b6 Christian Walde <walde.christian@googlemail.com> 1304844808 +0200	commit: bumped version numbers up because mcpani was already tagged with 0.28
+3fa7bdd36dc0ad5ac1f2fc65f7969d98308253b6 03df5dfd88d31756aed576ce777a02f71328533c Christian Walde <walde.christian@googlemail.com> 1304844928 +0200	commit: added and updated contact data in all scripts/modules
+03df5dfd88d31756aed576ce777a02f71328533c 50acc5281cd1fc1fb0f7add0cf4540d366d036fb Christian Walde <walde.christian@googlemail.com> 1304845461 +0200	commit (amend): added and updated contact data in all scripts/modules
+50acc5281cd1fc1fb0f7add0cf4540d366d036fb 78c3eeb1cd936d0947d2a9ea26cc01f2eb49fa41 Christian Walde <walde.christian@googlemail.com> 1305058353 +0200	commit: Changed tests so they'll be able to deal with read-only dist files
+78c3eeb1cd936d0947d2a9ea26cc01f2eb49fa41 83006341bc1b34926afa359150ab029ffc800e0e Christian Walde <walde.christian@googlemail.com> 1305058402 +0200	commit: released version 0.28_02
+83006341bc1b34926afa359150ab029ffc800e0e 0384e3f1e3f8f5a33294133e7dc241db127605bf Christian Walde <walde.christian@googlemail.com> 1305480210 +0200	commit: released version 0.29
