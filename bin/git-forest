@@ -70,7 +70,7 @@ sub process {
         my @parents = split " ", $parents;
         my $graph_line = insert_commit_and_get_graph_line( \@vine, $sha, \@parents );
         $commit .= asciify( $graph_line );
-        $commit .= ref_print( $refs->{$sha} ) if $refs->{$sha};
+        $commit .= format_refs( $refs->{$sha} ) if $refs->{$sha};
 
         $msg .= "──($mini_sha)" if $With_sha;
         $commit .= $msg . "\n";
@@ -134,30 +134,20 @@ sub get_refs {
 # ref_print - print a ref with color
 # @s:	ref name
 #
-sub ref_print {
-    my $out = '';
+sub format_refs {
+    my ( $refs ) = @_;
 
-    for my $symbol ( @{ shift @_ } ) {
-        $out .= "[";
-        if ( $symbol eq "HEAD" || $symbol =~ m{^rebase/} ) {
-            $out .= $symbol;
-        }
-        elsif ( $symbol =~ m{^refs/remotes/([^/]+)/(.*)}s ) {
-            $out .= "remotes/$1/$2";
-        }
-        elsif ( $symbol =~ m{^refs/heads/(.*)}s ) {
-            $out .= $1;
-        }
-        elsif ( $symbol =~ m{^refs/tags/(.*)}s ) {
-            $out .= $1;
-        }
-        elsif ( $symbol =~ m{^refs/(.*)}s ) {
-            $out .= $1;
-        }
-        $out .= "]──";
-    }
+    my @refs = @{ $refs };
 
-    return $out;
+    s|^rebase/|| for @refs;
+    s|^refs/remotes/|| for @refs;
+    s|^refs/heads/|| for @refs;
+    s|^refs/tags/|| for @refs;
+    s|^refs/|| for @refs;
+
+    $_ = "[$_]──" for @refs;
+
+    return join '', @refs;
 }
 
 #
