@@ -483,8 +483,6 @@ sub vis_post {
     my $f = shift @_;
 
     $s = vis_xfrm( $s, defined $f );
-    $f =~ s/^([^\x1b]+)/vis_xfrm($1)/e if defined $f;
-    $f =~ s/(\x1b.*?m)([^\x1b]+)/$1.vis_xfrm($2)/eg if defined $f;
     if ( defined $f ) {
         $s =~ s/\*/$f/g;
         $s .= $f;
