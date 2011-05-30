@@ -29,7 +29,10 @@ sub test_repo {
 
     $ENV{GIT_DIR} = "t/repos/$repo/.git";
 
-    my ( $out, $err, $res ) = capture { system "$^X bin/git-forest --no-color" };
+    my $cover = '';
+    $cover = '-MDevel::Cover' if grep /--do_cover/, @ARGV;
+
+    my ( $out, $err, $res ) = capture { system "$^X $cover bin/git-forest --no-color" };
     is $res, 0, "$repo: program exited without a failure value";
     ok_regression sub { $err }, "t/output/$repo\_err", "$repo: stderr matched expected value";
     ok_regression sub { $out }, "t/output/$repo\_out", "$repo: stdout matched expected value";
