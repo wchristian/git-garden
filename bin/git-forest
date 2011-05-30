@@ -280,10 +280,13 @@ sub vine_merge {
     # Need to keep at least one parent for the slot algorithm below.
     #
     for ( my $j = 0 ; $j <= $#$parents and $#$parents > 0 ; ++$j ) {
+        my $parent = $parents->[$j];
+
         for my $idx ( 0 .. $#$vines ) {
-            next if !$vines->[$idx];
-            next if $vines->[$idx] ne $parents->[$j];
-            next if !grep { my $z = $vines->[$idx]; /^\Q$z\E$/ } @$next_rev;
+            my $vine = $vines->[$idx];
+            next if !$vine;
+            next if $vine ne $parent;
+            next if !grep { my $z = $vine; /^\Q$z\E$/ } @$next_rev;
 
             die "Should not really happen" if $idx == $orig_vine_id;
 
@@ -298,7 +301,7 @@ sub vine_merge {
             }
 
             last if defined $vines->[$p];
-            $vines->[$p] = $parents->[$j];
+            $vines->[$p] = $parent;
             $ret = str_expand( $ret, $p + 1 );
             substr( $ret, $p, 1 ) = "s";
 
