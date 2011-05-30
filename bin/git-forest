@@ -136,10 +136,13 @@ sub process
 
 sub get_refs
 {
-	my($fh, $c) = $Repo->command_output_pipe("show-ref");
-	my $ret = {};
+    my ( $fh, $c ) = $Repo->command_output_pipe( "show-ref" );
+    my @commits = <$fh>;
+    $Repo->command_close_pipe( $fh, $c );
 
-	while (defined(my $ln = <$fh>)) {
+    my $ret = {};
+
+    for my $ln ( @commits ) {
 		chomp $ln;
 		if (length($ln) == 0) {
 			next;
@@ -159,8 +162,6 @@ sub get_refs
 			}
 		}
 	}
-
-	$Repo->command_close_pipe($fh, $c);
 
 	my $rebase = -e $Repo->repo_path()."/rebase-merge/git-rebase-todo" &&
 	             $Show_rebase;
