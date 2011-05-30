@@ -137,13 +137,13 @@ sub get_refs {
 sub format_refs {
     my ( $refs ) = @_;
 
-    my @refs = @{ $refs };
+    my @refs = @{$refs};
 
-    s|^rebase/|| for @refs;
+    s|^rebase/||       for @refs;
     s|^refs/remotes/|| for @refs;
-    s|^refs/heads/|| for @refs;
-    s|^refs/tags/|| for @refs;
-    s|^refs/|| for @refs;
+    s|^refs/heads/||   for @refs;
+    s|^refs/tags/||    for @refs;
+    s|^refs/||         for @refs;
 
     $_ = "[$_]──" for @refs;
 
@@ -259,7 +259,7 @@ sub find_orig_vine_id {
 # Draws the merging vine matrix between a commit K (@rev) and K^ (@parents).
 #
 sub vine_merge {
-    my ( $vines, $rev, $next_rev, $parents ) = @_;
+    my ( $vines, $rev, $next_revs, $parents ) = @_;
 
     my $orig_vine_id = find_orig_vine_id( $vines, $rev );
 
@@ -286,7 +286,7 @@ sub vine_merge {
             my $vine = $vines->[$idx];
             next if !$vine;
             next if $vine ne $parent;
-            next if !grep { my $z = $vine; /^\Q$z\E$/ } @$next_rev;
+            next if !grep { my $z = $vine; /^\Q$z\E$/ } @$next_revs;
 
             die "Should not really happen" if $idx == $orig_vine_id;
 
@@ -315,7 +315,7 @@ sub vine_merge {
     # Find some good spots to split out into and record columns
     # that will be used soon in the @slot list.
     #
-    my @slots   = ( $orig_vine_id );
+    my @slots  = ( $orig_vine_id );
     my $parent = 0;
 
     for ( my $seeker = 2 ; $parent < $#$parents and $seeker < 2 + $#$vines ; ++$seeker ) {
@@ -324,28 +324,30 @@ sub vine_merge {
         $idx *= 2;
         $idx += $orig_vine_id;
 
-        if ( $idx >= 0 and $idx <= $#$vines and !defined $vines->[$idx] ) {
-            push @slots, $idx;
-            $vines->[$idx] = "0" x 40;
-            ++$parent;
-        }
+        next if $idx < 0;
+        next if $idx > $#$vines;
+        next if defined $vines->[$idx];
+
+        push @slots, $idx;
+        $vines->[$idx] = "0" x 40;
+        ++$parent;
     }
 
     for ( my $idx = $orig_vine_id + 2 ; $parent < $#$parents ; $idx += 2 ) {
-        if ( !defined( $vines->[$idx] ) ) {
-            push @slots, $idx;
-            ++$parent;
-        }
+        next if defined $vines->[$idx];
+
+        push @slots, $idx;
+        ++$parent;
     }
 
     die "Serious internal problem" if @slots != @$parents;
 
     @slots = sort { $a <=> $b } @slots;
-    my $max = @$vines + 2 * @slots;
+    my $max = $#{$vines} + 2 * @slots;
 
-    for my $i ( 0 .. $max - 1 ) {
+    for my $i ( 0 .. $max ) {
         $ret = str_expand( $ret, $i + 1 );
-        if ( $#slots >= 0 and $i == $slots[0] ) {
+        if ( @slots and $i == $slots[0] ) {
             shift @slots;
             $vines->[$i] = shift @$parents;
             substr( $ret, $i, 1 ) = ( $i == $orig_vine_id ) ? "S" : "s";
@@ -374,7 +376,7 @@ sub vine_merge {
 
 sub vis_fan {
     my $s = shift @_;
-    my $b = shift( @_ ) eq "branch";
+    my $is_branch = shift( @_ ) eq "branch";
 
     $s =~ s{s.*s}{
         $_ = $&;
@@ -391,7 +393,7 @@ sub vis_fan {
       || $s =~ s{S(.*s)}{"A".&vis_fan2R($1)}es
       || die "Should not come here";
 
-    $s =~ tr/efg/xyz/ if $b;
+    $s =~ tr/efg/xyz/ if $is_branch;
 
     return $s;
 }
