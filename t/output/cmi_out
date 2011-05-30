@@ -1,0 +1,69 @@
+┌─[HEAD]──[master]──[remotes/origin/HEAD]──[remotes/origin/master]──[0.29]──released version 0.29
+├─[0.28_02]──released version 0.28_02
+├ Changed tests so they'll be able to deal with read-only dist files
+├─[0.28_01]──added and updated contact data in all scripts/modules
+├ bumped version numbers up because mcpani was already tagged with 0.28
+├ Merge branch 'master' of github.com:briandfoy/CPAN--Mini--Inject
+├─┐  
+├ │ modulelist paths need to be in unix format, since they are written to 02packages, from where they are used as urls
+├ │ author name extraction from the module path now works cross-platform
+├ │ authdir generation is now tested with native paths
+├ │ disabled read/write exception tests under cygwin, since they won't always work due to user permission handling
+├ │ config paths test use native file paths now
+│ ├ disabled read/write exception tests under cygwin, since they won't always work due to user permission handling
+│ ├ authdir generation is now tested with native paths
+│ ├ author name extraction from the module path now works cross-platform
+│ ├ modulelist paths need to be in unix format, since they are written to 02packages, from where they are used as urls
+│ ├ config paths test use native file paths now
+├─┘
+├ Bump to 0.27_02 for CPAN Testers: Win32 lock fixes
+├ allow locks in tests to expire
+├ release locks on gzip files before deleting them
+├ RT 55463 - Don't name dist files with a .bak extension
+├ Bump to dev version 0.27_01 to prepare for 0.28
+├ RT #63350 - Inject method removes modules from modulelist which it shouldn't
+├ Put right distro stub in .gitignore
+├─[remotes/andya/master]──Remove incomplete documentation stub.
+├ Remove dead code.
+├ Merge branch 'master' of git@github.com:AndyA/CPAN--Mini--Inject
+├─┐  
+├ │ Skip test that's unreliable under a DNS regime where *any* hostname resolves.
+│ ├ Bump version to 0.28
+│ ├─[0.27]──Note changes
+├─┘
+├ Credits.
+├ Tidied
+├ Merge branch 'master' of git://github.com/jozef/CPAN--Mini--Inject
+├─┐  
+│ ├ --discover-packages option added to parse .pm files inside --file and extract package names and versions
+│ ├ keep just last added module version in 02packages.details.txt
+├ │ Tidied.
+├ │ Merge branch 'master' into dup-inject
+├┐│  
+│└┤
+│ ├ ignore generated WRITEREPO
+├ │ keep just last added module version in 02packages.details.txt
+├─┘
+├ allow CHECKSUMS signing
+├ Bump version to 0.27
+├─[0.26]──Specify minimum version for File::Path
+├ Bump version to 0.26
+├─[0.25]──Note changes
+├ Faff around with MANIFEST
+├ Removed
+├ Update MyBuilder.pm
+├ Added
+├ Merge in brian's changes. Tests pass but there's cruft to be cleaned up.
+├ Just ignore me.
+├ Die, die, die
+├ More twiddling.
+├ Some portability work. More to do.
+├ Tidied.
+├ Bump version to 0.25
+├ Oops - version number.
+├ Delay after starting server.
+├ Use a more exotic port number to avoid clashes with proxies.
+├ Version bump.
+├ Tidied.
+├ Ignore
+└ Added

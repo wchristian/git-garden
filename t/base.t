@@ -17,7 +17,7 @@ done_testing;
 sub run {
     $ENV{TEST_REGRESSION_GEN} = 1;
 
-    test_repo( $_ ) for qw( one );
+    test_repo( $_ ) for qw( one cmi );
 
     return;
 }
