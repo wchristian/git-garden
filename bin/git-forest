@@ -11,6 +11,8 @@
 use strict;
 use warnings;
 
+use 5.010;
+
 use Getopt::Long;
 use encoding "utf8";
 use Git::Class::Cmd;
@@ -72,8 +74,8 @@ sub process {
 
         $commit .= vine_branch( \@vine, $sha );
 
-        my $ra = vine_commit( \@vine, $sha, \@parents );
-        $commit .= graph_lines( $refs, $sha, $ra );
+        my $graph_line = insert_commit_and_get_graph_line( \@vine, $sha, \@parents );
+        $commit .= graph_lines( $refs, $sha, $graph_line );
 
         $msg .= "──($mini_sha)" if $With_sha;
         $commit .= $msg . "\n";
@@ -85,11 +87,11 @@ sub process {
 }
 
 sub graph_lines {
-    my ( $refs, $sha, $ra ) = @_;
+    my ( $refs, $sha, $graph_line ) = @_;
 
-    return vis_post( vis_commit( $ra, " " ) ) if !exists $refs->{$sha};
+    return vis_post( vis_commit( $graph_line, " " ) ) if !exists $refs->{$sha};
 
-    return vis_post( vis_commit( $ra ), "m" ) . ref_print( $refs->{$sha} );
+    return vis_post( vis_commit( $graph_line ), "m" ) . ref_print( $refs->{$sha} );
 }
 
 sub get_refs {
@@ -217,51 +219,47 @@ sub vine_character {
     return "I";
 }
 
-#
-# vine_commit -
-# @vine:	column array containing the expected IDs
-# @rev:		commit ID
-# @parents:	array of parent IDs
-#
-sub vine_commit {
-    my ( $vine, $rev, $parents ) = @_;
+sub insert_commit_and_get_graph_line {
+    my ( $vines, $rev, $parents ) = @_;
 
-    my $ret = join '', map vine_character( $_, $rev ), @{$vine};
+    my @graph_chars = map vine_character( $_, $rev ), @{$vines};
 
-    if ( $ret !~ /C/ ) {
+    my $is_tip = !grep { $_ eq 'C' } @graph_chars;
 
-        # Not having produced a C before means this is a tip
-        my $i;
-        for ( $i = round_down2( $#$vine ) ; $i >= 0 ; $i -= 2 ) {
-            next if substr( $ret, $i, 1 ) ne " ";
+    @graph_chars = insert_branch_tip_into_rightmost_empty_even_vine_slot( $rev, $vines, @graph_chars ) if $is_tip;
 
-            substr( $ret, $i, 1 ) = "t";
-            $vine->[$i] = $rev;
-            last;
-        }
+    my $graph_line = join '', @graph_chars;
 
-        if ( $i < 0 ) {
-            if ( scalar( @$vine ) % 2 != 0 ) {
-                push @$vine, undef;
-                $ret .= " ";
-            }
-            $ret .= "t";
-            push @$vine, $rev;
-        }
-    }
-
-    remove_trailing_blanks( $vine );
+    remove_trailing_blanks( $vines );
 
     # tree root
-    $ret =~ tr/C/r/ if !@$parents;
+    $graph_line =~ tr/C/r/ if !@$parents;
 
-    return $ret;
+    return $graph_line;
+}
+
+sub insert_branch_tip_into_rightmost_empty_even_vine_slot {
+    my ( $rev, $vines, @graph_chars ) = @_;
+
+    my @even_slots = grep !( $_ % 2 ), 0 .. $#graph_chars;
+    my @free_slots = grep $graph_chars[$_] eq ' ', @even_slots;
+
+    my $right_most_slot = 0;    # either directly at the front
+    $right_most_slot = $even_slots[-1] + 2 if @even_slots;    # at the end of the array
+    $right_most_slot = $free_slots[-1]     if @free_slots;    # or in the last empty slot
+
+    $vines->[$right_most_slot] = $rev;
+    $graph_chars[$right_most_slot] = 't';
+
+    $_ //= ' ' for @graph_chars;
+
+    return @graph_chars;
 }
 
 sub find_orig_vine_id {
     my ( $vine, $rev ) = @_;
 
-    for my $i ( 0 .. $#{ $vine } ) {
+    for my $i ( 0 .. $#{$vine} ) {
         next if !$vine->[$i];
 
         return $i if $vine->[$i] eq $rev;
@@ -507,12 +505,6 @@ sub remove_trailing_blanks {
     while ( @$a > 0 and !defined $a->[$#$a] ) {
         pop( @$a );
     }
-}
-
-sub round_down2 {
-    my $i = shift @_;
-    return $i if $i < 0;
-    return $i & ~1;
 }
 
 sub str_expand {
