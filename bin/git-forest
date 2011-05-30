@@ -22,7 +22,6 @@ sub git { Git::Class::Cmd->new }
 my $Pretty_fmt    = "format:%s";
 my $Show_all      = 1;
 my $Show_rebase   = 1;
-my $Style         = 1;
 my $Subvine_depth = 40;
 my $With_sha      = 1;
 
@@ -36,7 +35,6 @@ sub main {
         "a"         => sub { $Pretty_fmt = "format:\e[1;30m(\e[0;32m%an\e[1;30m)\e[0m %s"; },    # ]]]]
         "pretty=s"  => \$Pretty_fmt,
         "svdepth=i" => \$Subvine_depth,
-        "style=i"   => \$Style,
         "sha"       => \$With_sha,
     );
     ++$Subvine_depth;
@@ -472,10 +470,7 @@ sub vis_xfrm {
         }esg;
     }
 
-    $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤╞─.┌┬┐.│┼≡.─╘╒.└┴┘/ if $Style == 1;
-    $s =~ tr/ABCD.efg.IKO.mrt.xyz/╠╣╟═.╔╦╗.║╬═.─╙╓.╚╩╝/ if $Style == 2;
-    $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤├─.╭┬╮.│┼≡.─└┌.╰┴╯/ if $Style == 10;
-    $s =~ tr/ABCD.efg.IKO.mrt.xyz/┣┫┣━.┏┳┓.┃╋☰.━┗┏.┗┻┛/ if $Style == 15;
+    $s =~ tr/ABCD.efg.IKO.mrt.xyz/├┤╞─.┌┬┐.│┼≡.─╘╒.└┴┘/;
 
     return $s;
 }
