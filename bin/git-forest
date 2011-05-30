@@ -64,10 +64,7 @@ sub process {
         my $line = $shas[$i];
         last if !defined $line;
 
-        my @next_sha = grep $_, @shas[ $i .. $i + $Subvine_depth ];
-
         my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
-        @next_sha = map { ( $_ ) = /^\{(.*?)\}/ } @next_sha;
         my @parents = split " ", $parents;
 
         my $commit = '';
@@ -80,6 +77,8 @@ sub process {
         $msg .= "──($mini_sha)" if $With_sha;
         $commit .= $msg . "\n";
 
+        my @next_sha = grep $_, @shas[ $i .. $i + $Subvine_depth ];
+        @next_sha = map { ( $_ ) = /^\{(.*?)\}/ } @next_sha;
         $commit .= vine_merge( \@vine, $sha, \@next_sha, \@parents );
 
         print $commit;
@@ -293,6 +292,7 @@ sub vine_merge {
     }
 
     my $ret = '';
+
     #
     # Put previously seen branches in the vine subcolumns
     # Need to keep at least one parent for the slot algorithm below.
@@ -330,7 +330,7 @@ sub vine_merge {
     # Find some good spots to split out into and record columns
     # that will be used soon in the @slot list.
     #
-    my @slot = ( $orig_vine_id );
+    my @slot   = ( $orig_vine_id );
     my $parent = 0;
 
     for ( my $seeker = 2 ; $parent < $#$parents and $seeker < 2 + $#$vine ; ++$seeker ) {
