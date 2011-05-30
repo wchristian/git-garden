@@ -22,17 +22,6 @@ my $Show_rebase   = 1;
 my $Style         = 1;
 my $Subvine_depth = 2;
 my $With_sha      = 0;
-my %Color         = (
-    "default" => "\e[0m",       # ]
-    "at"      => "\e[1;30m",    # ]
-    "hhead"   => "\e[1;31m",    # ]
-    "head"    => "\e[1;32m",    # ]
-    "ref"     => "\e[1;34m",    # ]
-    "remote"  => "\e[1;35m",    # ]
-    "sha"     => "\e[0;31m",    # ]
-    "tag"     => "\e[1;33m",    # ]
-    "tree"    => "\e[0;33m",    # ]
-);
 
 main();
 
@@ -40,7 +29,6 @@ sub main {
     Getopt::Long::Configure( qw(bundling pass_through) );
     GetOptions(
         "all"       => \$Show_all,
-        "no-color"  => sub { %Color = (); },
         "no-rebase" => sub { $Show_rebase = 0; },
         "a"         => sub { $Pretty_fmt = "format:\e[1;30m(\e[0;32m%an\e[1;30m)\e[0m %s"; },    # ]]]]
         "pretty=s"  => \$Pretty_fmt,
@@ -83,15 +71,15 @@ sub process {
         my $ra = vine_commit( \@vine, $sha, \@parents );
 
         if ( exists $refs->{$sha} ) {
-            print vis_post( vis_commit( $ra ), "$Color{at}m$Color{default}" );
-            ref_print( $refs->{$sha} );
+            print vis_post( vis_commit( $ra ), "m" );
+            print ref_print( $refs->{$sha} );
         }
         else {
             print vis_post( vis_commit( $ra, " " ) );
         }
 
         if ( $With_sha ) {
-            print $msg, $Color{at}, "──(", $Color{sha}, $mini_sha, $Color{at}, ")", $Color{default}, "\n";
+            print $msg, "──(", $mini_sha, ")", "\n";
         }
         else {
             print $msg, "\n";
@@ -151,30 +139,29 @@ sub get_refs {
 # @s:	ref name
 #
 sub ref_print {
+    my $out = '';
+
     for my $symbol ( @{ shift @_ } ) {
-        print $Color{at}, "[";
+        $out .= "[";
         if ( $symbol eq "HEAD" || $symbol =~ m{^rebase/} ) {
-            print $Color{hhead}, $symbol;
+            $out .= $symbol;
         }
         elsif ( $symbol =~ m{^refs/remotes/([^/]+)/(.*)}s ) {
-            if ( $Color{remote} eq "" ) {
-                print "remotes/$1/$2";
-            }
-            else {
-                print $Color{remote}, "$1/", $Color{head}, "$2";
-            }
+            $out .= "remotes/$1/$2";
         }
         elsif ( $symbol =~ m{^refs/heads/(.*)}s ) {
-            print $Color{head}, $1;
+            $out .= $1;
         }
         elsif ( $symbol =~ m{^refs/tags/(.*)}s ) {
-            print $Color{tag}, $1;
+            $out .= $1;
         }
         elsif ( $symbol =~ m{^refs/(.*)}s ) {
-            print $Color{ref}, $1;
+            $out .= $1;
         }
-        print $Color{at}, "]──", $Color{default};
+        $out .= "]──";
     }
+
+    return $out;
 }
 
 #
@@ -499,11 +486,10 @@ sub vis_post {
     $f =~ s/(\x1b.*?m)([^\x1b]+)/$1.vis_xfrm($2)/eg;
     if ( defined $f ) {
         $s =~ s/\*/$f/g;
-        $s =~ s{\Q$Color{default}\E}{$&.$Color{tree}}egs;
         $s .= $f;
     }
 
-    return $Color{tree}, $s, $Color{default};
+    return $s;
 }
 
 sub remove_trailing_blanks {
