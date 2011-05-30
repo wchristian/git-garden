@@ -89,7 +89,7 @@ sub graph_lines {
 
     return vis_post( vis_commit( $ra, " " ) ) if !exists $refs->{$sha};
 
-    return vis_post( vis_commit( $ra ), "m" ) . ref_print( $refs->{$sha} )
+    return vis_post( vis_commit( $ra ), "m" ) . ref_print( $refs->{$sha} );
 }
 
 sub get_refs {
@@ -110,14 +110,16 @@ sub get_refs {
         push @{ $ret->{$sub_sha} }, $name;
     }
 
-    my $rebase = 1 if -e git()->_cwd . "/rebase-merge/git-rebase-todo" and $Show_rebase;
+    my $rebase_file = git()->_cwd . "/rebase-merge/git-rebase-todo";
+    my $rebase = 1 if -e $rebase_file and $Show_rebase;
     if ( $rebase ) {
-        if ( open my $act_fh, git()->_cwd . "/rebase-merge/git-rebase-todo" ) {
+        if ( open my $act_fh, $rebase_file ) {
             my ( $curr ) = ( <$act_fh> =~ /^\S+\s+(\S+)/ );
+            close $act_fh;
+
             $curr = git()->git( "rev-parse", $curr );
             chomp $curr;
             unshift @{ $ret->{$curr} }, "rebase/next";
-            close $act_fh;
         }
 
         #		chomp(my $up   = $Repo->command("rev-parse", "rebase-merge/upstream"));
@@ -207,6 +209,14 @@ sub vine_branch {
     return vis_post( vis_fan( $ret, "branch" ) ) . "\n";
 }
 
+sub vine_character {
+    my ( $vine, $rev ) = @_;
+
+    return " " if !defined $vine;
+    return "C" if $vine eq $rev;
+    return "I";
+}
+
 #
 # vine_commit -
 # @vine:	column array containing the expected IDs
@@ -215,19 +225,8 @@ sub vine_branch {
 #
 sub vine_commit {
     my ( $vine, $rev, $parents ) = @_;
-    my $ret = '';
 
-    for my $i ( 0 .. $#$vine ) {
-        if ( !defined( $vine->[$i] ) ) {
-            $ret .= " ";
-        }
-        elsif ( $vine->[$i] eq $rev ) {
-            $ret .= "C";
-        }
-        else {
-            $ret .= "I";
-        }
-    }
+    my $ret = join '', map vine_character( $_, $rev ), @{$vine};
 
     if ( $ret !~ /C/ ) {
 
@@ -240,6 +239,7 @@ sub vine_commit {
             $vine->[$i] = $rev;
             last;
         }
+
         if ( $i < 0 ) {
             if ( scalar( @$vine ) % 2 != 0 ) {
                 push @$vine, undef;
@@ -258,6 +258,18 @@ sub vine_commit {
     return $ret;
 }
 
+sub find_orig_vine_id {
+    my ( $vine, $rev ) = @_;
+
+    for my $i ( 0 .. $#{ $vine } ) {
+        next if !$vine->[$i];
+
+        return $i if $vine->[$i] eq $rev;
+    }
+
+    die "vine_commit() did not add this vine.";
+}
+
 #
 # vine_merge -
 # @vine:	column array containing the expected parent IDs
@@ -269,30 +281,20 @@ sub vine_commit {
 #
 sub vine_merge {
     my ( $vine, $rev, $next_rev, $parents ) = @_;
-    my $orig_vine = -1;
-    my @slot;
-    my ( $ret, $max );
 
-    for my $i ( 0 .. $#$vine ) {
-        next if !$vine->[$i];
-        next if $vine->[$i] ne $rev;
-
-        $orig_vine = $i;
-        last;
-    }
-
-    die "vine_commit() did not add this vine." if $orig_vine == -1;
+    my $orig_vine_id = find_orig_vine_id( $vine, $rev );
 
     if ( @$parents <= 1 ) {
 
         #
         # A single parent does not need a visual. Update and return.
         #
-        $vine->[$orig_vine] = $parents->[0];
+        $vine->[$orig_vine_id] = $parents->[0];
         remove_trailing_blanks( $vine );
         return '';
     }
 
+    my $ret = '';
     #
     # Put previously seen branches in the vine subcolumns
     # Need to keep at least one parent for the slot algorithm below.
@@ -303,24 +305,22 @@ sub vine_merge {
             next if $vine->[$idx] ne $parents->[$j];
             next if !grep { my $z = $vine->[$idx]; /^\Q$z\E$/ } @$next_rev;
 
-            die "Should not really happen" if $idx == $orig_vine;
+            die "Should not really happen" if $idx == $orig_vine_id;
 
-            if ( $idx < $orig_vine ) {
-                my $p = $idx + 1;
+            my $p = $idx;
+            if ( $idx < $orig_vine_id ) {
+                $p++;
                 $p = $idx - 1 if defined $vine->[$p];
-                last if defined $vine->[$p];
-                $vine->[$p] = $parents->[$j];
-                str_expand( \$ret, $p + 1 );
-                substr( $ret, $p, 1 ) = "s";
             }
             else {
-                my $p = $idx - 1;
+                $p--;
                 $p = $idx + 1 if defined $vine->[$p] or $p < 0;
-                last if defined $vine->[$p];
-                $vine->[$p] = $parents->[$j];
-                str_expand( \$ret, $p + 1 );
-                substr( $ret, $p, 1 ) = "s";
             }
+
+            last if defined $vine->[$p];
+            $vine->[$p] = $parents->[$j];
+            $ret = str_expand( $ret, $p + 1 );
+            substr( $ret, $p, 1 ) = "s";
 
             splice @$parents, $j, 1;
             --$j;    # outer loop
@@ -332,14 +332,14 @@ sub vine_merge {
     # Find some good spots to split out into and record columns
     # that will be used soon in the @slot list.
     #
-    push( @slot, $orig_vine );
+    my @slot = ( $orig_vine_id );
     my $parent = 0;
 
     for ( my $seeker = 2 ; $parent < $#$parents and $seeker < 2 + $#$vine ; ++$seeker ) {
         my $idx = ( $seeker % 2 == 0 ) ? -1 : 1;
         $idx *= int( $seeker / 2 );
         $idx *= 2;
-        $idx += $orig_vine;
+        $idx += $orig_vine_id;
 
         if ( $idx >= 0 and $idx <= $#$vine and !defined $vine->[$idx] ) {
             push @slot, $idx;
@@ -347,7 +347,8 @@ sub vine_merge {
             ++$parent;
         }
     }
-    for ( my $idx = $orig_vine + 2 ; $parent < $#$parents ; $idx += 2 ) {
+
+    for ( my $idx = $orig_vine_id + 2 ; $parent < $#$parents ; $idx += 2 ) {
         if ( !defined( $vine->[$idx] ) ) {
             push @slot, $idx;
             ++$parent;
@@ -357,14 +358,14 @@ sub vine_merge {
     die "Serious internal problem" if @slot != @$parents;
 
     @slot = sort { $a <=> $b } @slot;
-    $max = @$vine + 2 * @slot;
+    my $max = @$vine + 2 * @slot;
 
-    for my $i ( 0 .. $max-1 ) {
-        str_expand( \$ret, $i + 1 );
+    for my $i ( 0 .. $max - 1 ) {
+        $ret = str_expand( $ret, $i + 1 );
         if ( $#slot >= 0 and $i == $slot[0] ) {
             shift @slot;
             $vine->[$i] = shift @$parents;
-            substr( $ret, $i, 1 ) = ( $i == $orig_vine ) ? "S" : "s";
+            substr( $ret, $i, 1 ) = ( $i == $orig_vine_id ) ? "S" : "s";
         }
         elsif ( substr( $ret, $i, 1 ) eq "s" ) {
             ;    # keep existing fanouts
@@ -515,9 +516,8 @@ sub round_down2 {
 }
 
 sub str_expand {
-    my $r = shift @_;
-    my $l = shift @_;
-
-    $$r = '' if !defined $$r;
-    $$r .= " " x ( $l - length $$r ) if length $$r < $l;
+    my ( $string, $length ) = @_;
+    my $diff = $length - length $string;
+    $string .= " " x $diff if $diff > 0;
+    return $string;
 }
