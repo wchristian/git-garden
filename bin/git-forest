@@ -17,11 +17,11 @@ use Git::Class::Cmd;
 sub git { Git::Class::Cmd->new }
 
 my $Pretty_fmt    = "format:%s";
-my $Show_all      = 0;
+my $Show_all      = 1;
 my $Show_rebase   = 1;
 my $Style         = 1;
 my $Subvine_depth = 2;
-my $With_sha      = 0;
+my $With_sha      = 1;
 
 main();
 
