@@ -69,7 +69,8 @@ sub process {
 
         my @parents = split " ", $parents;
         my $graph_line = insert_commit_and_get_graph_line( \@vine, $sha, \@parents );
-        $commit .= graph_lines( $refs, $sha, $graph_line );
+        $commit .= vis_post( $graph_line );
+        $commit .= ref_print( $refs->{$sha} ) if $refs->{$sha};
 
         $msg .= "──($mini_sha)" if $With_sha;
         $commit .= $msg . "\n";
@@ -80,14 +81,6 @@ sub process {
 
         print $commit;
     }
-}
-
-sub graph_lines {
-    my ( $refs, $sha, $graph_line ) = @_;
-
-    return vis_post( vis_commit( $graph_line, " " ) ) if !exists $refs->{$sha};
-
-    return vis_post( vis_commit( $graph_line ), " " ) . ref_print( $refs->{$sha} );
 }
 
 sub get_refs {
@@ -230,6 +223,8 @@ sub insert_commit_and_get_graph_line {
 
     # tree root
     $graph_line =~ tr/C/r/ if !@$parents;
+
+    $graph_line .= ' ';
 
     return $graph_line;
 }
@@ -383,14 +378,6 @@ sub vine_merge {
 # but already unambiguous, control string which needs some processing
 # before it is ready for public display.
 #
-
-sub vis_commit {
-    my $s = shift @_;
-    my $f = shift @_;
-    $s =~ s/ +$//gs;
-    $s .= $f if defined $f;
-    return $s;
-}
 
 sub vis_fan {
     my $s = shift @_;
