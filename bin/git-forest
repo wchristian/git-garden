@@ -175,13 +175,12 @@ sub ref_print {
 #
 sub vine_branch {
     my ( $vine, $rev ) = @_;
-    my $idx;
 
     my ( $matched, $master ) = ( 0, 0 );
     my $ret;
 
     # Transform array into string
-    for ( $idx = 0 ; $idx <= $#$vine ; ++$idx ) {
+    for my $idx ( 0 .. $#$vine ) {
         if ( !defined( $vine->[$idx] ) ) {
             $ret .= " ";
             next;
@@ -217,7 +216,7 @@ sub vine_commit {
     my ( $vine, $rev, $parents ) = @_;
     my $ret;
 
-    for ( my $i = 0 ; $i <= $#$vine ; ++$i ) {
+    for my $i ( 0 .. $#$vine ) {
         if ( !defined( $vine->[$i] ) ) {
             $ret .= " ";
         }
@@ -273,7 +272,7 @@ sub vine_merge {
     my @slot;
     my ( $ret, $max );
 
-    for ( my $i = 0 ; $i <= $#$vine ; ++$i ) {
+    for my $i ( 0 .. $#$vine ) {
         next if $vine->[$i] ne $rev;
 
         $orig_vine = $i;
@@ -297,7 +296,7 @@ sub vine_merge {
     # Need to keep at least one parent for the slot algorithm below.
     #
     for ( my $j = 0 ; $j <= $#$parents and $#$parents > 0 ; ++$j ) {
-        for ( my $idx = 0 ; $idx <= $#$vine ; ++$idx ) {
+        for my $idx ( 0 .. $#$vine ) {
             next if $vine->[$idx] ne $parents->[$j] or !grep { my $z = $vine->[$idx]; /^\Q$z\E$/ } @$next_rev;
             die "Should not really happen" if $idx == $orig_vine;
             if ( $idx < $orig_vine ) {
@@ -353,7 +352,7 @@ sub vine_merge {
     @slot = sort { $a <=> $b } @slot;
     $max = @$vine + 2 * @slot;
 
-    for ( my $i = 0 ; $i < $max ; ++$i ) {
+    for my $i ( 0 .. $max-1 ) {
         str_expand( \$ret, $i + 1 );
         if ( $#slot >= 0 and $i == $slot[0] ) {
             shift @slot;
