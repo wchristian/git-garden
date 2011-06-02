@@ -1,0 +1,287 @@
+#!/usr/bin/perl
+#
+#	git-森林
+#	text-based tree visualisation
+#	Copyright © Jan Engelhardt <jengelh [at] medozas de>, 2008
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 or 3 of the license.
+#
+use strict;
+use warnings;
+use 5.010;
+
+use lib '..';
+use Git::Class::Cmd;
+use encoding "utf8";
+use GraphViz;
+use File::Slurp 'write_file';
+use QuickPlot;
+use List::Util 'max';
+
+$|++;
+
+sub git { Git::Class::Cmd->new }
+
+main();
+
+sub main {
+    process();
+}
+
+sub parse_commit {
+    my ( $line ) = @_;
+
+    my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
+
+    my %commit = (
+        sha      => $sha,
+        mini_sha => $mini_sha,
+        parents  => [ split " ", $parents ],
+        msg      => $msg
+    );
+
+    return \%commit;
+}
+
+sub gnuplot_grid {
+    my ( $grid, $file ) = @_;
+
+    my $chart = QuickPlot->new( file => $file );
+
+    say "adding rows";
+    for my $row ( @{$grid}[0..1000] ) {
+        next if !$row;
+        print ".";
+        for my $col ( @{ $row->{columns} } ) {
+
+            $chart->add( "⎕", $col->{index}, $row->{index} ) if $col->{visuals}{commit};
+            $chart->add( "|",   $col->{index}, $row->{index} ) if $col->{visuals}{expects_commit};
+
+            $chart->add( "┐", $col->{index}, $row->{index} ) if $col->{visuals}{merge_point};
+            $chart->add( "┘", $col->{index}, $row->{index} ) if $col->{visuals}{branch_point};
+
+        }
+    }
+
+    say "rendering";
+    $chart->render;
+
+    return;
+
+}
+
+sub process {
+    my $commits = prepare_commits();
+
+    say "building grid";
+    my @grid;
+    for my $commit ( @{$commits} ) {
+        my $prev_row = $grid[$#grid] || { columns => [] };
+        my $row = { index => $#grid + 1, commit => $commit, columns => [], parents_to_match => scalar( @{$commit->{parents}} ) };
+        push @grid, $row;
+        $DB::single = 1 if $commit->{mini_sha} eq '6930146';
+
+        mark_commit_column( $row, $prev_row, $commit );
+
+        mark_expecting_column( $row, $prev_row, $commit, $_ ) for @{ $commit->{parents} };
+
+        mark_expectations_and_branch_points( $prev_row, $row );
+
+        #say $commit->{mini_sha} . " : " . ( " " x $row->{commit_column_index} ) . $row->{commit_column_index} . " :      " . join " ", map $_->{sha}, @{ $commit->{parents} };
+    }
+
+    gnuplot_grid( \@grid, "simple" );
+
+    return;
+}
+
+sub get_refs {
+    my @commits = git()->git( "show-ref" );
+
+    my %refs;
+
+    for my $ln ( @commits ) {
+        next if !$ln;
+
+        my ( $sha, $name ) = ( $ln =~ /^(\S+)\s+(.*)/s );
+        $refs{$sha} = [] if !exists $refs{$sha};
+        push @{ $refs{$sha} }, $name;
+        #next if $name !~ m{^refs/tags/};
+        #
+        #my $sub_sha = git()->log( "-1", "--pretty=format:%H", $name );
+        #next if $sha eq $sub_sha;
+        #push @{ $ret->{$sub_sha} }, $name;
+    }
+
+    my $head = git()->git( "rev-parse", "HEAD" );
+    chomp $head;
+    unshift @{ $refs{$head} }, "HEAD";
+
+    return \%refs;
+}
+
+sub prepare_commits {
+    say "getting refs";
+    my $refs = get_refs();
+
+    say "getting commits";
+    my @commits = map parse_commit( $_ ), git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}%s", "--all", "HEAD" );
+
+    $commits[$_]->{index} = $_ for 0 .. $#commits;
+
+    my %commits = map { $_->{sha} => $_ } @commits;
+    for my $commit ( @commits ) {
+        my @parents = map $commits{$_}, @{ $commit->{parents} };
+        @parents = sort { $a->{index} <=> $b->{index} } @parents;
+        $commit->{parents} = \@parents;
+        $commit->{refs} = $refs->{$commit->{sha}} || [];
+    }
+
+    return \@commits;
+}
+
+sub mark_expectations_and_branch_points {
+    my ( $prev_row, $row ) = @_;
+
+    my $columns      = $row->{columns};
+    my $prev_columns = $prev_row->{columns};
+
+    for my $prev_col ( @{$prev_columns} ) {
+        next if !$prev_col;
+        next if !$prev_col->{expected_sha};
+
+        if ( $prev_col->{expected_sha} ne $row->{commit}{sha} ) {
+            add_visual_to_column( $row, $prev_col->{index}, "expects_commit" );
+            $row->{columns}[ $prev_col->{index} ]{expected_sha} = $prev_col->{expected_sha};
+        }
+        elsif ( $row->{commit_column_index} != $prev_col->{index} ) {
+            add_visual_to_column( $row, $prev_col->{index}, "branch_point" );
+        }
+    }
+
+    return;
+}
+
+sub mark_expecting_column {
+    my ( $row, $prev_row, $commit, $parent ) = @_;
+
+    my $expecting_column_index = find_column_index_for_expected_parent( $row, $prev_row, $parent );
+    add_visual_to_column( $row, $expecting_column_index, 'merge_point' ) if $expecting_column_index != $row->{commit_column_index};
+    $row->{columns}[$expecting_column_index]{expected_sha} = $parent->{sha};
+
+    $row->{parents_to_match}--;
+
+    return;
+}
+
+sub find_column_index_for_expected_parent {
+    my ( $row, $prev_row, $parent ) = @_;
+
+    my $columns = $row->{columns};
+
+    my @expecting_cols = grep col_expects_this_parent( $_, $parent ), @{ $prev_row->{columns} };
+    return $expecting_cols[0]{index} if @expecting_cols and $row->{parents_to_match} > 1;
+
+    my $commit_column_index = $row->{commit_column_index};
+    return $commit_column_index if $columns->[$commit_column_index] and !$columns->[$commit_column_index]{expected_sha} and ( !@{$parent->{refs}} or $row->{parents_to_match} == 1 );
+
+    my $prev_cols = $prev_row->{columns};
+    my $max_look = max( $#{$columns}, $#{$prev_cols} );
+
+    for my $column_index ( 0 .. $max_look ) {
+        my $column = $columns->[$column_index];
+
+        next if $prev_cols->[$column_index] and $prev_cols->[$column_index]{expected_sha} and $prev_cols->[$column_index]{expected_sha} ne $parent->{sha};
+        next if $column_index eq $commit_column_index;
+
+        return $column_index if !$column;
+        return $column_index if !$column->{expected_sha};
+    }
+
+    return $max_look + 1;
+}
+
+sub col_expects_this_parent {
+    my ( $col, $parent ) = @_;
+
+    return if !$col;
+    return if !$col->{expected_sha};
+    return if $col->{expected_sha} ne $parent->{sha};
+
+    return 1;
+}
+
+sub mark_commit_column {
+    my ( $row, $prev_row, $commit ) = @_;
+
+    $row->{commit_column_index} = find_commit_column_index( $prev_row, $row, $commit );
+
+    add_visual_to_column( $row, $row->{commit_column_index}, 'commit' );
+    add_visual_to_column( $row, $row->{commit_column_index}, 'merge' ) if @{ $commit->{parents} } > 1;
+
+    return;
+}
+
+sub add_visual_to_column {
+    my ( $row, $column_index, $visual ) = @_;
+
+    my $commit_col = $row->{columns}[$column_index] ||= { index => $column_index };
+    $commit_col->{visuals}{$visual} = 1;
+
+    return;
+}
+
+sub find_commit_column_index {
+    my ( $prev_row, $row, $commit ) = @_;
+
+    my $column_index = find_expected_column_index_for_commit( $prev_row, $row->{commit} );
+    $column_index //= find_next_empty_column_index( $prev_row );
+
+    return $column_index;
+}
+
+sub find_expected_column_index_for_commit {
+    my ( $prev_row, $commit ) = @_;
+
+    for my $column ( @{ $prev_row->{columns} } ) {
+        next if !$column;
+        next if !$column->{expected_sha};
+        next if $column->{expected_sha} ne $commit->{sha};
+
+        return $column->{index};
+    }
+
+    return;
+}
+
+sub find_next_empty_column_index {
+    my ( $prev_row ) = @_;
+
+    my $columns = $prev_row->{columns};
+    for my $column_index ( 0 .. $#{$columns} ) {
+        next if $columns->[$column_index];
+        return $column_index;
+    }
+
+    return $#{$columns} + 1;
+}
+
+########## GRAPHVIZ ###################################
+
+sub graphviz_commits {
+    my ( $commits ) = @_;
+
+    my $g = GraphViz->new( edge => { dir => 'back' } );
+
+    $g->add_node( $_->{mini_sha} ) for @{$commits};
+
+    for my $commit ( @{$commits} ) {
+        $g->add_edge( $commit->{mini_sha} => $_->{mini_sha} ) for @{ $commit->{parents} };
+    }
+
+    write_file 'git.png', { binmode => ':raw' }, $g->as_png;
+
+    return;
+}
