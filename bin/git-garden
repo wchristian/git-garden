@@ -55,6 +55,9 @@ sub gnuplot_grid {
     for my $row ( @{$grid}[0..1000] ) {
         next if !$row;
         print ".";
+
+        my $merge_branch_column_index;
+
         for my $col ( @{ $row->{columns} } ) {
 
             $chart->add( "⎕", $col->{index}, $row->{index} ) if $col->{visuals}{commit};
@@ -63,7 +66,19 @@ sub gnuplot_grid {
             $chart->add( "┐", $col->{index}, $row->{index} ) if $col->{visuals}{merge_point};
             $chart->add( "┘", $col->{index}, $row->{index} ) if $col->{visuals}{branch_point};
 
+            $merge_branch_column_index = $col->{index}
+              if ( !$merge_branch_column_index or $col->{index} > $merge_branch_column_index ) and $col->{visuals}{merge_point}
+              or $col->{visuals}{branch_point};
+
             $max_col = $col->{index} if $col->{index} > $max_col;
+        }
+
+        next if !defined $merge_branch_column_index;
+
+        my $commit_column_index = $row->{commit_column_index};
+
+        for my $connect_index ( $commit_column_index + 1 .. $merge_branch_column_index - 1 ) {
+            $chart->add( "─", $connect_index, $row->{index} );
         }
     }
 
