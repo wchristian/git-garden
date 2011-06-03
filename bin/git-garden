@@ -52,7 +52,7 @@ sub gnuplot_grid {
     my $max_col = 0;
 
     say "adding rows";
-    for my $row ( @{$grid}[0..1000] ) {
+    for my $row ( @{$grid}[ 0 .. 1000 ] ) {
         next if !$row;
         print ".";
 
@@ -85,7 +85,7 @@ sub gnuplot_grid {
 
     for my $row ( @{$grid}[ 0 .. 1000 ] ) {
         next if !$row;
-        $chart->add( $row->{commit}{mini_sha}, $max_col + 5,      $row->{index} );
+        $chart->add( $row->{commit}{mini_sha}, $max_col + 5, $row->{index} );
         $chart->add( " ",                      $max_col + 8, $row->{index} );
     }
 
@@ -103,9 +103,8 @@ sub process {
     my @grid;
     for my $commit ( @{$commits} ) {
         my $prev_row = $grid[$#grid] || { columns => [] };
-        my $row = { index => $#grid + 1, commit => $commit, columns => [], parents_to_match => scalar( @{$commit->{parents}} ) };
+        my $row = { index => $#grid + 1, commit => $commit, columns => [], parents_to_match => scalar( @{ $commit->{parents} } ) };
         push @grid, $row;
-        $DB::single = 1 if $commit->{mini_sha} eq '6930146';
 
         mark_commit_column( $row, $prev_row, $commit );
 
@@ -152,6 +151,13 @@ sub prepare_commits {
     say "getting refs";
     my $refs = get_refs();
 
+    #for my $sha ( keys %{$refs} ) {
+    #    for my $ref ( @{$refs->{$sha}} ) {
+    #        say sprintf "% 30s : $sha", $ref;
+    #    }
+    #
+    #}
+
     say "getting commits";
     my @commits = map parse_commit( $_ ), git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}%s", "--all", "HEAD" );
     my $commit_count = @commits;
@@ -162,8 +168,8 @@ sub prepare_commits {
     for my $commit ( @commits ) {
         my @parents = map $commits{$_}, @{ $commit->{parents} };
         @parents = sort { $a->{index} <=> $b->{index} } @parents;
-        $commit->{parents} = \@parents;
-        $commit->{refs} = $refs->{$commit->{sha}} || [];
+        $commit->{parents}     = \@parents;
+        $commit->{refs}        = $refs->{ $commit->{sha} } || [];
         $commit->{merge_depth} = -1;
     }
 
@@ -231,14 +237,14 @@ sub mark_expecting_column {
 sub find_column_index_for_expected_parent {
     my ( $row, $prev_row, $parent ) = @_;
 
-    my $columns = $row->{columns};
-    my $commit_column_index = $row->{commit_column_index};
+    my $columns                         = $row->{columns};
+    my $commit_column_index             = $row->{commit_column_index};
     my $parents_with_higher_merge_depth = grep { $_->{merge_depth} > $parent->{merge_depth} } @{ $row->{commit}{parents} };
 
     my @expecting_cols = grep col_expects_this_parent( $_, $parent ), @{ $prev_row->{columns} };
     return $expecting_cols[0]{index} if @expecting_cols and $row->{parents_to_match} > 1 and $expecting_cols[0]{index} >= $commit_column_index and !$parents_with_higher_merge_depth;
 
-    return $commit_column_index if $columns->[$commit_column_index] and !$columns->[$commit_column_index]{expected_sha} and ( !@{$parent->{refs}} or $row->{parents_to_match} == 1 );
+    return $commit_column_index if $columns->[$commit_column_index] and !$columns->[$commit_column_index]{expected_sha} and ( !@{ $parent->{refs} } or $row->{parents_to_match} == 1 );
 
     return $expecting_cols[0]{index} if @expecting_cols and $expecting_cols[0]{index} >= $commit_column_index;
 
