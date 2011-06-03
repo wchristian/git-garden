@@ -59,6 +59,7 @@ sub gnuplot_grid {
         my $merge_branch_column_index;
 
         for my $col ( @{ $row->{columns} } ) {
+            next if !$col;
 
             $chart->add( "⎕", $col->{index}, $row->{index} ) if $col->{visuals}{commit};
             $chart->add( "│", $col->{index}, $row->{index} ) if $col->{visuals}{expects_commit};
