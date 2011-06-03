@@ -1,0 +1,49 @@
+NAME
+    Git::Garden - display your git branches in an orderly manner
+
+SYNOPSIS
+        perl bin/git-garden --git_dir t/repos/test
+        firefox simple.png
+
+DESCRIPTION
+    Git::Garden is a project to graph git repositories in a manner that will
+    allow display of them in various forms, be they direct images, ASCII or web
+    interfaces.
+
+    This project is still in a heavy prototyping phase. The code is honestly
+    quite crap right now, as i'm just throwing shit at the wall to see what
+    sticks. The plan is to have a Git::Garden module that'll be handed a list of
+    commit objects that are interconnected by way of ref and parent relations
+    and then transforms that into a representation of a graph log as a
+    two-dimensional grid array that can then be passed on to render objects.
+    Just how that'll all go together is something i'm busy finding out right
+    now.
+
+  History
+    This project was started because Gitalist lacks a git log graph. It was
+    forked off git-forest, which was investigatively dissected and then rebuilt
+    with its ideas left intact, but the output radically transformed. The new
+    log graphing algorithm was heavily inspired by QGit, but diverges in a few
+    details.
+
+CONTRIBUTING
+    Patches are welcome, please feel free to fork on github and send pull
+    requests, send patches from git format-patch to the bug tracker, or host
+    your own copy of Git::Garden somewhere and ask us to pull from it.
+
+SUPPORT
+    Please report any bugs or feature requests to
+    bug-cpan-mini-inject@rt.cpan.org, or through the web interface at
+    http://rt.cpan.org. I will be notified, and then you'll automatically be
+    notified of progress on your bug as I make changes.
+
+SEE ALSO
+    Gitalist
+
+AUTHOR
+    Christian Walde <mithaldu@yahoo.de>
+
+LICENSE
+    This is free software, licensed under:
+
+      DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE, Version 2, December 2004
