@@ -232,11 +232,14 @@ sub find_column_index_for_expected_parent {
 
     my $columns = $row->{columns};
     my $commit_column_index = $row->{commit_column_index};
+    my $parents_with_higher_merge_depth = grep { $_->{merge_depth} > $parent->{merge_depth} } @{ $row->{commit}{parents} };
 
     my @expecting_cols = grep col_expects_this_parent( $_, $parent ), @{ $prev_row->{columns} };
-    return $expecting_cols[0]{index} if @expecting_cols and $row->{parents_to_match} > 1 and $expecting_cols[0]{index} >= $commit_column_index;
+    return $expecting_cols[0]{index} if @expecting_cols and $row->{parents_to_match} > 1 and $expecting_cols[0]{index} >= $commit_column_index and !$parents_with_higher_merge_depth;
 
     return $commit_column_index if $columns->[$commit_column_index] and !$columns->[$commit_column_index]{expected_sha} and ( !@{$parent->{refs}} or $row->{parents_to_match} == 1 );
+
+    return $expecting_cols[0]{index} if @expecting_cols and $expecting_cols[0]{index} >= $commit_column_index;
 
     my $prev_cols = $prev_row->{columns};
     my $max_look = max( $#{$columns}, $#{$prev_cols} );
