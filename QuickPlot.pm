@@ -47,7 +47,7 @@ sub render {
         "unset border",
         "unset xtics",
         "unset ytics",
-        "set terminal png size " . ( 14 * ( $self->max_x + 1 ) ) . "," . ( 23 * ( $self->max_y + 1 ) ) . "",
+        "set terminal png size " . ( 10 * ( $self->max_x + 1 ) ) . "," . ( 15 * ( $self->max_y + 1 ) ) . "",
     );
     $self->plot->command( $_ ) for @cmds;
     $self->plot->plot2d( Chart::Gnuplot::DataSet->new( xdata => [-2], ydata => [-2], style => "dot" ) );
