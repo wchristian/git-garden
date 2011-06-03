@@ -19,6 +19,7 @@ use GraphViz;
 use File::Slurp 'write_file';
 use QuickPlot;
 use List::Util 'max';
+use Getopt::Long::Descriptive;
 
 $|++;
 
@@ -27,7 +28,16 @@ sub git { Git::Class::Cmd->new }
 main();
 
 sub main {
-    process();
+    my ( $opt, $usage ) = describe_options(
+        'git-garden %o',    #
+        [],
+        [ 'git_dir|d=s', "path to the git repository you want to graph, can be either to the checkout, the .git dir, or even any renamed git metadata dir. Default: .", { default => '.' } ],
+        [],
+        [ 'help|h', "print usage message and exit" ],
+    );
+    print( $usage->text ), exit if $opt->help;
+
+    process( $opt->git_dir );
 }
 
 sub parse_commit {
@@ -97,7 +107,9 @@ sub gnuplot_grid {
 }
 
 sub process {
-    my $commits = prepare_commits();
+    my ( $dir ) = @_;
+
+    my $commits = prepare_commits( $dir );
 
     say "building grid";
     my @grid;
@@ -140,17 +152,14 @@ sub get_refs {
 }
 
 sub prepare_commits {
-    say "getting refs";
-    my $refs = get_refs();
+    my ( $dir ) = @_;
 
-    say "getting commits";
-    my @commits = map parse_commit( $_ ), git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}%s", "--all", "HEAD" );
-    my $commit_count = @commits;
+    my ( $refs, $commits, $commit_count ) = get_git_meta_data( $dir );
 
-    $commits[$_]->{index} = $_ for 0 .. $#commits;
+    $commits->[$_]->{index} = $_ for 0 .. $#{$commits};
 
-    my %commits = map { $_->{sha} => $_ } @commits;
-    for my $commit ( @commits ) {
+    my %commits = map { $_->{sha} => $_ } @{$commits};
+    for my $commit ( @{$commits} ) {
         my @parents = map $commits{$_}, @{ $commit->{parents} };
         @parents = sort { $a->{index} <=> $b->{index} } @parents;
         $commit->{parents}     = \@parents;
@@ -158,7 +167,7 @@ sub prepare_commits {
         $commit->{merge_depth} = -1;
     }
 
-    for my $commit ( @commits ) {
+    for my $commit ( @{$commits} ) {
         my @parents = @{ $commit->{parents} };
         next if @parents < 2;
 
@@ -167,7 +176,34 @@ sub prepare_commits {
         $commit->{parents} = \@parents;
     }
 
-    return \@commits;
+    return $commits;
+}
+
+sub get_real_git_dir {
+    my ( $dir ) = @_;
+
+    return $dir           if -d $dir . "/refs/heads";
+    return $dir . "/.git" if -d $dir . "/.git/refs/heads";
+    return $dir . "/git"  if -d $dir . "/git/refs/heads";
+    die "could not identify git meta-data directory, expecting a path to something that contains the dir refs/heads";
+}
+
+sub get_git_meta_data {
+    my ( $dir ) = @_;
+
+    my $real_dir = get_real_git_dir( $dir );
+
+    $ENV{GIT_DIR} = $real_dir;
+
+    say "getting refs";
+    my $refs = get_refs();
+
+    say "getting commits";
+    my @commits = map parse_commit( $_ ), git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}%s", "--all", "HEAD" );
+
+    delete $ENV{GIT_DIR};
+
+    return ( $refs, \@commits, scalar @commits );
 }
 
 sub find_merge_depth {
