@@ -49,6 +49,7 @@ sub gnuplot_grid {
     my ( $grid, $file ) = @_;
 
     my $chart = QuickPlot->new( file => $file );
+    my $max_col = 0;
 
     say "adding rows";
     for my $row ( @{$grid}[0..1000] ) {
@@ -62,7 +63,14 @@ sub gnuplot_grid {
             $chart->add( "┐", $col->{index}, $row->{index} ) if $col->{visuals}{merge_point};
             $chart->add( "┘", $col->{index}, $row->{index} ) if $col->{visuals}{branch_point};
 
+            $max_col = $col->{index} if $col->{index} > $max_col;
         }
+    }
+
+    for my $row ( @{$grid}[ 0 .. 1000 ] ) {
+        next if !$row;
+        $chart->add( $row->{commit}{mini_sha}, $max_col + 5,      $row->{index} );
+        $chart->add( " ",                      $max_col + 8, $row->{index} );
     }
 
     say "rendering";
