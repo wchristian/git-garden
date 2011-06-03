@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use 5.010;
 
-use lib '..';
+use lib ( 'lib', '../lib' );
 use Git::Class::Cmd;
 use encoding "utf8";
 use GraphViz;
