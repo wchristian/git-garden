@@ -153,6 +153,7 @@ sub prepare_commits {
 
     say "getting commits";
     my @commits = map parse_commit( $_ ), git()->log( "--date-order", "--pretty=format:{%H}{%h}{%P}%s", "--all", "HEAD" );
+    my $commit_count = @commits;
 
     $commits[$_]->{index} = $_ for 0 .. $#commits;
 
@@ -162,9 +163,34 @@ sub prepare_commits {
         @parents = sort { $a->{index} <=> $b->{index} } @parents;
         $commit->{parents} = \@parents;
         $commit->{refs} = $refs->{$commit->{sha}} || [];
+        $commit->{merge_depth} = -1;
+    }
+
+    for my $commit ( @commits ) {
+        my @parents = @{ $commit->{parents} };
+        next if @parents < 2;
+
+        $_->{merge_depth} = find_merge_depth( $_, $commit_count ) for @parents;
+        @parents = sort { $a->{merge_depth} <=> $b->{merge_depth} } @parents;
+        $commit->{parents} = \@parents;
     }
 
     return \@commits;
+}
+
+sub find_merge_depth {
+    my ( $commit, $commit_count ) = @_;
+
+    my $depth = 0;
+
+    while ( $commit ) {
+        return $depth if @{ $commit->{parents} } > 1;
+
+        $depth++;
+        $commit = $commit->{parents}[0];
+    }
+
+    return $commit_count;
 }
 
 sub mark_expectations_and_branch_points {
