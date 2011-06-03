@@ -30,8 +30,8 @@ sub add {
 
     $self->{commands} .= qq|set label "$text"  at $x, -$y center font "Lucida Console"\n|;
 
-    $self->max_x( $x ) if $x > $self->max_x;
-    $self->max_y( $y ) if $y > $self->max_y;
+    $self->{max_x} = $x if $x > $self->{max_x};
+    $self->{max_y} = $y if $y > $self->{max_y};
 
     return;
 }
