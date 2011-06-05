@@ -2,8 +2,13 @@ NAME
     Git::Garden - display your git branches in an orderly manner
 
 SYNOPSIS
-        perl bin/git-garden --git_dir t/repos/test
+        perl bin/git-garden --help
+
+        perl bin/git-garden --git_dir t/repos/test -t gnuplot
         firefox simple.png
+
+        perl bin/git-garden --git_dir t/repos/test
+        firefox simple.html
 
 DESCRIPTION
     Git::Garden is a project to graph git repositories in a manner that will
