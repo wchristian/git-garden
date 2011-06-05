@@ -37,7 +37,10 @@ sub main {
     );
     print( $usage->text ), exit if $opt->help;
 
-    process( $opt->git_dir );
+    my $commits = prepare_commits( $opt->git_dir );
+
+    my $grid = process( $commits );
+    gnuplot_grid( $grid, "simple" );
 }
 
 sub parse_commit {
@@ -107,9 +110,7 @@ sub gnuplot_grid {
 }
 
 sub process {
-    my ( $dir ) = @_;
-
-    my $commits = prepare_commits( $dir );
+    my ( $commits ) = @_;
 
     say "building grid";
     my @grid;
@@ -125,9 +126,7 @@ sub process {
         mark_expectations_and_branch_points( $prev_row, $row );
     }
 
-    gnuplot_grid( \@grid, "simple" );
-
-    return;
+    return \@grid;
 }
 
 sub get_refs {
