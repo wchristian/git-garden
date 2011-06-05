@@ -62,7 +62,7 @@ sub gnuplot_grid {
     my $max_col = 0;
 
     say "adding rows";
-    for my $row ( @{$grid}[ 0 .. 1000 ] ) {
+    for my $row ( @{$grid} ) {
         next if !$row;
         print ".";
 
@@ -93,7 +93,7 @@ sub gnuplot_grid {
         }
     }
 
-    for my $row ( @{$grid}[ 0 .. 1000 ] ) {
+    for my $row ( @{$grid} ) {
         next if !$row;
         $chart->add( $row->{commit}{mini_sha}, $max_col + 5, $row->{index} );
         $chart->add( " ",                      $max_col + 8, $row->{index} );
