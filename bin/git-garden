@@ -20,7 +20,7 @@ use lib ( 'lib', '../lib' );
 use Getopt::Long::Descriptive;
 
 use Git::Garden 'create_git_graph_grid';
-use Git::Garden::Importer 'prepare_commits';
+use Git::Garden::Importer::gitclass;
 use Git::Garden::Render::HTML 'htmlplot_grid';
 use Git::Garden::Render::GnuPlot 'gnuplot_grid';
 use Git::Garden::Render::GraphViz 'graphvizplot_grid';
@@ -33,14 +33,16 @@ sub main {
     my ( $opt, $usage ) = describe_options(
         'git-garden %o',    #
         [],
-        [ 'git_dir|d=s', "path to the git repository you want to graph, can be either to the checkout, the .git dir, or even any renamed git metadata dir. Default: .", { default => '.' } ],
-        [ 'dump_type|t=s', "Format in which to dump the generated data. ( html, gnuplot, graphviz ) Default: html", { default => 'html' } ],
+        [ 'git_dir|d=s',     "path to the git repository you want to graph, can be either to the checkout, the .git dir, or even any renamed git metadata dir. Default: .", { default => '.' } ],
+        [ 'import_type|i=s', "Method to use to import git data. ( gitpp, gitclass ) Default: gitpp",                                                                        { default => 'gitpp' } ],
+        [ 'dump_type|t=s',   "Format in which to dump the generated data. ( html, gnuplot, graphviz ) Default: html",                                                       { default => 'html' } ],
         [],
         [ 'help|h', "print usage message and exit" ],
     );
     print( $usage->text ), exit if $opt->help;
 
-    my $commits = prepare_commits( $opt->git_dir );
+    my $importer_class = "Git::Garden::Importer::" . $opt->import_type;
+    my $commits = $importer_class->prepare_commits( $opt->git_dir );
 
     my $grid = create_git_graph_grid( $commits );
 

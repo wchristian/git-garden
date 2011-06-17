@@ -15,6 +15,7 @@ package Git::Garden::Render::HTML;
 =cut
 
 use Sub::Exporter::Simple 'htmlplot_grid';
+use File::Slurp 'write_file';
 
 use JSON 'to_json';
 
@@ -24,10 +25,11 @@ sub htmlplot_grid {
     my @rows;
     for my $row ( @{$grid} ) {
         next if !$row;
+        my $sha1 = $row->{commit}->{sha1};
         push @rows, qq|
             <tr>
-                <td id="graph_$row->{commit}{sha}"></td>
-                <td>$row->{commit}{sha}</td>
+                <td id="graph_$sha1"></td>
+                <td>$sha1</td>
             </tr>
         |;
     }
@@ -90,7 +92,7 @@ function do_graphs() {
     });
 
     $(commit_rows).each(function () {
-        var r = render_canvas( 'graph_' + this.commit.sha );
+        var r = render_canvas( 'graph_' + this.commit.sha1 );
         if ( r ) this.canvas = r;
         return;
     });

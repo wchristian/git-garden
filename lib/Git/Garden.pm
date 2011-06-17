@@ -51,7 +51,7 @@ sub mark_expecting_column {
 
     my $expecting_column_index = find_column_index_for_expected_parent( $row, $prev_row, $parent );
     add_visual_to_column( $row, $expecting_column_index, 'merge_point' ) if $expecting_column_index != $row->{commit_column_index};
-    $row->{columns}[$expecting_column_index]{expected_sha} = $parent->{sha};
+    $row->{columns}[$expecting_column_index]{expected_sha} = $parent->{sha1};
 
     $row->{parents_to_match}--;
 
@@ -68,7 +68,7 @@ sub mark_expectations_and_branch_points {
         next if !$prev_col;
         next if !$prev_col->{expected_sha};
 
-        if ( $prev_col->{expected_sha} ne $row->{commit}{sha} ) {
+        if ( $prev_col->{expected_sha} ne $row->{commit}{sha1} ) {
             add_visual_to_column( $row, $prev_col->{index}, "expects_commit" );
             $row->{columns}[ $prev_col->{index} ]{expected_sha} = $prev_col->{expected_sha};
         }
@@ -118,7 +118,7 @@ sub find_column_index_for_expected_parent {
     for my $column_index ( 0 .. $max_look ) {
         my $column = $columns->[$column_index];
 
-        next if $prev_cols->[$column_index] and $prev_cols->[$column_index]{expected_sha} and $prev_cols->[$column_index]{expected_sha} ne $parent->{sha};
+        next if $prev_cols->[$column_index] and $prev_cols->[$column_index]{expected_sha} and $prev_cols->[$column_index]{expected_sha} ne $parent->{sha1};
         next if $column_index <= $commit_column_index;
 
         return $column_index if !$column;
@@ -134,7 +134,7 @@ sub find_expected_column_index_for_commit {
     for my $column ( @{ $prev_row->{columns} } ) {
         next if !$column;
         next if !$column->{expected_sha};
-        next if $column->{expected_sha} ne $commit->{sha};
+        next if $column->{expected_sha} ne $commit->{sha1};
 
         return $column->{index};
     }
@@ -159,7 +159,7 @@ sub col_expects_this_parent {
 
     return if !$col;
     return if !$col->{expected_sha};
-    return if $col->{expected_sha} ne $parent->{sha};
+    return if $col->{expected_sha} ne $parent->{sha1};
 
     return 1;
 }

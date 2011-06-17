@@ -1,36 +1,34 @@
 use strict;
 use warnings;
 
-package Git::Garden::Importer;
+package Git::Garden::Importer::gitclass;
 
 # ABSTRACT: import git repo data as a list of commits with refs and other metadata
 
 =head1 SYNOPSIS
 
-    use Git::Garden::Importer 'prepare_commits';
-    my $commit_array_ref = prepare_commits( $git_directory );
+    use Git::Garden::Importer::gitclass;
+    my $commit_array_ref = Git::Garden::Importer::gitclass->prepare_commits( $git_directory );
 
 =cut
-
-use Sub::Exporter::Simple 'prepare_commits';
 
 use Git::Class::Cmd;
 
 sub git { Git::Class::Cmd->new }
 
 sub prepare_commits {
-    my ( $dir ) = @_;
+    my ( $self, $dir ) = @_;
 
     my ( $refs, $commits, $commit_count ) = get_git_meta_data( $dir );
 
     $commits->[$_]->{index} = $_ for 0 .. $#{$commits};
 
-    my %commits = map { $_->{sha} => $_ } @{$commits};
+    my %commits = map { $_->{sha1} => $_ } @{$commits};
     for my $commit ( @{$commits} ) {
         my @parents = map $commits{$_}, @{ $commit->{parents} };
         @parents = sort { $a->{index} <=> $b->{index} } @parents;
         $commit->{parents}     = \@parents;
-        $commit->{refs}        = $refs->{ $commit->{sha} } || [];
+        $commit->{refs}        = $refs->{ $commit->{sha1} } || [];
         $commit->{merge_depth} = -1;
     }
 
@@ -98,7 +96,7 @@ sub parse_commit {
     my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
 
     my %commit = (
-        sha      => $sha,
+        sha1     => $sha,
         mini_sha => $mini_sha,
         parents  => [ split " ", $parents ],
         msg      => $msg
