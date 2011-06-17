@@ -22,9 +22,11 @@ use Getopt::Long::Descriptive;
 use Git::Garden 'create_git_graph_grid';
 use Git::Garden::Importer::gitpp;
 use Git::Garden::Importer::gitclass;
-use Git::Garden::Render::HTML 'htmlplot_grid';
-use Git::Garden::Render::GnuPlot 'gnuplot_grid';
-use Git::Garden::Render::GraphViz 'graphvizplot_grid';
+use Git::Garden::Render::html;
+use Git::Garden::Render::gnuplot;
+use Git::Garden::Render::graphviz;
+
+use File::Slurp 'write_file';
 
 $|++;
 
@@ -47,9 +49,16 @@ sub main {
 
     my $grid = create_git_graph_grid( $commits );
 
-    htmlplot_grid( $grid, "simple" ) if $opt->dump_type eq 'html';
-    gnuplot_grid( $grid, "simple" ) if $opt->dump_type eq 'gnuplot';
-    graphvizplot_grid( $grid, "simple" ) if $opt->dump_type eq 'graphviz';
+    my $render_class = "Git::Garden::Render::" . $opt->dump_type;
+    my $out = $render_class->plot_grid( $grid );
+
+    return if !$out;
+
+    my $extension = "";
+    $extension = ".html" if $opt->dump_type eq 'html';
+    $extension = ".png" if $opt->dump_type eq 'graphviz';
+
+    write_file "simple$extension", { binmode => ':raw' }, $out;
 
     return;
 }
