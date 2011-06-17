@@ -36,6 +36,7 @@ sub htmlplot_grid {
     my $rows = join "\n", @rows;
 
     delete $_->{commit}{parents} for @{$grid};
+    $_->{commit} = { %{$_->{commit}} } for @{$grid};
     my $json = to_json( $grid );
 
     my $js = graphlog_js();

@@ -20,6 +20,7 @@ use lib ( 'lib', '../lib' );
 use Getopt::Long::Descriptive;
 
 use Git::Garden 'create_git_graph_grid';
+use Git::Garden::Importer::gitpp;
 use Git::Garden::Importer::gitclass;
 use Git::Garden::Render::HTML 'htmlplot_grid';
 use Git::Garden::Render::GnuPlot 'gnuplot_grid';
