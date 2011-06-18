@@ -13,6 +13,7 @@ package Git::Garden::Importer::gitclass;
 =cut
 
 use Git::Class::Cmd;
+use File::Spec;
 
 sub git { Git::Class::Cmd->new }
 

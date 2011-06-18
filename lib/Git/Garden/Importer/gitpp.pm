@@ -14,10 +14,8 @@ package Git::Garden::Importer::gitpp;
 
 use lib 'd:/git-pureperl/lib';
 use Git::PurePerl;
-use Git::Class::Cmd;
 use File::Spec;
 
-sub git { Git::Class::Cmd->new }
 
 sub prepare_commits {
     my ( $self, $dir ) = @_;
@@ -65,42 +63,6 @@ sub get_real_git_dir {
     return $dir . "/.git" if -d $dir . "/.git/refs/heads";
     return $dir . "/git"  if -d $dir . "/git/refs/heads";
     die "could not identify git meta-data directory '$dir', expecting a path to something that contains the dir refs/heads";
-}
-
-sub get_refs {
-    my @commits = git()->git( "show-ref", "-d" );
-
-    my %refs;
-
-    for my $ln ( @commits ) {
-        next if !$ln;
-
-        my ( $sha, $name ) = ( $ln =~ /^(\S+)\s+(.*)/s );
-        $name =~ s/\^\{\}//;
-        $refs{$sha} = [] if !exists $refs{$sha};
-        push @{ $refs{$sha} }, $name;
-    }
-
-    my $head = git()->git( "rev-parse", "HEAD" );
-    chomp $head;
-    unshift @{ $refs{$head} }, "HEAD";
-
-    return \%refs;
-}
-
-sub parse_commit {
-    my ( $line ) = @_;
-
-    my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
-
-    my %commit = (
-        sha      => $sha,
-        mini_sha => $mini_sha,
-        parents  => [ split " ", $parents ],
-        msg      => $msg
-    );
-
-    return \%commit;
 }
 
 1;
