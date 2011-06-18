@@ -15,6 +15,9 @@ package Git::Garden::Importer::gitclass;
 use Git::Class::Cmd;
 use File::Spec;
 
+use lib '../../..';
+use Git::Garden::Commit;
+
 sub git { Git::Class::Cmd->new }
 
 sub prepare_commits {
@@ -22,8 +25,14 @@ sub prepare_commits {
 
     my ( $refs, $commits, $commit_count ) = get_git_meta_data( $dir );
 
-    for my $commit ( @{$commits} ) {
-        $commit->{labels}      = $refs->{ $commit->{uid} } || [];
+    for my $sort_index ( 0 .. $#{$commits} ) {
+        my $commit = $commits->[$sort_index];
+        $commits->[$sort_index] = Git::Garden::Commit->new(
+            uid        => $commit->{uid},
+            sort_index => $sort_index,
+            parents    => $commit->{parents},
+            labels     => $refs->{ $commit->{uid} } || [],
+        );
     }
 
     return $commits;

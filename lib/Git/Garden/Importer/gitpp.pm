@@ -16,16 +16,22 @@ use lib 'd:/git-pureperl/lib';
 use Git::PurePerl;
 use File::Spec;
 
+use lib '../../..';
+use Git::Garden::Commit;
 
 sub prepare_commits {
     my ( $self, $dir ) = @_;
 
     my ( $refs, $commits ) = get_git_meta_data( $dir );
 
-    for my $commit ( @{$commits} ) {
-        $commit->{uid}         = $commit->sha1;
-        $commit->{parents}     = $commit->{parent_sha1s};
-        $commit->{labels}      = $refs->{ $commit->sha1 } || [];
+    for my $sort_index ( 0 .. $#{$commits} ) {
+        my $commit = $commits->[$sort_index];
+        $commits->[$sort_index] = Git::Garden::Commit->new(
+            uid        => $commit->sha1,
+            sort_index => $sort_index,
+            parents    => $commit->{parent_sha1s},
+            labels     => $refs->{ $commit->sha1 } || [],
+        );
     }
 
     return $commits;
