@@ -19,7 +19,7 @@ sub _build_parent_count {
 sub sorted_parents {
     my ( $self, $commits_by_uid ) = @_;
 
-    my @parents = map $commits_by_uid->{$_}, @{ $self->parent_uids };
+    my @parents = grep $_, map $commits_by_uid->{$_}, @{ $self->parent_uids };
 
     return @parents if @parents < 2;
 
