@@ -21,10 +21,12 @@ sub plot_grid {
     for my $row ( @{$grid} ) {
         next if !$row;
         my $uid = $row->{commit}->{uid};
+        my $comment = $row->{commit}->{comment};
         push @rows, qq|
             <tr>
                 <td id="graph_$uid"></td>
                 <td>$uid</td>
+                <td class="shorten">$comment</td>
             </tr>
         |;
     }
@@ -42,9 +44,24 @@ sub plot_grid {
 <html>
 <head>
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="http://plugins.learningjquery.com/expander/jquery.expander.js"></script>
     <script type="text/javascript" src="http://github.com/DmitryBaranovskiy/raphael/raw/master/raphael.js"></script>
     <script type="text/javascript">
         <!--
+
+            \$(document).ready(
+                function() {
+                    \$('td.shorten').expander(
+                        {
+                            slicePoint: 100,
+                            widow: 2,
+                            expandEffect: 'show',
+                            userCollapseText: '[^]'
+                        }
+                    );
+                }
+            );
+
             $js
 
             var commit_rows = jQuery.makeArray( $json );
@@ -52,6 +69,7 @@ sub plot_grid {
             \$(document).ready(function() {
                 do_graphs();
             });
+
         -->
     </script>
 </head>
@@ -61,6 +79,7 @@ sub plot_grid {
         <tr>
             <th style="width:200px;">Graph</td>
             <th>Unique ID</th>
+            <th>Comment</th>
         </tr>
         $rows
     </table>

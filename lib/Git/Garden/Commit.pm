@@ -10,6 +10,7 @@ has sort_index   => ( is => 'ro', required => 1 );
 has parent_uids  => ( is => 'ro', required => 1 );
 has labels       => ( is => 'ro', required => 1 );
 has parent_count => ( is => 'ro', lazy     => 1, builder => '_build_parent_count' );
+has comment => ( is => 'ro' );
 
 sub _build_parent_count {
     my ( $self ) = @_;
