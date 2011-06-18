@@ -51,7 +51,7 @@ sub mark_expecting_column {
 
     my $expecting_column_index = find_column_index_for_expected_parent( $row, $prev_row, $parent );
     add_visual_to_column( $row, $expecting_column_index, 'merge_point' ) if $expecting_column_index != $row->{commit_column_index};
-    $row->{columns}[$expecting_column_index]{expected_sha} = $parent->{sha1};
+    $row->{columns}[$expecting_column_index]{expected_uid} = $parent->{uid};
 
     $row->{parents_to_match}--;
 
@@ -66,11 +66,11 @@ sub mark_expectations_and_branch_points {
 
     for my $prev_col ( @{$prev_columns} ) {
         next if !$prev_col;
-        next if !$prev_col->{expected_sha};
+        next if !$prev_col->{expected_uid};
 
-        if ( $prev_col->{expected_sha} ne $row->{commit}{sha1} ) {
+        if ( $prev_col->{expected_uid} ne $row->{commit}{uid} ) {
             add_visual_to_column( $row, $prev_col->{index}, "expects_commit" );
-            $row->{columns}[ $prev_col->{index} ]{expected_sha} = $prev_col->{expected_sha};
+            $row->{columns}[ $prev_col->{index} ]{expected_uid} = $prev_col->{expected_uid};
         }
         elsif ( $row->{commit_column_index} != $prev_col->{index} ) {
             add_visual_to_column( $row, $prev_col->{index}, "branch_point" );
@@ -108,7 +108,7 @@ sub find_column_index_for_expected_parent {
     my @expecting_cols = grep col_expects_this_parent( $_, $parent ), @{ $prev_row->{columns} };
     return $expecting_cols[0]{index} if @expecting_cols and $row->{parents_to_match} > 1 and $expecting_cols[0]{index} >= $commit_column_index and !$parents_with_higher_merge_depth;
 
-    return $commit_column_index if $columns->[$commit_column_index] and !$columns->[$commit_column_index]{expected_sha} and ( !@{ $parent->{refs} } or $row->{parents_to_match} == 1 );
+    return $commit_column_index if $columns->[$commit_column_index] and !$columns->[$commit_column_index]{expected_uid} and ( !@{ $parent->{labels} } or $row->{parents_to_match} == 1 );
 
     return $expecting_cols[0]{index} if @expecting_cols and $expecting_cols[0]{index} >= $commit_column_index;
 
@@ -118,11 +118,11 @@ sub find_column_index_for_expected_parent {
     for my $column_index ( 0 .. $max_look ) {
         my $column = $columns->[$column_index];
 
-        next if $prev_cols->[$column_index] and $prev_cols->[$column_index]{expected_sha} and $prev_cols->[$column_index]{expected_sha} ne $parent->{sha1};
+        next if $prev_cols->[$column_index] and $prev_cols->[$column_index]{expected_uid} and $prev_cols->[$column_index]{expected_uid} ne $parent->{uid};
         next if $column_index <= $commit_column_index;
 
         return $column_index if !$column;
-        return $column_index if !$column->{expected_sha};
+        return $column_index if !$column->{expected_uid};
     }
 
     return $max_look + 1;
@@ -133,8 +133,8 @@ sub find_expected_column_index_for_commit {
 
     for my $column ( @{ $prev_row->{columns} } ) {
         next if !$column;
-        next if !$column->{expected_sha};
-        next if $column->{expected_sha} ne $commit->{sha1};
+        next if !$column->{expected_uid};
+        next if $column->{expected_uid} ne $commit->{uid};
 
         return $column->{index};
     }
@@ -158,8 +158,8 @@ sub col_expects_this_parent {
     my ( $col, $parent ) = @_;
 
     return if !$col;
-    return if !$col->{expected_sha};
-    return if $col->{expected_sha} ne $parent->{sha1};
+    return if !$col->{expected_uid};
+    return if $col->{expected_uid} ne $parent->{uid};
 
     return 1;
 }

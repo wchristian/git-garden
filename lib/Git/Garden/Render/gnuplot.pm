@@ -105,8 +105,8 @@ sub plot_grid {
 
     for my $row ( @{$grid} ) {
         next if !$row;
-        $chart->add( $row->{commit}{mini_sha}, $max_col + 5, $row->{index} );
-        $chart->add( " ",                      $max_col + 8, $row->{index} );
+        $chart->add( $row->{commit}{uid}, $max_col + 5, $row->{index} );
+        $chart->add( " ",                 $max_col + 8, $row->{index} );
     }
 
     $chart->render;

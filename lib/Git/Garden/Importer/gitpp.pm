@@ -28,8 +28,9 @@ sub prepare_commits {
     for my $commit ( @{$commits} ) {
         my @parents = map $commits{$_}, @{ $commit->parent_sha1s };
         @parents = sort { $b->committed_time <=> $a->committed_time } @parents;
+        $commit->{uid}         = $commit->sha1;
         $commit->{parents}     = \@parents;
-        $commit->{refs}        = $refs->{ $commit->sha1 } || [];
+        $commit->{labels}      = $refs->{ $commit->sha1 } || [];
         $commit->{merge_depth} = -1;
     }
 

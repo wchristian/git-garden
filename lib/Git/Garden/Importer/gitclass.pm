@@ -23,12 +23,12 @@ sub prepare_commits {
 
     $commits->[$_]->{index} = $_ for 0 .. $#{$commits};
 
-    my %commits = map { $_->{sha1} => $_ } @{$commits};
+    my %commits = map { $_->{uid} => $_ } @{$commits};
     for my $commit ( @{$commits} ) {
         my @parents = map $commits{$_}, @{ $commit->{parents} };
         @parents = sort { $a->{index} <=> $b->{index} } @parents;
         $commit->{parents}     = \@parents;
-        $commit->{refs}        = $refs->{ $commit->{sha1} } || [];
+        $commit->{labels}      = $refs->{ $commit->{uid} } || [];
         $commit->{merge_depth} = -1;
     }
 
@@ -96,7 +96,7 @@ sub parse_commit {
     my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
 
     my %commit = (
-        sha1     => $sha,
+        uid      => $sha,
         mini_sha => $mini_sha,
         parents  => [ split " ", $parents ],
         msg      => $msg

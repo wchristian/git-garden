@@ -20,11 +20,11 @@ sub plot_grid {
     my @rows;
     for my $row ( @{$grid} ) {
         next if !$row;
-        my $sha1 = $row->{commit}->{sha1};
+        my $uid = $row->{commit}->{uid};
         push @rows, qq|
             <tr>
-                <td id="graph_$sha1"></td>
-                <td>$sha1</td>
+                <td id="graph_$uid"></td>
+                <td>$uid</td>
             </tr>
         |;
     }
@@ -32,7 +32,7 @@ sub plot_grid {
 
     delete $_->{commit}{parents} for @{$grid};
     $_->{commit} = { %{$_->{commit}} } for @{$grid};
-    my $json = to_json( $grid );
+    my $json = to_json( $grid, { allow_blessed => 1 } );
 
     my $js = graphlog_js();
 
@@ -60,7 +60,7 @@ sub plot_grid {
     <table style="border-collapse:collapse; border-spacing: 0px;">
         <tr>
             <th style="width:200px;">Graph</td>
-            <th>SHA</th>
+            <th>Unique ID</th>
         </tr>
         $rows
     </table>
@@ -86,7 +86,7 @@ function do_graphs() {
     });
 
     $(commit_rows).each(function () {
-        var r = render_canvas( 'graph_' + this.commit.sha1 );
+        var r = render_canvas( 'graph_' + this.commit.uid );
         if ( r ) this.canvas = r;
         return;
     });

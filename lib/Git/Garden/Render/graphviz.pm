@@ -19,10 +19,10 @@ sub plot_grid {
 
     my $g = GraphViz->new( edge => { dir => 'back' } );
 
-    $g->add_node( $_->{commit}{mini_sha} ) for @{$grid};
+    $g->add_node( $_->{commit}{uid} ) for @{$grid};
 
     for my $row ( @{$grid} ) {
-        $g->add_edge( $row->{commit}{mini_sha} => $_->{mini_sha} ) for @{ $row->{commit}{parents} };
+        $g->add_edge( $row->{commit}{uid} => $_->{uid} ) for @{ $row->{commit}{parents} };
     }
 
     return $g->as_png;
