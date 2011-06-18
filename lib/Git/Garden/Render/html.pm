@@ -32,7 +32,7 @@ sub plot_grid {
 
     delete $_->{commit}{parents} for @{$grid};
     $_->{commit} = { %{$_->{commit}} } for @{$grid};
-    my $json = to_json( $grid, { allow_blessed => 1 } );
+    my $json = to_json( $grid );
 
     my $js = graphlog_js();
 

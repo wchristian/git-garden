@@ -45,18 +45,18 @@ sub main {
     print( $usage->text ), exit if $opt->help;
 
     my $importer_class = "Git::Garden::Importer::" . $opt->import_type;
-    my $commits = $importer_class->prepare_commits( $opt->git_dir );
+    my $commits        = $importer_class->prepare_commits( $opt->git_dir );
 
     my $grid = create_git_graph_grid( $commits );
 
     my $render_class = "Git::Garden::Render::" . $opt->dump_type;
-    my $out = $render_class->plot_grid( $grid );
+    my $out          = $render_class->plot_grid( $grid );
 
     return if !$out;
 
     my $extension = "";
     $extension = ".html" if $opt->dump_type eq 'html';
-    $extension = ".png" if $opt->dump_type eq 'graphviz';
+    $extension = ".png"  if $opt->dump_type eq 'graphviz';
 
     write_file "simple$extension", { binmode => ':raw' }, $out;
 

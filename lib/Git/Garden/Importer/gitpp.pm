@@ -24,17 +24,20 @@ sub prepare_commits {
 
     my ( $refs, $commits ) = get_git_meta_data( $dir );
 
-    for my $sort_index ( 0 .. $#{$commits} ) {
-        my $commit = $commits->[$sort_index];
-        $commits->[$sort_index] = Git::Garden::Commit->new(
-            uid        => $commit->sha1,
-            sort_index => $sort_index,
-            parents    => $commit->{parent_sha1s},
-            labels     => $refs->{ $commit->sha1 } || [],
-        );
-    }
+    my @garden_commits = map convert_to_garden_commit( $commits->[$_], $_, $refs ), 0 .. $#{$commits};
 
-    return $commits;
+    return \@garden_commits;
+}
+
+sub convert_to_garden_commit {
+    my ( $commit, $sort_index, $refs ) = @_;
+
+    return Git::Garden::Commit->new(
+        uid         => $commit->sha1,
+        sort_index  => $sort_index,
+        parent_uids => $commit->parent_sha1s,
+        labels      => $refs->{ $commit->sha1 } || [],
+    );
 }
 
 sub get_git_meta_data {
