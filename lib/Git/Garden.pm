@@ -19,17 +19,17 @@ use List::Util 'max';
 sub create_git_graph_grid {
     my ( $commits ) = @_;
 
-    prepare_commits( $commits );
+    my %commits_by_uid = map { $_->uid => $_ } @{$commits};
 
     my @grid;
     for my $commit ( @{$commits} ) {
         my $prev_row = $grid[$#grid] || { columns => [] };
-        my $row = { index => $#grid + 1, commit => $commit, columns => [], parents_to_match => scalar( @{ $commit->{parents} } ) };
+        my $row = { index => $#grid + 1, commit => $commit, columns => [], parents_to_match => $commit->parent_count };
         push @grid, $row;
 
         mark_commit_column( $row, $prev_row, $commit );
 
-        mark_expecting_column( $row, $prev_row, $commit, $_ ) for @{ $commit->{parents} };
+        mark_expecting_column( $row, $prev_row, $commit, $_, \%commits_by_uid ) for $commit->sorted_parents( \%commits_by_uid );
 
         mark_expectations_and_branch_points( $prev_row, $row );
     }
@@ -37,63 +37,21 @@ sub create_git_graph_grid {
     return \@grid;
 }
 
-sub prepare_commits {
-    my ( $commits ) = @_;
-
-    $commits->[$_]{sort_index} = $_ for 0 .. $#{$commits};
-
-    my %commits = map { $_->{uid} => $_ } @{$commits};
-    for my $commit ( @{$commits} ) {
-        my @parents = map $commits{$_}, @{ $commit->{parents} };
-        @parents = sort { $a->{sort_index} <=> $b->{sort_index} } @parents;
-        $commit->{parents}     = \@parents;
-        $commit->{merge_depth} = -1;
-    }
-
-    my $commit_count = @{$commits};
-
-    for my $commit ( @{$commits} ) {
-        my @parents = @{ $commit->{parents} };
-        next if @parents < 2;
-
-        $_->{merge_depth} = find_merge_depth( $_, $commit_count ) for @parents;
-        @parents = sort { $a->{merge_depth} <=> $b->{merge_depth} } @parents;
-        $commit->{parents} = \@parents;
-    }
-
-    return;
-}
-
-sub find_merge_depth {
-    my ( $commit, $commit_count ) = @_;
-
-    my $depth = 0;
-
-    while ( $commit ) {
-        return $depth if @{ $commit->{parents} } > 1;
-
-        $depth++;
-        $commit = $commit->{parents}[0];
-    }
-
-    return $commit_count;
-}
-
 sub mark_commit_column {
     my ( $row, $prev_row, $commit ) = @_;
 
     $row->{commit_column_index} = find_commit_column_index( $prev_row, $row, $commit );
-
+    $commit->parent_count;
     add_visual_to_column( $row, $row->{commit_column_index}, 'commit' );
-    add_visual_to_column( $row, $row->{commit_column_index}, 'merge' ) if @{ $commit->{parents} } > 1;
+    add_visual_to_column( $row, $row->{commit_column_index}, 'merge' ) if $commit->parent_count > 1;
 
     return;
 }
 
 sub mark_expecting_column {
-    my ( $row, $prev_row, $commit, $parent ) = @_;
+    my ( $row, $prev_row, $commit, $parent, $commits_by_uid ) = @_;
 
-    my $expecting_column_index = find_column_index_for_expected_parent( $row, $prev_row, $parent );
+    my $expecting_column_index = find_column_index_for_expected_parent( $row, $prev_row, $parent, $commits_by_uid );
     add_visual_to_column( $row, $expecting_column_index, 'merge_point' ) if $expecting_column_index != $row->{commit_column_index};
     $row->{columns}[$expecting_column_index]{expected_uid} = $parent->{uid};
 
@@ -143,11 +101,11 @@ sub add_visual_to_column {
 }
 
 sub find_column_index_for_expected_parent {
-    my ( $row, $prev_row, $parent ) = @_;
+    my ( $row, $prev_row, $parent, $commits_by_uid ) = @_;
 
     my $columns                         = $row->{columns};
     my $commit_column_index             = $row->{commit_column_index};
-    my $parents_with_higher_merge_depth = grep { $_->{merge_depth} > $parent->{merge_depth} } @{ $row->{commit}{parents} };
+    my $parents_with_higher_merge_depth = parents_with_higher_merge_depth( $row, $parent, $commits_by_uid );
 
     my @expecting_cols = grep col_expects_this_parent( $_, $parent ), @{ $prev_row->{columns} };
     return $expecting_cols[0]{index} if @expecting_cols and $row->{parents_to_match} > 1 and $expecting_cols[0]{index} >= $commit_column_index and !$parents_with_higher_merge_depth;
@@ -170,6 +128,17 @@ sub find_column_index_for_expected_parent {
     }
 
     return $max_look + 1;
+}
+
+sub parents_with_higher_merge_depth {
+    my ( $row, $parent, $commits_by_uid ) = @_;
+
+    $DB::single = 1 if $parent->sort_index == 18;
+
+    my @parents = $row->{commit}->sorted_parents( $commits_by_uid );
+    @parents = grep { $_->merge_depth( $commits_by_uid ) > $parent->merge_depth( $commits_by_uid ) } @parents;
+
+    return scalar @parents;
 }
 
 sub find_expected_column_index_for_commit {
