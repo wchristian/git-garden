@@ -19,6 +19,8 @@ use List::Util 'max';
 sub create_git_graph_grid {
     my ( $commits ) = @_;
 
+    prepare_commits( $commits );
+
     my @grid;
     for my $commit ( @{$commits} ) {
         my $prev_row = $grid[$#grid] || { columns => [] };
@@ -33,6 +35,48 @@ sub create_git_graph_grid {
     }
 
     return \@grid;
+}
+
+sub prepare_commits {
+    my ( $commits ) = @_;
+
+    $commits->[$_]{sort_index} = $_ for 0 .. $#{$commits};
+
+    my %commits = map { $_->{uid} => $_ } @{$commits};
+    for my $commit ( @{$commits} ) {
+        my @parents = map $commits{$_}, @{ $commit->{parents} };
+        @parents = sort { $a->{sort_index} <=> $b->{sort_index} } @parents;
+        $commit->{parents}     = \@parents;
+        $commit->{merge_depth} = -1;
+    }
+
+    my $commit_count = @{$commits};
+
+    for my $commit ( @{$commits} ) {
+        my @parents = @{ $commit->{parents} };
+        next if @parents < 2;
+
+        $_->{merge_depth} = find_merge_depth( $_, $commit_count ) for @parents;
+        @parents = sort { $a->{merge_depth} <=> $b->{merge_depth} } @parents;
+        $commit->{parents} = \@parents;
+    }
+
+    return;
+}
+
+sub find_merge_depth {
+    my ( $commit, $commit_count ) = @_;
+
+    my $depth = 0;
+
+    while ( $commit ) {
+        return $depth if @{ $commit->{parents} } > 1;
+
+        $depth++;
+        $commit = $commit->{parents}[0];
+    }
+
+    return $commit_count;
 }
 
 sub mark_commit_column {

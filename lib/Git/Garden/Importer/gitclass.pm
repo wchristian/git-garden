@@ -21,24 +21,8 @@ sub prepare_commits {
 
     my ( $refs, $commits, $commit_count ) = get_git_meta_data( $dir );
 
-    $commits->[$_]->{index} = $_ for 0 .. $#{$commits};
-
-    my %commits = map { $_->{uid} => $_ } @{$commits};
     for my $commit ( @{$commits} ) {
-        my @parents = map $commits{$_}, @{ $commit->{parents} };
-        @parents = sort { $a->{index} <=> $b->{index} } @parents;
-        $commit->{parents}     = \@parents;
         $commit->{labels}      = $refs->{ $commit->{uid} } || [];
-        $commit->{merge_depth} = -1;
-    }
-
-    for my $commit ( @{$commits} ) {
-        my @parents = @{ $commit->{parents} };
-        next if @parents < 2;
-
-        $_->{merge_depth} = find_merge_depth( $_, $commit_count ) for @parents;
-        @parents = sort { $a->{merge_depth} <=> $b->{merge_depth} } @parents;
-        $commit->{parents} = \@parents;
     }
 
     return $commits;
@@ -57,7 +41,7 @@ sub get_git_meta_data {
 
     delete $ENV{GIT_DIR};
 
-    return ( $refs, \@commits, scalar @commits );
+    return ( $refs, \@commits );
 }
 
 sub get_real_git_dir {
@@ -103,21 +87,6 @@ sub parse_commit {
     );
 
     return \%commit;
-}
-
-sub find_merge_depth {
-    my ( $commit, $commit_count ) = @_;
-
-    my $depth = 0;
-
-    while ( $commit ) {
-        return $depth if @{ $commit->{parents} } > 1;
-
-        $depth++;
-        $commit = $commit->{parents}[0];
-    }
-
-    return $commit_count;
 }
 
 1;
