@@ -157,22 +157,22 @@ function render_commit_row ( commit_row, commit_rows, max_column, colors, min_si
 
         var cell = get_graph_cell( canvas, column.index, max_column, colors, min_size_limit );
 
-        if ( column.visuals.commit         ) {
+        if ( column.visuals.commit ) {
             draw_commit( canvas, cell );
 
             var next_row = commit_rows[ commit_row.index + 1 ];
             if ( next_row ) {
                 var next_column = next_row.columns[column.index];
-                if ( next_column ) {
-                    if ( next_column.visuals.commit || next_column.visuals.expects_commit || next_column.visuals.branch_point ) draw_down_connect( canvas, cell );
+                if ( next_column && ( next_column.visuals.commit || next_column.visuals.expects_commit || next_column.visuals.branch_point ) ) {
+                    draw_down_connect( canvas, cell );
                 }
             }
 
             if ( commit_row.index > 0 ) {
                 var prev_row = commit_rows[ commit_row.index - 1 ];
                 var prev_column = prev_row.columns[column.index];
-                if ( prev_column ) {
-                    if ( prev_column.visuals.commit || prev_column.visuals.expects_commit || prev_column.visuals.merge_point ) draw_up_connect( canvas, cell );
+                if ( prev_column && ( prev_column.visuals.commit || prev_column.visuals.expects_commit || prev_column.visuals.merge_point ) ) {
+                    draw_up_connect( canvas, cell );
                 }
             }
         }
