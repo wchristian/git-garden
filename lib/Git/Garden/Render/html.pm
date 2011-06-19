@@ -121,7 +121,7 @@ function do_graphs() {
         var canvas = commit_row.canvas;
         var commit_column_index = commit_row.commit_column_index;
 
-        $(commit_row.columns).each(function () {
+        $($(commit_row.columns).get().reverse()).each(function () {
             var column = this;
             if ( !column ) return;
             if ( !column.visuals ) return;
