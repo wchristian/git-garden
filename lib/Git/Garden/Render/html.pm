@@ -67,10 +67,10 @@ sub plot_grid {
 
             $js
 
-            var commit_rows = jQuery.makeArray( $json );
+            function get_commit_rows() { return jQuery.makeArray( $json ); }
 
             \$(document).ready(function() {
-                do_graphs();
+                do_graphs( get_commit_rows() );
             });
 
         -->
@@ -94,17 +94,10 @@ sub plot_grid {
 
 sub graphlog_js {
 q@
-var colors = Array();
-var max_column = 0;
-var min_size_limit = 9999;
+function do_graphs( commit_rows ) {
 
-function do_graphs() {
-    fill_colors();
-    $(commit_rows).each(function () {
-        if ( !this.columns ) return;
-        if ( this.columns.length > max_column ) max_column = this.columns.length;
-        return;
-    });
+    var colors = fill_colors();
+    var max_column = get_max_column( commit_rows );
 
     $(commit_rows).each(function () {
         this.canvas = render_canvas( 'graph_' + this.commit.uid );
@@ -126,7 +119,7 @@ function do_graphs() {
             if ( !column ) return;
             if ( !column.visuals ) return;
 
-            var cell = get_graph_cell( canvas, column.index );
+            var cell = get_graph_cell( canvas, column.index, max_column, colors, min_size_limit );
 
             if ( column.visuals.commit         ) {
                 draw_commit( canvas, cell );
@@ -163,9 +156,39 @@ function do_graphs() {
     return;
 }
 
+function get_max_column( commit_rows ) {
+
+    var max_column = 0;
+
+    $(commit_rows).each(function () {
+        if ( !this.columns ) return;
+        if ( this.columns.length > max_column ) max_column = this.columns.length;
+        return;
+    });
+
+    return max_column;
+}
+
+function get_min_size_limit ( commit_rows, max_column ) {
+
+    var min_size_limit = 9999;
+
+    $(commit_rows).each(function () {
+        var canvas = this.canvas;
+        if ( !canvas ) return;
+
+        if ( canvas.height                 < min_size_limit ) min_size_limit = canvas.height;
+        if ( canvas.width / max_column + 1 < min_size_limit ) min_size_limit = canvas.width / max_column + 1;
+
+        return;
+    });
+
+    return min_size_limit;
+}
+
 function draw_down_connect(r, cell) {
 
-    var start_height = r.height - ( min_size_limit / 2 * .3 );
+    var start_height = r.height - ( cell.min_size_limit / 2 * 0.3 );
 
     r.path( "M{0} {1}L{0} {2}", cell.offset, start_height, r.height ).attr( cell.color );
 
@@ -174,7 +197,7 @@ function draw_down_connect(r, cell) {
 
 function draw_up_connect(r, cell) {
 
-    var end_height = min_size_limit / 2 * .3;
+    var end_height = cell.min_size_limit / 2 * 0.3;
 
     r.path( "M{0} 0L{0} {1}", cell.offset, end_height ).attr( cell.color );
 
@@ -190,14 +213,14 @@ function draw_expects(r, cell) {
 
 function draw_commit(r, cell) {
 
-    r.circle( cell.offset, r.height / 2, min_size_limit / 2 * .7 ).attr( cell.color );
+    r.circle( cell.offset, r.height / 2, cell.min_size_limit / 2 * 0.7 ).attr( cell.color );
 
     return;
 }
 
 function draw_merge_point(r, cell) {
 
-    var center_offset = min_size_limit / 3;
+    var center_offset = cell.min_size_limit / 3;
     r.path(
         "M{0} {1}L{2} {3}L{4} {5}L{6} {7}", //
         cell.offset + -1 * cell.width / 2, r.height / 2, //
@@ -211,7 +234,7 @@ function draw_merge_point(r, cell) {
 
 function draw_branch_point(r, cell) {
 
-    var center_offset = min_size_limit / 3;
+    var center_offset = cell.min_size_limit / 3;
     r.path(
         "M{0} {1}L{2} {3}L{4} {5}L{6} {7}", //
         cell.offset,                       0, //
@@ -228,14 +251,14 @@ function draw_branch_merge_line(r, cell, line_length) {
     var offset = cell.width / -2 + cell.offset;
     r.path(
         "M{0} {1}L{2} {3}", //
-        offset - cell.width * line_length - min_size_limit/2 * .3, r.height / 2, //
-        offset,                                                    r.height / 2
+        offset - cell.width * line_length - cell.min_size_limit / 2 * 0.3, r.height / 2, //
+        offset,                                                            r.height / 2
     ).attr( cell.color );
 
     return;
 }
 
-function get_graph_cell(r, column) {
+function get_graph_cell( r, column, max_column, colors, min_size_limit ) {
     var width = r.width / (max_column + 1);
     var offset = width * column;
     var size_limit = width;
@@ -245,18 +268,22 @@ function get_graph_cell(r, column) {
         width: width,
         offset: width / 2 + offset,
         column: column,
-        color: { stroke: colors[column % 8] }
+        color: { stroke: colors[column % 8] },
+        min_size_limit: min_size_limit
     };
 }
 
 function fill_colors() {
+    var colors = new Array();
+
     colors[0] = "#000000";
     var color_index = 7;
     while ( color_index-- ) {
         Raphael.getColor();
         colors[color_index + 1] = Raphael.getColor();
     }
-    return;
+
+    return colors;
 }
 
 function render_canvas(id) {
@@ -270,12 +297,7 @@ function render_canvas(id) {
     target.css('padding', '0');
     target.css('line-height', '0');
 
-    var r = Raphael(id, width, height);
-
-    if ( r.height < min_size_limit ) min_size_limit = r.height;
-    if ( r.width / max_column + 1 < min_size_limit ) min_size_limit = r.width / max_column + 1;
-
-    return r;
+    return Raphael(id, width, height);
 }
 @;
 }
