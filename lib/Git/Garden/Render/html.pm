@@ -175,36 +175,32 @@ function do_graphs() {
 
 function draw_down_connect(r, cell) {
 
-    var start_height = r.height - ( min_size_limit/2 * .3 );
+    var start_height = r.height - ( min_size_limit / 2 * .3 );
 
-    var path = r.path("M0 {0}L0 {1}", start_height, r.height).attr( cell.color );
-    transform_to_cell(path, cell);
+    r.path( "M{0} {1}L{0} {2}", cell.offset, start_height, r.height ).attr( cell.color );
 
     return;
 }
 
 function draw_up_connect(r, cell) {
 
-    var end_height = min_size_limit/2 * .3;
+    var end_height = min_size_limit / 2 * .3;
 
-    var path = r.path("M0 0L0 {0}", end_height).attr( cell.color );
-    transform_to_cell(path, cell);
+    r.path( "M{0} 0L{0} {1}", cell.offset, end_height ).attr( cell.color );
 
     return;
 }
 
 function draw_expects(r, cell) {
 
-    var path = r.path("M0 0L0 {0}", r.height).attr( cell.color );
-    transform_to_cell(path, cell);
+    r.path( "M{0} 0L{0} {1}", cell.offset, r.height ).attr( cell.color );
 
     return;
 }
 
 function draw_commit(r, cell) {
 
-    var circle = r.circle(0, r.height / 2, min_size_limit / 2 * .7).attr( cell.color );
-    transform_to_cell(circle, cell);
+    r.circle( cell.offset, r.height / 2, min_size_limit / 2 * .7 ).attr( cell.color );
 
     return;
 }
@@ -212,14 +208,13 @@ function draw_commit(r, cell) {
 function draw_merge_point(r, cell) {
 
     var center_offset = min_size_limit / 3;
-    var merge_point = r.path(
+    r.path(
         "M{0} {1}L{2} {3}L{4} {5}L{6} {7}", //
-        -1 * cell.width / 2,r.height / 2, //
-        -1 * center_offset, r.height / 2, //
-        0,                  r.height / 2 + center_offset, //
-        0,                  r.height //
+        cell.offset + -1 * cell.width / 2, r.height / 2, //
+        cell.offset + -1 * center_offset,  r.height / 2, //
+        cell.offset,                       r.height / 2 + center_offset, //
+        cell.offset,                       r.height //
     ).attr( cell.color );
-    transform_to_cell(merge_point, cell);
 
     return;
 }
@@ -227,36 +222,25 @@ function draw_merge_point(r, cell) {
 function draw_branch_point(r, cell) {
 
     var center_offset = min_size_limit / 3;
-    var branch_point = r.path(
+    r.path(
         "M{0} {1}L{2} {3}L{4} {5}L{6} {7}", //
-        0,                  0, //
-        0,                  r.height / 2 - center_offset, //
-        -1 * center_offset, r.height / 2, //
-        -1 * cell.width / 2,r.height / 2 //
+        cell.offset,                       0, //
+        cell.offset,                       r.height / 2 - center_offset, //
+        cell.offset + -1 * center_offset,  r.height / 2, //
+        cell.offset + -1 * cell.width / 2, r.height / 2 //
     ).attr( cell.color );
-    transform_to_cell(branch_point, cell);
 
     return;
 }
 
 function draw_branch_merge_line(r, cell, line_length) {
 
-    var center_offset = min_size_limit / 3;
-    var branch_merge_line = r.path(
+    var offset = cell.width / -2 + cell.offset;
+    r.path(
         "M{0} {1}L{2} {3}", //
-        0 - cell.width * line_length - min_size_limit/2 * .3, r.height / 2, //
-        0,                                                    r.height / 2
+        offset - cell.width * line_length - min_size_limit/2 * .3, r.height / 2, //
+        offset,                                                    r.height / 2
     ).attr( cell.color );
-    branch_merge_line.translate(cell.width / -2, 0);
-
-    transform_to_cell(branch_merge_line, cell);
-
-    return;
-}
-
-function transform_to_cell(vector_obj, cell) {
-    vector_obj.translate(cell.width / 2, 0);
-    vector_obj.translate(cell.offset, 0);
 
     return;
 }
@@ -269,9 +253,8 @@ function get_graph_cell(r, column) {
     return {
         size_limit: size_limit,
         width: width,
-        offset: offset,
+        offset: width / 2 + offset,
         column: column,
-        col_offset: width / 2 + offset,
         color: { stroke: colors[column % 8] }
     };
 }
