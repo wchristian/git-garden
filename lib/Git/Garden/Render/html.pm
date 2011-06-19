@@ -126,14 +126,16 @@ function do_graphs() {
             if ( !column ) return;
             if ( !column.visuals ) return;
 
+            var cell = get_graph_cell( canvas, column.index );
+
             if ( column.visuals.commit         ) {
-                draw_commit( canvas, column.index );
+                draw_commit( canvas, cell );
 
                 var next_row = commit_rows[ commit_row.index + 1 ];
                 if ( next_row ) {
                     var next_column = next_row.columns[column.index];
                     if ( next_column ) {
-                        if ( next_column.visuals.commit || next_column.visuals.expects_commit || next_column.visuals.branch_point ) draw_down_connect( canvas, column.index );
+                        if ( next_column.visuals.commit || next_column.visuals.expects_commit || next_column.visuals.branch_point ) draw_down_connect( canvas, cell );
                     }
                 }
 
@@ -141,16 +143,16 @@ function do_graphs() {
                     var prev_row = commit_rows[ commit_row.index - 1 ];
                     var prev_column = prev_row.columns[column.index];
                     if ( prev_column ) {
-                        if ( prev_column.visuals.commit || prev_column.visuals.expects_commit || prev_column.visuals.merge_point ) draw_up_connect( canvas, column.index );
+                        if ( prev_column.visuals.commit || prev_column.visuals.expects_commit || prev_column.visuals.merge_point ) draw_up_connect( canvas, cell );
                     }
                 }
             }
-            if ( column.visuals.expects_commit ) draw_expects(      canvas, column.index);
-            if ( column.visuals.merge_point    ) draw_merge_point(  canvas, column.index);
-            if ( column.visuals.branch_point   ) draw_branch_point( canvas, column.index);
+            if ( column.visuals.expects_commit )      draw_expects( canvas, cell );
+            if ( column.visuals.merge_point    )  draw_merge_point( canvas, cell );
+            if ( column.visuals.branch_point   ) draw_branch_point( canvas, cell );
 
-            if ( column.visuals.merge_point    ) draw_branch_merge_line( canvas, column.index, column.index - commit_column_index - 1 );
-            if ( column.visuals.branch_point   ) draw_branch_merge_line( canvas, column.index, column.index - commit_column_index - 1 );
+            if ( column.visuals.merge_point    ) draw_branch_merge_line( canvas, cell, column.index - commit_column_index - 1 );
+            if ( column.visuals.branch_point   ) draw_branch_merge_line( canvas, cell, column.index - commit_column_index - 1 );
 
             return;
         });
@@ -171,8 +173,7 @@ function do_graphs() {
     }
 }
 
-function draw_down_connect(r, column) {
-    var cell = get_graph_cell(r, column);
+function draw_down_connect(r, cell) {
 
     var start_height = r.height - ( min_size_limit/2 * .3 );
 
@@ -182,8 +183,7 @@ function draw_down_connect(r, column) {
     return;
 }
 
-function draw_up_connect(r, column) {
-    var cell = get_graph_cell(r, column);
+function draw_up_connect(r, cell) {
 
     var end_height = min_size_limit/2 * .3;
 
@@ -193,8 +193,7 @@ function draw_up_connect(r, column) {
     return;
 }
 
-function draw_expects(r, column) {
-    var cell = get_graph_cell(r, column);
+function draw_expects(r, cell) {
 
     var path = r.path("M0 0L0 {0}", r.height);
     transform_to_cell(path, cell);
@@ -202,8 +201,7 @@ function draw_expects(r, column) {
     return;
 }
 
-function draw_commit(r, column) {
-    var cell = get_graph_cell(r, column);
+function draw_commit(r, cell) {
 
     var circle = r.circle(0, r.height / 2, min_size_limit / 2 * .7);
     transform_to_cell(circle, cell);
@@ -211,8 +209,7 @@ function draw_commit(r, column) {
     return;
 }
 
-function draw_merge_point(r, column) {
-    var cell = get_graph_cell(r, column);
+function draw_merge_point(r, cell) {
 
     var center_offset = min_size_limit / 3;
     var merge_point = r.path(
@@ -227,8 +224,7 @@ function draw_merge_point(r, column) {
     return;
 }
 
-function draw_branch_point(r, column) {
-    var cell = get_graph_cell(r, column);
+function draw_branch_point(r, cell) {
 
     var center_offset = min_size_limit / 3;
     var branch_point = r.path(
@@ -243,8 +239,7 @@ function draw_branch_point(r, column) {
     return;
 }
 
-function draw_branch_merge_line(r, column, line_length) {
-    var cell = get_graph_cell(r, column);
+function draw_branch_merge_line(r, cell, line_length) {
 
     var center_offset = min_size_limit / 3;
     var branch_merge_line = r.path(
