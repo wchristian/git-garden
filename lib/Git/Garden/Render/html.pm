@@ -100,7 +100,6 @@ var min_size_limit = 9999;
 
 function do_graphs() {
     fill_colors();
-    var graphs = Array();
     $(commit_rows).each(function () {
         if ( !this.columns ) return;
         if ( this.columns.length > max_column ) max_column = this.columns.length;
@@ -108,17 +107,18 @@ function do_graphs() {
     });
 
     $(commit_rows).each(function () {
-        var r = render_canvas( 'graph_' + this.commit.uid );
-        if ( r ) this.canvas = r;
+        this.canvas = render_canvas( 'graph_' + this.commit.uid );
         return;
     });
+
+    var min_size_limit = get_min_size_limit( commit_rows, max_column );
 
     $(commit_rows).each(function () {
         var commit_row = this;
 
-        if ( !commit_row.canvas ) return;
-
         var canvas = commit_row.canvas;
+        if ( !canvas ) return;
+
         var commit_column_index = commit_row.commit_column_index;
 
         $($(commit_row.columns).get().reverse()).each(function () {
@@ -160,17 +160,7 @@ function do_graphs() {
         return;
     });
 
-    var graph_index = graphs.length;
-    while (graph_index--) {
-        var graph = graphs[graph_index];
-        var color_index = max_column + 1;
-        while (color_index--) {
-            draw_expects(graph, color_index);
-            draw_commit(graph, color_index);
-            draw_merge_point(graph, color_index);
-            draw_branch_point(graph, color_index);
-        }
-    }
+    return;
 }
 
 function draw_down_connect(r, cell) {
@@ -262,7 +252,7 @@ function get_graph_cell(r, column) {
 function fill_colors() {
     colors[0] = "#000000";
     var color_index = 7;
-    while (color_index--) {
+    while ( color_index-- ) {
         Raphael.getColor();
         colors[color_index + 1] = Raphael.getColor();
     }
