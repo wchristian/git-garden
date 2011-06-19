@@ -107,50 +107,7 @@ function do_graphs( commit_rows ) {
     var min_size_limit = get_min_size_limit( commit_rows, max_column );
 
     $(commit_rows).each(function () {
-        var commit_row = this;
-
-        var canvas = commit_row.canvas;
-        if ( !canvas ) return;
-
-        var commit_column_index = commit_row.commit_column_index;
-
-        $($(commit_row.columns).get().reverse()).each(function () {
-            var column = this;
-            if ( !column ) return;
-            if ( !column.visuals ) return;
-
-            var cell = get_graph_cell( canvas, column.index, max_column, colors, min_size_limit );
-
-            if ( column.visuals.commit         ) {
-                draw_commit( canvas, cell );
-
-                var next_row = commit_rows[ commit_row.index + 1 ];
-                if ( next_row ) {
-                    var next_column = next_row.columns[column.index];
-                    if ( next_column ) {
-                        if ( next_column.visuals.commit || next_column.visuals.expects_commit || next_column.visuals.branch_point ) draw_down_connect( canvas, cell );
-                    }
-                }
-
-                if ( commit_row.index > 0 ) {
-                    var prev_row = commit_rows[ commit_row.index - 1 ];
-                    var prev_column = prev_row.columns[column.index];
-                    if ( prev_column ) {
-                        if ( prev_column.visuals.commit || prev_column.visuals.expects_commit || prev_column.visuals.merge_point ) draw_up_connect( canvas, cell );
-                    }
-                }
-            }
-            if ( column.visuals.expects_commit )      draw_expects( canvas, cell );
-            if ( column.visuals.merge_point    )  draw_merge_point( canvas, cell );
-            if ( column.visuals.branch_point   ) draw_branch_point( canvas, cell );
-
-            if ( column.visuals.merge_point    ) draw_branch_merge_line( canvas, cell, column.index - commit_column_index - 1 );
-            if ( column.visuals.branch_point   ) draw_branch_merge_line( canvas, cell, column.index - commit_column_index - 1 );
-
-            return;
-        });
-
-        return;
+        render_commit_row ( this, commit_rows, max_column, colors, min_size_limit );
     });
 
     return;
@@ -184,6 +141,52 @@ function get_min_size_limit ( commit_rows, max_column ) {
     });
 
     return min_size_limit;
+}
+
+function render_commit_row ( commit_row, commit_rows, max_column, colors, min_size_limit ) {
+
+    var canvas = commit_row.canvas;
+    if ( !canvas ) return;
+
+    var commit_column_index = commit_row.commit_column_index;
+
+    $($(commit_row.columns).get().reverse()).each(function () {
+        var column = this;
+        if ( !column ) return;
+        if ( !column.visuals ) return;
+
+        var cell = get_graph_cell( canvas, column.index, max_column, colors, min_size_limit );
+
+        if ( column.visuals.commit         ) {
+            draw_commit( canvas, cell );
+
+            var next_row = commit_rows[ commit_row.index + 1 ];
+            if ( next_row ) {
+                var next_column = next_row.columns[column.index];
+                if ( next_column ) {
+                    if ( next_column.visuals.commit || next_column.visuals.expects_commit || next_column.visuals.branch_point ) draw_down_connect( canvas, cell );
+                }
+            }
+
+            if ( commit_row.index > 0 ) {
+                var prev_row = commit_rows[ commit_row.index - 1 ];
+                var prev_column = prev_row.columns[column.index];
+                if ( prev_column ) {
+                    if ( prev_column.visuals.commit || prev_column.visuals.expects_commit || prev_column.visuals.merge_point ) draw_up_connect( canvas, cell );
+                }
+            }
+        }
+        if ( column.visuals.expects_commit )      draw_expects( canvas, cell );
+        if ( column.visuals.merge_point    )  draw_merge_point( canvas, cell );
+        if ( column.visuals.branch_point   ) draw_branch_point( canvas, cell );
+
+        if ( column.visuals.merge_point    ) draw_branch_merge_line( canvas, cell, column.index - commit_column_index - 1 );
+        if ( column.visuals.branch_point   ) draw_branch_merge_line( canvas, cell, column.index - commit_column_index - 1 );
+
+        return;
+    });
+
+    return;
 }
 
 function draw_down_connect(r, cell) {
