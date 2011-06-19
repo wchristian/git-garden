@@ -20,13 +20,16 @@ sub plot_grid {
     my @rows;
     for my $row ( @{$grid} ) {
         next if !$row;
-        my $uid = $row->{commit}->{uid};
-        my $comment = $row->{commit}->{comment};
+        my $commit = $row->{commit};
+        my $uid = $commit->{uid};
+        my $comment = $commit->{comment};
+        my $labels = join '', map "<b>[$_]</b>", @{$commit->{labels}};
+        $labels .= " " if $labels;
         push @rows, qq|
             <tr>
                 <td id="graph_$uid"></td>
                 <td>$uid</td>
-                <td class="shorten">$comment</td>
+                <td class="shorten">$labels$comment</td>
             </tr>
         |;
     }

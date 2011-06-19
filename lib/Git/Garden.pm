@@ -133,8 +133,6 @@ sub find_column_index_for_expected_parent {
 sub parents_with_higher_merge_depth {
     my ( $row, $parent, $commits_by_uid ) = @_;
 
-    $DB::single = 1 if $parent->sort_index == 18;
-
     my @parents = $row->{commit}->sorted_parents( $commits_by_uid );
     @parents = grep { $_->merge_depth( $commits_by_uid ) > $parent->merge_depth( $commits_by_uid ) } @parents;
 

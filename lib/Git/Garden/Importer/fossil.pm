@@ -51,9 +51,12 @@ sub get_git_meta_data {
     my @parent_links = $db->query( "select * from plink" )->hashes;
     push @{ $commits{ $_->{cid} }{parents} }, $_->{pid} for @parent_links;
 
-    my $refs = {};
+    my @tags = $db->query( "select *, l.rid as head_id from tag t left join tagxref tx on t.tagid = tx.tagid left join leaf l ON l.rid = tx.rid order by rid" )->hashes;
 
-    return ( $refs, \@commits );
+    my %refs;
+    push @{ $refs{$_->{head_id}}}, $_->{value} for grep { $_->{tagname} eq 'branch' and $_->{head_id} } @tags;
+
+    return ( \%refs, \@commits );
 }
 
 1;
