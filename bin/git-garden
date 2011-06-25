@@ -59,7 +59,10 @@ sub main {
     $extension = ".html" if $opt->dump_type eq 'html';
     $extension = ".png"  if $opt->dump_type eq 'graphviz';
 
-    write_file "simple$extension", { binmode => ':raw' }, $out;
+    my $binmode = ":raw";
+    $binmode = ":utf8" if $opt->dump_type eq 'html';
+
+    write_file "simple$extension", { append => 1, binmode => $binmode }, $out;
 
     return;
 }
