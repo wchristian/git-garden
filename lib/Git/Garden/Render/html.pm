@@ -69,10 +69,10 @@ sub plot_grid {
 
             $js
 
-            function get_commit_rows() { return jQuery.makeArray( $json ); }
+            commit_rows = jQuery.makeArray( $json );
 
             \$(document).ready(function() {
-                do_graphs( get_commit_rows() );
+                do_graphs( commit_rows );
             });
 
         -->
