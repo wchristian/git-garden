@@ -59,9 +59,44 @@ sub get_git_meta_data {
     my @commits = grep { $_->kind eq 'commit' } @objects;
 
     my $refs = extract_ref_commits( $git );
-    @commits = sort { $b->committed_time <=> $a->committed_time } @commits;
+
+    @commits = sort_by_sha1( \@commits );
 
     return ( $refs, \@commits );
+}
+
+sub sort_by_sha1 {
+    my ( $commits ) = @_;
+
+    my @commits = sort { $b->committed_time->datetime cmp $a->committed_time->datetime } @{$commits};
+    my %commits_by_sha = map { $_->sha1 => $_ } @commits;
+
+    my @sorted_commits;
+    my $last_commit_count = 0;
+
+    while ( values %commits_by_sha ) {
+        for my $commit ( @commits ) {
+            my $sha1 = $commit->sha1;
+            next if !$commits_by_sha{$sha1};
+
+            my @child_commits = grep is_child_of( $sha1, $_ ), values %commits_by_sha;
+            next if @child_commits;
+
+            push @sorted_commits, $commit;
+            delete $commits_by_sha{$sha1};
+            last;
+        }
+        die "commit-sorting got stuck" if @sorted_commits eq $last_commit_count;
+        $last_commit_count = @sorted_commits;
+    }
+
+    return @sorted_commits;
+}
+
+sub is_child_of {
+    my ( $sha1, $commit ) = @_;
+    return 1 if grep { $sha1 eq $_ } @{ $commit->parent_sha1s };
+    return;
 }
 
 sub extract_ref_commits {
