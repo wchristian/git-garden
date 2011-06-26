@@ -59,10 +59,28 @@ sub get_git_meta_data {
     my @commits = grep { $_->kind eq 'commit' } @objects;
 
     my $refs = extract_ref_commits( $git );
+    @commits = trim_phantom_commits( $git, $refs, \@commits ) ;
 
     @commits = sort_by_sha1( \@commits );
 
     return ( $refs, \@commits );
+}
+
+sub trim_phantom_commits {
+    my ( $git, $refs, $commits ) = @_;
+
+    my @commits = @{$commits};
+
+    while( 1 ) {
+        my $last = @commits;
+
+        my %parents = map { $_ => 1 } map { @{ $_->parent_sha1s } } @commits;
+        @commits = grep { $parents{ $_->sha1 } or $refs->{ $_->sha1 } } @commits;
+
+        last if @commits == $last;
+    }
+
+    return @commits;
 }
 
 sub sort_by_sha1 {
