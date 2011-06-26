@@ -57,13 +57,21 @@ sub get_git_meta_data {
         push @objects, @{$object_block};
     }
     my @commits = grep { $_->kind eq 'commit' } @objects;
+
+    my $refs = extract_ref_commits( $git );
     @commits = sort { $b->committed_time <=> $a->committed_time } @commits;
+
+    return ( $refs, \@commits );
+}
+
+sub extract_ref_commits {
+    my ( $git ) = @_;
 
     my %ref_names = map { $_ => 1 } $git->ref_names;
     my %refs;
     push @{ $refs{ $git->ref_sha1( $_ ) } }, $_ for keys %ref_names;
 
-    return ( \%refs, \@commits );
+    return \%refs;
 }
 
 sub get_real_git_dir {
