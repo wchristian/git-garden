@@ -14,26 +14,30 @@ package Git::Garden::Render::html;
 
 use JSON 'to_json';
 
+sub html_row {
+    my ( $row )  = @_;
+
+    return if !$row;
+
+    my $commit = $row->{commit};
+    my $uid = $commit->{uid};
+    my $comment = $commit->{comment};
+    my $labels = join '', map "<b>[$_]</b>", sort @{$commit->{labels}};
+    $labels .= " " if $labels;
+
+    return qq|
+        <tr>
+            <td id="graph_$uid"></td>
+            <td>$uid</td>
+            <td class="shorten">$labels$comment</td>
+        </tr>
+    |;
+}
+
 sub plot_grid {
     my ( $self, $grid ) = @_;
 
-    my @rows;
-    for my $row ( @{$grid} ) {
-        next if !$row;
-        my $commit = $row->{commit};
-        my $uid = $commit->{uid};
-        my $comment = $commit->{comment};
-        my $labels = join '', map "<b>[$_]</b>", @{$commit->{labels}};
-        $labels .= " " if $labels;
-        push @rows, qq|
-            <tr>
-                <td id="graph_$uid"></td>
-                <td>$uid</td>
-                <td class="shorten">$labels$comment</td>
-            </tr>
-        |;
-    }
-    my $rows = join "\n", @rows;
+    my $rows = join "\n", map html_row( $_ ), @{$grid};
 
     my $json = to_json( $grid, { allow_blessed => 1, convert_blessed => 1 } );
 
