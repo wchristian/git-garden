@@ -35,6 +35,7 @@ sub convert_to_garden_commit {
     return Git::Garden::Commit->new(
         uid         => $commit->sha1,
         sort_index  => $sort_index,
+        comment     => $commit->comment,
         parent_uids => $commit->parent_sha1s,
         labels      => $refs->{ $commit->sha1 } || [],
     );

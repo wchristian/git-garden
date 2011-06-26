@@ -36,6 +36,7 @@ sub convert_to_garden_commit {
     return Git::Garden::Commit->new(
         uid         => $commit->{uid},
         sort_index  => $sort_index,
+        comment     => $commit->{comment},
         parent_uids => $commit->{parents},
         labels      => $refs->{ $commit->{uid} } || [],
     );
@@ -90,13 +91,13 @@ sub get_refs {
 sub parse_commit {
     my ( $line ) = @_;
 
-    my ( $sha, $mini_sha, $parents, $msg ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
+    my ( $sha, $mini_sha, $parents, $comment ) = ( $line =~ /^\{(.*?)\}\{(.*?)\}\{(.*?)\}(.*)/s );
 
     my %commit = (
         uid      => $sha,
         mini_sha => $mini_sha,
         parents  => [ split " ", $parents ],
-        msg      => $msg
+        comment  => $comment
     );
 
     return \%commit;
