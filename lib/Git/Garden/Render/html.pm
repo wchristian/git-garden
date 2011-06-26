@@ -61,7 +61,18 @@ sub plot_grid {
                             slicePoint: 100,
                             widow: 2,
                             expandEffect: 'show',
-                            userCollapseText: '[^]'
+                            userCollapseText: '[^]',
+                            expandText:       'more...',
+                            afterExpand: function( elem ) {
+                                var siblings = elem.siblings();
+                                var graph_container = siblings.first();
+                                var children = graph_container.children();
+                                //children.first().remove();
+                                return;
+                            },
+                            onCollapse: function( elem, byUser ) {
+                                return;
+                            }
                         }
                     );
                 }
