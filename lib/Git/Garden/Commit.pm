@@ -46,4 +46,9 @@ sub merge_depth {
     return scalar keys %{$commits_by_uid};
 }
 
+sub TO_JSON {
+    my ( $self ) = @_;
+    return { %{$self} };
+}
+
 1;
