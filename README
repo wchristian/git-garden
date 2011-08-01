@@ -36,17 +36,8 @@ CONTRIBUTING
     requests, send patches from git format-patch to the bug tracker, or host
     your own copy of Git::Garden somewhere and ask us to pull from it.
 
-SUPPORT
-    Please report any bugs or feature requests to
-    bug-cpan-mini-inject@rt.cpan.org, or through the web interface at
-    http://rt.cpan.org. I will be notified, and then you'll automatically be
-    notified of progress on your bug as I make changes.
-
-SEE ALSO
-    Gitalist
-
 AUTHOR
-    Christian Walde <mithaldu@yahoo.de>
+    Christian Walde <walde.christian@googlemail.com>
 
 LICENSE
     This is free software, licensed under:
